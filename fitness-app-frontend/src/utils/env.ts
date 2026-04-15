@@ -1,8 +1,52 @@
 // 环境配置
 const isTestEnvironment = import.meta.env.MODE === 'development' || import.meta.env.VITE_IS_TEST === 'true';
 
+// 生成过去30天的日期
+const generatePastDates = (days: number): string[] => {
+  const dates: string[] = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
+const pastDates = generatePastDates(30);
+
 // 模拟数据
 const mockData = {
+  // 模拟运动分类数据
+  categories: [
+    { id: 1, name: '胸部', icon: '💪' },
+    { id: 2, name: '背部', icon: '🏋️' },
+    { id: 3, name: '腿部', icon: '🦵' },
+    { id: 4, name: '肩部', icon: '💨' },
+    { id: 5, name: '手臂', icon: '⚡' },
+    { id: 6, name: '核心', icon: '🎯' },
+    { id: 7, name: '有氧', icon: '🏃' },
+    { id: 8, name: '拉伸', icon: '🧘' }
+  ],
+  
+  // 模拟运动动作数据
+  exercises: [
+    { id: 1, categoryId: 1, name: '俯卧撑', description: '基础胸部训练', defaultSets: 3, defaultReps: '12-15', defaultDuration: '' },
+    { id: 2, categoryId: 1, name: '平板哑铃飞鸟', description: '胸部肌肉线条训练', defaultSets: 3, defaultReps: '10-12', defaultDuration: '' },
+    { id: 3, categoryId: 2, name: '引体向上', description: '背部宽度训练', defaultSets: 3, defaultReps: '8-10', defaultDuration: '' },
+    { id: 4, categoryId: 2, name: '哑铃划船', description: '背部厚度训练', defaultSets: 3, defaultReps: '12-15', defaultDuration: '' },
+    { id: 5, categoryId: 3, name: '深蹲', description: '腿部力量训练', defaultSets: 4, defaultReps: '10-12', defaultDuration: '' },
+    { id: 6, categoryId: 3, name: '箭步蹲', description: '单腿力量训练', defaultSets: 3, defaultReps: '10-12', defaultDuration: '' },
+    { id: 7, categoryId: 3, name: '臀桥', description: '臀部训练', defaultSets: 3, defaultReps: '15-20', defaultDuration: '' },
+    { id: 8, categoryId: 4, name: '哑铃推举', description: '肩部力量训练', defaultSets: 3, defaultReps: '10-12', defaultDuration: '' },
+    { id: 9, categoryId: 4, name: '侧平举', description: '肩部中束训练', defaultSets: 3, defaultReps: '12-15', defaultDuration: '' },
+    { id: 10, categoryId: 5, name: '二头弯举', description: '肱二头肌训练', defaultSets: 3, defaultReps: '12-15', defaultDuration: '' },
+    { id: 11, categoryId: 5, name: '三头下压', description: '肱三头肌训练', defaultSets: 3, defaultReps: '12-15', defaultDuration: '' },
+    { id: 12, categoryId: 6, name: '卷腹', description: '上腹部训练', defaultSets: 3, defaultReps: '15-20', defaultDuration: '' },
+    { id: 13, categoryId: 6, name: '平板支撑', description: '核心力量训练', defaultSets: 3, defaultReps: '', defaultDuration: '30-45秒' },
+    { id: 14, categoryId: 7, name: '开合跳', description: '全身有氧训练', defaultSets: 4, defaultReps: '30', defaultDuration: '' },
+    { id: 15, categoryId: 7, name: '登山者', description: '核心有氧训练', defaultSets: 3, defaultReps: '40', defaultDuration: '' },
+    { id: 16, categoryId: 8, name: '全身拉伸', description: '运动后拉伸', defaultSets: 1, defaultReps: '', defaultDuration: '10分钟' }
+  ],
+  
   // 模拟模板数据
   templates: [
     {
@@ -110,7 +154,7 @@ const mockData = {
     {
       id: 2,
       templateDayId: 1,
-      exerciseId: 16,
+      exerciseId: 12,
       exerciseName: '卷腹',
       sets: 3,
       reps: '15-20',
@@ -121,7 +165,7 @@ const mockData = {
     {
       id: 3,
       templateDayId: 1,
-      exerciseId: 17,
+      exerciseId: 13,
       exerciseName: '平板支撑',
       sets: 3,
       reps: '',
@@ -132,7 +176,7 @@ const mockData = {
     {
       id: 4,
       templateDayId: 1,
-      exerciseId: 7,
+      exerciseId: 5,
       exerciseName: '深蹲',
       sets: 3,
       reps: '12-15',
@@ -143,8 +187,8 @@ const mockData = {
     {
       id: 5,
       templateDayId: 1,
-      exerciseId: 22,
-      exerciseName: '弓步蹲',
+      exerciseId: 6,
+      exerciseName: '箭步蹲',
       sets: 3,
       reps: '10-12',
       duration: '',
@@ -154,13 +198,35 @@ const mockData = {
     {
       id: 6,
       templateDayId: 1,
-      exerciseId: 23,
+      exerciseId: 7,
       exerciseName: '臀桥',
       sets: 3,
       reps: '15-20',
       duration: '',
       note: '',
       sortOrder: 6
+    },
+    {
+      id: 7,
+      templateDayId: 2,
+      exerciseId: 14,
+      exerciseName: '开合跳',
+      sets: 4,
+      reps: '30',
+      duration: '',
+      note: '',
+      sortOrder: 1
+    },
+    {
+      id: 8,
+      templateDayId: 2,
+      exerciseId: 15,
+      exerciseName: '登山者',
+      sets: 3,
+      reps: '40',
+      duration: '',
+      note: '',
+      sortOrder: 2
     }
   ],
   
@@ -200,7 +266,34 @@ const mockData = {
     }
   ],
   
-  // 模拟训练记录数据
+  // 模拟训练计划安排
+  workoutSchedules: [
+    {
+      id: 1,
+      planId: 1,
+      dayOfWeek: 1,
+      isRestDay: 0,
+      estimatedDuration: 45,
+      date: pastDates[0]
+    },
+    {
+      id: 2,
+      planId: 1,
+      dayOfWeek: 2,
+      isRestDay: 0,
+      estimatedDuration: 35,
+      date: pastDates[1]
+    }
+  ],
+  
+  // 模拟训练计划动作
+  scheduleExercises: [
+    { id: 1, scheduleId: 1, exerciseId: 1, exerciseName: '俯卧撑', sets: 3, reps: '10-15', duration: '', weight: 0, sortOrder: 1 },
+    { id: 2, scheduleId: 1, exerciseId: 12, exerciseName: '卷腹', sets: 3, reps: '15-20', duration: '', weight: 0, sortOrder: 2 },
+    { id: 3, scheduleId: 1, exerciseId: 13, exerciseName: '平板支撑', sets: 3, reps: '', duration: '30-45秒', weight: 0, sortOrder: 3 }
+  ],
+  
+  // 模拟完整的训练记录数据
   workoutRecords: [
     {
       id: 1,
@@ -210,11 +303,12 @@ const mockData = {
       scheduleExerciseId: 1,
       exerciseId: 1,
       exerciseName: '俯卧撑',
-      date: new Date().toISOString().split('T')[0],
+      date: pastDates[0],
       setsCompleted: '[3, 3, 3]',
       weight: 0,
       duration: 600,
-      notes: '感觉良好'
+      notes: '感觉良好',
+      completed: true
     },
     {
       id: 2,
@@ -222,13 +316,98 @@ const mockData = {
       planId: 1,
       scheduleId: 1,
       scheduleExerciseId: 2,
-      exerciseId: 16,
+      exerciseId: 12,
       exerciseName: '卷腹',
-      date: new Date().toISOString().split('T')[0],
+      date: pastDates[0],
       setsCompleted: '[3, 3, 3]',
       weight: 0,
       duration: 480,
-      notes: '腹部有灼烧感'
+      notes: '腹部有灼烧感',
+      completed: true
+    },
+    {
+      id: 3,
+      userId: 1,
+      planId: 1,
+      scheduleId: 1,
+      scheduleExerciseId: 3,
+      exerciseId: 13,
+      exerciseName: '平板支撑',
+      date: pastDates[0],
+      setsCompleted: '[3, 3, 3]',
+      weight: 0,
+      duration: 540,
+      notes: '坚持下来了',
+      completed: true
+    },
+    {
+      id: 4,
+      userId: 1,
+      planId: 1,
+      scheduleId: 2,
+      scheduleExerciseId: 4,
+      exerciseId: 14,
+      exerciseName: '开合跳',
+      date: pastDates[1],
+      setsCompleted: '[4, 4, 4, 4]',
+      weight: 0,
+      duration: 720,
+      notes: '心率提升很快',
+      completed: true
+    },
+    {
+      id: 5,
+      userId: 1,
+      planId: 2,
+      scheduleId: 3,
+      scheduleExerciseId: 5,
+      exerciseId: 5,
+      exerciseName: '深蹲',
+      date: pastDates[7],
+      setsCompleted: '[3, 3, 2]',
+      weight: 0,
+      duration: 660,
+      notes: '最后一组有点吃力',
+      completed: true
+    }
+  ],
+  
+  // 模拟完整的训练记录（按日期分组）
+  workoutSessions: [
+    {
+      id: 1,
+      planId: 1,
+      planName: '我的基础健身计划',
+      date: pastDates[0],
+      completed: true,
+      duration: 1620,
+      exercises: [
+        { id: 1, name: '俯卧撑', sets: 3, reps: '10-15', completed: true },
+        { id: 2, name: '卷腹', sets: 3, reps: '15-20', completed: true },
+        { id: 3, name: '平板支撑', sets: 3, reps: '30-45秒', completed: true }
+      ]
+    },
+    {
+      id: 2,
+      planId: 1,
+      planName: '我的基础健身计划',
+      date: pastDates[1],
+      completed: true,
+      duration: 720,
+      exercises: [
+        { id: 4, name: '开合跳', sets: 4, reps: '30', completed: true }
+      ]
+    },
+    {
+      id: 3,
+      planId: 2,
+      planName: '我的减脂计划',
+      date: pastDates[7],
+      completed: true,
+      duration: 660,
+      exercises: [
+        { id: 5, name: '深蹲', sets: 3, reps: '10-12', completed: true }
+      ]
     }
   ]
 };

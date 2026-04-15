@@ -16,7 +16,77 @@
       <div class="scanline"></div>
     </div>
     
-    <div class="content">
+    <div v-if="!showChat" class="goal-setting animate-in">
+      <div class="goal-card glow-card">
+        <h2 class="card-title">
+          <span class="title-icon">🎯</span>
+          设定您的健身目标
+        </h2>
+        
+        <div class="goal-options">
+          <div 
+            v-for="goal in goals" 
+            :key="goal.id"
+            :class="['goal-option', { selected: selectedGoal === goal.id }]"
+            @click="selectedGoal = goal.id"
+          >
+            <div class="goal-icon">{{ goal.icon }}</div>
+            <div class="goal-name">{{ goal.name }}</div>
+            <div class="goal-desc">{{ goal.desc }}</div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <div class="form-item">
+            <label class="form-label">训练难度</label>
+            <select v-model="difficulty" class="form-input">
+              <option value="beginner">初级</option>
+              <option value="intermediate">中级</option>
+              <option value="advanced">高级</option>
+            </select>
+          </div>
+          
+          <div class="form-item">
+            <label class="form-label">每周训练天数</label>
+            <div class="days-selector">
+              <div 
+                v-for="day in [1,2,3,4,5,6,7]" 
+                :key="day"
+                :class="['day-button', { selected: selectedDays.includes(day) }]"
+                @click="toggleDay(day)"
+              >
+                {{ day }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-item">
+            <label class="form-label">训练周期（周）</label>
+            <input v-model.number="duration" type="number" min="1" max="12" class="form-input" />
+          </div>
+          
+          <div class="form-item">
+            <label class="form-label">其他需求（可选）</label>
+            <textarea v-model="additionalNeeds" placeholder="例如：我想重点锻炼上半身，我有关节问题需要注意..." class="form-textarea"></textarea>
+          </div>
+        </div>
+        
+        <button @click="generatePlan" :disabled="loading" class="generate-button glow-button">
+          <span v-if="loading" class="loading-dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </span>
+          <template v-else>
+            <span class="btn-icon">✨</span>
+            <span>生成个性化计划</span>
+          </template>
+          <span class="btn-glow"></span>
+        </button>
+      </div>
+    </div>
+    
+    <div v-else class="content">
       <div class="chat-container animate-in glow-card">
         <div class="messages" ref="messagesContainer">
           <div v-for="(message, index) in messages" :key="index" :class="['message', message.role, 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
@@ -26,10 +96,31 @@
             </div>
             <div class="message-wrapper">
               <div class="message-content">
-                {{ message.content }}
+                <div v-if="message.isPlan" class="plan-preview">
+                  <div class="plan-header">
+                    <h3 class="plan-title">{{ message.planData?.name }}</h3>
+                    <div class="plan-meta">
+                      <span class="meta-item">🎯 {{ message.planData?.goal }}</span>
+                      <span class="meta-item">📊 {{ message.planData?.difficulty }}</span>
+                      <span class="meta-item">📅 {{ message.planData?.duration_weeks }}周</span>
+                    </div>
+                  </div>
+                  <div class="plan-days">
+                    <div v-for="(day, dayIndex) in message.planData?.days" :key="dayIndex" class="plan-day">
+                      <div class="day-title">第{{ day.day }}天 - {{ day.name }}</div>
+                      <div class="day-exercises">
+                        <div v-for="(exercise, exIndex) in day.exercises" :key="exIndex" class="exercise-item">
+                          <span class="exercise-name">{{ exercise.name }}</span>
+                          <span class="exercise-stats">{{ exercise.sets }}组 × {{ exercise.reps }}次</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else>{{ message.content }}</div>
               </div>
               <button 
-                v-if="message.role === 'assistant' && !message.saved" 
+                v-if="message.isPlan && !message.saved" 
                 @click="savePlan(message)" 
                 class="save-button glow-button"
               >
@@ -59,7 +150,7 @@
           <input 
             v-model="inputMessage" 
             type="text" 
-            placeholder="请输入您的健身需求..."
+            placeholder="继续与AI助手对话..."
             @keyup.enter="sendMessage"
             class="input"
           />
@@ -95,7 +186,11 @@
           </div>
           <div class="form-item">
             <label class="form-label">难度</label>
-            <input v-model="planForm.difficulty" type="text" placeholder="如：初级、中级、高级" class="form-input" />
+            <select v-model="planForm.difficulty" class="form-input">
+              <option value="beginner">初级</option>
+              <option value="intermediate">中级</option>
+              <option value="advanced">高级</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">持续周数</label>
@@ -120,7 +215,11 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted } from 'vue';
-import axios from 'axios';
+import { useRouter } from 'vue-router';
+import api from '../../utils/api';
+import { mockData } from '../../utils/env';
+
+const router = useRouter();
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -151,32 +250,78 @@ onMounted(() => {
   });
 });
 
+interface Goal {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   saved?: boolean;
+  isPlan?: boolean;
+  planData?: any;
 }
 
-const messages = ref<Message[]>([
-  {
-    role: 'assistant',
-    content: '您好！我是您的AI健身助手。请告诉我您的健身目标、当前身体状况和可用时间，我将为您生成个性化的健身计划。'
-  }
-]);
-const inputMessage = ref('');
+interface PlanDay {
+  day: number;
+  name: string;
+  exercises: Array<{
+    name: string;
+    sets: number;
+    reps: number;
+  }>;
+}
+
+const showChat = ref(false);
 const loading = ref(false);
+const selectedGoal = ref('');
+const difficulty = ref('beginner');
+const selectedDays = ref<number[]>([]);
+const duration = ref(4);
+const additionalNeeds = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const showSaveModal = ref(false);
 const currentMessage = ref<Message | null>(null);
+const generatedPlanData = ref<any>(null);
+
+const goals: Goal[] = [
+  { id: 'muscle', name: '增肌', desc: '增加肌肉量，打造理想体型', icon: '💪' },
+  { id: 'lose', name: '减脂', desc: '燃烧脂肪，塑造完美身材', icon: '🔥' },
+  { id: 'strength', name: '力量', desc: '提升力量水平，突破极限', icon: '🏋️' },
+  { id: 'endurance', name: '耐力', desc: '增强心肺功能，提升耐力', icon: '🏃' },
+  { id: 'flexibility', name: '柔韧', desc: '提高身体柔韧性和协调性', icon: '🧘' }
+];
 
 const planForm = ref({
   name: '',
   type: '',
   goal: '',
-  difficulty: '',
+  difficulty: 'beginner',
   duration_weeks: 4,
   start_date: new Date().toISOString().split('T')[0]
 });
+
+const messages = ref<Message[]>([
+  {
+    role: 'assistant',
+    content: '您好！我是您的AI健身助手。基于您的目标和需求，我已经为您生成了个性化的健身计划。您可以保存这个计划，或者继续与我对话进行调整。'
+  }
+]);
+
+const inputMessage = ref('');
+
+const toggleDay = (day: number) => {
+  const index = selectedDays.value.indexOf(day);
+  if (index > -1) {
+    selectedDays.value.splice(index, 1);
+  } else {
+    selectedDays.value.push(day);
+    selectedDays.value.sort((a, b) => a - b);
+  }
+};
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -190,6 +335,86 @@ watch(messages, () => {
   scrollToBottom();
 }, { deep: true });
 
+const generateMockPlan = (): { name: string; goal: string; difficulty: string; duration_weeks: number; days: PlanDay[] } => {
+  const goalNames: Record<string, string> = {
+    muscle: '增肌',
+    lose: '减脂',
+    strength: '力量',
+    endurance: '耐力',
+    flexibility: '柔韧'
+  };
+  
+  const difficultyNames: Record<string, string> = {
+    beginner: '初级',
+    intermediate: '中级',
+    advanced: '高级'
+  };
+  
+  const dayNames = ['胸部训练', '背部训练', '腿部训练', '肩部训练', '手臂训练', '核心训练', '全身训练'];
+  const exercises = mockData.exercises;
+  
+  const days: PlanDay[] = selectedDays.value.map((day, index) => ({
+    day: index + 1,
+    name: dayNames[index % dayNames.length],
+    exercises: exercises.slice(index * 3, index * 3 + 3).map(ex => ({
+      name: ex.name,
+      sets: difficulty.value === 'beginner' ? 3 : difficulty.value === 'intermediate' ? 4 : 5,
+      reps: difficulty.value === 'beginner' ? 12 : difficulty.value === 'intermediate' ? 10 : 8
+    }))
+  }));
+  
+  return {
+    name: `${goalNames[selectedGoal.value]}${difficultyNames[difficulty.value]}计划`,
+    goal: goalNames[selectedGoal.value],
+    difficulty: difficultyNames[difficulty.value],
+    duration_weeks: duration.value,
+    days
+  };
+};
+
+const generatePlan = async () => {
+  if (!selectedGoal.value) {
+    alert('请先选择您的健身目标！');
+    return;
+  }
+  if (selectedDays.value.length === 0) {
+    alert('请选择至少一天的训练日！');
+    return;
+  }
+  
+  loading.value = true;
+  
+  try {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const planData = generateMockPlan();
+    generatedPlanData.value = planData;
+    
+    planForm.value = {
+      name: planData.name,
+      type: '力量训练',
+      goal: planData.goal,
+      difficulty: difficulty.value,
+      duration_weeks: duration.value,
+      start_date: new Date().toISOString().split('T')[0]
+    };
+    
+    messages.value.push({
+      role: 'assistant',
+      content: '',
+      isPlan: true,
+      planData
+    });
+    
+    showChat.value = true;
+  } catch (error) {
+    console.error('生成计划失败:', error);
+    alert('生成计划失败，请稍后重试');
+  } finally {
+    loading.value = false;
+  }
+};
+
 const sendMessage = async () => {
   if (!inputMessage.value.trim()) return;
 
@@ -202,36 +427,27 @@ const sendMessage = async () => {
   loading.value = true;
 
   try {
-    const response = await axios.post('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
-      model: 'ep-20260415164055-kx78l',
-      messages: [
-        {
-          role: 'system',
-          content: '你是一个专业的健身教练，根据用户的需求生成个性化的健身计划。计划应该包括：目标、每周训练安排、每个训练日的具体内容（包括动作、组数、次数、重量建议）、饮食建议和注意事项。请使用中文回复。'
-        },
-        ...messages.value.map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }))
-      ],
-      temperature: 0.7
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer 19c64277-965e-476f-8539-a4946c3f0803'
-      }
-    });
-
-    const aiResponse = response.data.choices[0].message.content;
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const responses = [
+      '好的，我理解您的需求。根据您的反馈，我建议您可以调整训练强度，适当增加组数。',
+      '这个想法很好！我建议您在训练前增加5-10分钟的热身运动，可以有效预防受伤。',
+      '没问题！如果您有任何特定部位想要重点锻炼，请告诉我，我可以为您调整计划。',
+      '根据您的目标，我建议您配合适当的饮食，蛋白质摄入对于肌肉增长很重要。',
+      '很好的问题！您可以在每组之间休息60-90秒，这样可以保证训练质量。'
+    ];
+    
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
     messages.value.push({
       role: 'assistant',
-      content: aiResponse
+      content: randomResponse
     });
   } catch (error) {
-    console.error('API调用失败:', error);
+    console.error('发送消息失败:', error);
     messages.value.push({
       role: 'assistant',
-      content: '抱歉，生成计划失败，请稍后重试。'
+      content: '抱歉，发送失败，请稍后重试。'
     });
   } finally {
     loading.value = false;
@@ -247,34 +463,33 @@ const confirmSavePlan = async () => {
   if (!currentMessage.value) return;
 
   try {
-    const response = await axios.post('http://localhost:8080/api/templates/create-plan', {
-      ...planForm.value,
-      template_id: 1
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-      }
+    loading.value = true;
+    
+    const response = await api.plans.createCustom({
+      name: planForm.value.name,
+      type: planForm.value.type,
+      goal: planForm.value.goal,
+      difficulty: planForm.value.difficulty,
+      duration_weeks: planForm.value.duration_weeks,
+      start_date: planForm.value.start_date,
+      description: 'AI生成的个性化健身计划'
     });
 
-    if (response.data.success) {
+    if (response.success) {
       const index = messages.value.findIndex(msg => msg === currentMessage.value);
       if (index !== -1) {
         messages.value[index].saved = true;
       }
       showSaveModal.value = false;
-      planForm.value = {
-        name: '',
-        type: '',
-        goal: '',
-        difficulty: '',
-        duration_weeks: 4,
-        start_date: new Date().toISOString().split('T')[0]
-      };
+      
       messages.value.push({
         role: 'assistant',
         content: '计划保存成功！您可以在首页查看您的健身计划。'
       });
+      
+      setTimeout(() => {
+        router.push('/pages/home/index');
+      }, 1500);
     } else {
       messages.value.push({
         role: 'assistant',
@@ -287,6 +502,8 @@ const confirmSavePlan = async () => {
       role: 'assistant',
       content: '保存计划失败，请稍后重试。'
     });
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -503,6 +720,230 @@ const confirmSavePlan = async () => {
   animation: neon-pulse 3s ease-in-out infinite;
 }
 
+.goal-setting {
+  padding: 15.0px 10.0px;
+  position: relative;
+  z-index: 1;
+}
+
+.goal-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 15.0px;
+  padding: 20.0px 15.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.goal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.0px;
+  background: var(--gradient-neon);
+  border-top-left-radius: 15.0px;
+  border-top-right-radius: 15.0px;
+}
+
+.card-title {
+  font-size: 16.0px;
+  font-weight: bold;
+  margin-bottom: 20.0px;
+  display: flex;
+  align-items: center;
+  gap: 7.5px;
+  color: var(--text-primary);
+}
+
+.title-icon {
+  font-size: 18.0px;
+}
+
+.goal-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10.0px;
+  margin-bottom: 20.0px;
+}
+
+.goal-option {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: 10.0px;
+  padding: 15.0px 10.0px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.goal-option:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+  transform: translateY(-2.0px);
+}
+
+.goal-option.selected {
+  border-color: var(--neon-purple);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(0, 245, 255, 0.1));
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+.goal-icon {
+  font-size: 28.0px;
+  margin-bottom: 7.5px;
+}
+
+.goal-name {
+  font-size: 14.0px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 4.0px;
+}
+
+.goal-desc {
+  font-size: 10.0px;
+  color: var(--text-muted);
+}
+
+.form-section {
+  margin-top: 20.0px;
+}
+
+.form-item {
+  margin-bottom: 15.0px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12.0px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 7.5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10.0px;
+  border: 1px solid var(--border-color);
+  border-radius: 8.0px;
+  font-size: 12.0px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 10.0px;
+  border: 1px solid var(--border-color);
+  border-radius: 8.0px;
+  font-size: 12.0px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  min-height: 80.0px;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.days-selector {
+  display: flex;
+  gap: 7.5px;
+  flex-wrap: wrap;
+}
+
+.day-button {
+  width: 36.0px;
+  height: 36.0px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.0px;
+  font-weight: bold;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.day-button:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+}
+
+.day-button.selected {
+  background: var(--gradient-cyan);
+  border-color: var(--neon-cyan);
+  color: white;
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.4);
+}
+
+.generate-button {
+  width: 100%;
+  padding: 12.5px;
+  background: var(--gradient-neon);
+  color: white;
+  border: none;
+  border-radius: 10.0px;
+  font-size: 14.0px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7.5px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10.0px;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.generate-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 5.0px;
+}
+
+.dot {
+  width: 8.0px;
+  height: 8.0px;
+  border-radius: 50%;
+  background: white;
+  animation: dotPulse 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
 .content {
   padding: 15.0px 10.0px;
   padding-bottom: 80.0px;
@@ -639,6 +1080,80 @@ const confirmSavePlan = async () => {
   color: var(--text-primary);
   border-bottom-left-radius: 3.0px;
   border: 1px solid var(--border-color);
+}
+
+.plan-preview {
+  background: var(--bg-primary);
+  border-radius: 8.0px;
+  padding: 12.5px;
+  border: 1px solid var(--border-color);
+}
+
+.plan-header {
+  margin-bottom: 12.5px;
+  padding-bottom: 10.0px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plan-title {
+  font-size: 14.0px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 7.5px;
+}
+
+.plan-meta {
+  display: flex;
+  gap: 10.0px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  font-size: 10.0px;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 4.0px 8.0px;
+  border-radius: 4.0px;
+}
+
+.plan-days {
+  display: flex;
+  flex-direction: column;
+  gap: 10.0px;
+}
+
+.plan-day {
+  background: var(--bg-tertiary);
+  border-radius: 6.0px;
+  padding: 8.0px;
+}
+
+.day-title {
+  font-size: 11.0px;
+  font-weight: bold;
+  color: var(--neon-cyan);
+  margin-bottom: 6.0px;
+}
+
+.day-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 4.0px;
+}
+
+.exercise-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.0px;
+}
+
+.exercise-name {
+  color: var(--text-primary);
+}
+
+.exercise-stats {
+  color: var(--text-muted);
 }
 
 .loading {
@@ -814,10 +1329,6 @@ const confirmSavePlan = async () => {
   gap: 5.0px;
 }
 
-.title-icon {
-  font-size: 16.0px;
-}
-
 .modal-close {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
@@ -843,40 +1354,6 @@ const confirmSavePlan = async () => {
 
 .modal-body {
   padding: 15.0px;
-}
-
-.form-item {
-  margin-bottom: 12.5px;
-}
-
-.form-label {
-  display: block;
-  font-size: 12.0px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 6.0px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 10.0px;
-  border: 1px solid var(--border-color);
-  border-radius: 6.0px;
-  font-size: 12.0px;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
-}
-
-.form-input::placeholder {
-  color: var(--text-muted);
 }
 
 .modal-footer {
@@ -918,6 +1395,10 @@ const confirmSavePlan = async () => {
 @media (max-width: 768px) {
   .content {
     padding: 10.0px 7.5px;
+  }
+  
+  .goal-options {
+    grid-template-columns: 1fr;
   }
   
   .chat-container {

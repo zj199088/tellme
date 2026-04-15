@@ -35,6 +35,21 @@ const routes = [
     name: 'MusicPlayer',
     component: () => import('../pages/music/player.vue')
   },
+  {
+    path: '/pages/workout/track',
+    name: 'WorkoutTrack',
+    component: () => import('../pages/workout/track.vue')
+  },
+  {
+    path: '/pages/custom/create',
+    name: 'CustomPlanCreate',
+    component: () => import('../pages/custom/create.vue')
+  },
+  {
+    path: '/pages/records/index',
+    name: 'RecordsIndex',
+    component: () => import('../pages/records/index.vue')
+  },
   // 管理端路由
   {
     path: '/pages/admin/auth',

@@ -57,6 +57,14 @@
                   <p class="progress-percent">{{ Math.round(getPlanProgress(plan)) }}%</p>
                 </div>
               </div>
+              <button 
+                v-if="plan.status === 'active'" 
+                class="continue-btn glow-button" 
+                @click="continueWorkout(plan)"
+              >
+                <span>继续锻炼</span>
+                <span class="btn-glow"></span>
+              </button>
             </div>
           </div>
         </div>
@@ -449,6 +457,13 @@ const navigateToCreatePlan = () => {
 
 const navigateToMoreRecords = () => {
   router.push('/pages/records/index');
+};
+
+const continueWorkout = (plan: TrainingPlan) => {
+  router.push({
+    path: '/pages/workout/track',
+    query: { planId: plan.id }
+  });
 };
 
 onMounted(() => {
@@ -973,6 +988,32 @@ onMounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.continue-btn {
+  width: 100%;
+  margin-top: 12.5px;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
+  color: white;
+  border: none;
+  border-radius: 8.0px;
+  padding: 10.0px 20.0px;
+  font-size: 12.0px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+}
+
+.continue-btn:hover {
+  transform: translateY(-2.0px) scale(1.02);
+  box-shadow: 0 0 25px rgba(0, 245, 255, 0.5), 0 0 50px rgba(0, 245, 255, 0.3);
+}
+
+.continue-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .no-plans {

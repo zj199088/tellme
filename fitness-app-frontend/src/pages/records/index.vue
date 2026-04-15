@@ -1,18 +1,28 @@
 <template>
   <div class="records-container">
     <div class="particle-bg" id="particleBg"></div>
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-    <div class="glow-orb orb-3"></div>
+    <div class="glow-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
     
     <div class="header">
-      <div class="scan-line"></div>
-      <h1 class="title neon-glow">锻炼记录</h1>
+      <div class="header-content">
+        <div class="back-btn" @click="goBack">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </div>
+        <div class="header-icon">📊</div>
+        <h1 class="title neon-glow">训练记录</h1>
+      </div>
       <div class="header-bg"></div>
+      <div class="scanline"></div>
     </div>
     
     <div class="content">
-      <div class="filter-section glass-card animate-in">
+      <div class="filter-section glow-card animate-in">
         <div class="filter-grid">
           <div class="filter-item">
             <label class="filter-label">计划</label>
@@ -27,20 +37,12 @@
             <label class="filter-label">日期</label>
             <input type="date" v-model="filters.date" class="filter-input" @change="fetchRecords" />
           </div>
-          <div class="filter-item">
-            <label class="filter-label">状态</label>
-            <select v-model="filters.status" class="filter-select" @change="fetchRecords">
-              <option value="">全部状态</option>
-              <option value="completed">已完成</option>
-              <option value="pending">未完成</option>
-            </select>
-          </div>
         </div>
       </div>
 
-      <div class="records-section glass-card animate-in">
+      <div class="records-section glow-card animate-in">
         <h2 class="section-title">
-          <span class="title-icon">📊</span>
+          <span class="title-icon">📋</span>
           训练记录
         </h2>
         <div class="record-list" v-if="records.length > 0">
@@ -48,7 +50,7 @@
                :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-header">
               <div class="record-info">
-                <h3 class="record-plan">{{ getPlanName(record.planId) }}</h3>
+                <h3 class="record-plan">{{ record.planName }}</h3>
                 <p class="record-date">{{ formatDate(record.date) }}</p>
               </div>
               <div class="record-status" :class="record.completed ? 'completed' : 'pending'">
@@ -61,7 +63,7 @@
                 <div class="exercise-item" v-for="exercise in record.exercises" :key="exercise.id">
                   <div class="exercise-info">
                     <span class="exercise-name">{{ exercise.name }}</span>
-                    <span class="exercise-sets">{{ exercise.sets }}组 × {{ exercise.reps }}次</span>
+                    <span class="exercise-sets">{{ exercise.sets }}组 × {{ exercise.reps }}</span>
                   </div>
                   <div class="exercise-status" :class="exercise.completed ? 'completed' : ''">
                     {{ exercise.completed ? '✓' : '○' }}
@@ -72,11 +74,8 @@
             <div class="record-footer">
               <span class="record-duration">
                 <span class="duration-icon">⏱</span>
-                {{ record.duration || 0 }}分钟
+                {{ Math.round((record.duration || 0) / 60) }}分钟
               </span>
-              <button class="detail-button neon-button" @click="viewRecordDetail(record)">
-                详情
-              </button>
             </div>
           </div>
         </div>
@@ -90,19 +89,19 @@
         </div>
 
         <div class="pagination" v-if="totalPages > 1">
-          <button class="page-button neon-button" @click="changePage(1)" :disabled="currentPage === 1">
+          <button class="page-button glow-button" @click="changePage(1)" :disabled="currentPage === 1">
             首页
           </button>
-          <button class="page-button neon-button" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+          <button class="page-button glow-button" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
             上一页
           </button>
           <span class="page-info">
             第 {{ currentPage }} / {{ totalPages }} 页
           </span>
-          <button class="page-button neon-button" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+          <button class="page-button glow-button" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
             下一页
           </button>
-          <button class="page-button neon-button" @click="changePage(totalPages)" :disabled="currentPage === totalPages">
+          <button class="page-button glow-button" @click="changePage(totalPages)" :disabled="currentPage === totalPages">
             末页
           </button>
         </div>
@@ -113,33 +112,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
-import axios from 'axios';
+import { useRouter } from 'vue-router';
+import api, { WorkoutSession, FitnessPlan } from '../../utils/api';
 
-interface Exercise {
-  id: number;
-  name: string;
-  sets: number;
-  reps: number;
-  completed?: boolean;
-}
+const router = useRouter();
 
-interface TrainingRecord {
-  id: number;
-  planId: number;
-  date: string;
-  completed: boolean;
-  exercises: Exercise[];
-  duration?: number;
-  exercisesJson?: string;
-}
-
-interface Plan {
-  id: number;
-  name: string;
-}
-
-const records = ref<TrainingRecord[]>([]);
-const plans = ref<Plan[]>([]);
+const records = ref<WorkoutSession[]>([]);
+const plans = ref<FitnessPlan[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
 const totalPages = ref(1);
@@ -147,52 +126,37 @@ const pageSize = ref(10);
 
 const filters = ref({
   planId: '',
-  date: '',
-  status: ''
+  date: ''
 });
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
   if (!particleBg) return;
-
-  for (let i = 0; i < 30; i++) {
+  
+  for (let i = 0; i < 25; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
-    const size = Math.random() * 4 + 2;
+    const size = Math.random() * 25 + 8;
     particle.style.width = `${size}px`;
     particle.style.height = `${size}px`;
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.top = `${Math.random() * 100}%`;
     particle.style.animationDelay = `${Math.random() * 15}s`;
-    particle.style.animationDuration = `${Math.random() * 20 + 15}s`;
+    particle.style.animationDuration = `${Math.random() * 12 + 8}s`;
+    
+    const colors = ['var(--neon-cyan)', 'var(--neon-purple)', 'var(--neon-pink)', 'var(--neon-blue)'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.background = `radial-gradient(circle, ${color}60 0%, ${color}00 70%)`;
+    
     particleBg.appendChild(particle);
   }
 };
 
-const getToken = () => {
-  return localStorage.getItem('token');
-};
-
-const apiClient = axios.create({
-  baseURL: 'http://localhost:8080',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 const fetchPlans = async () => {
   try {
-    const response = await apiClient.get('/api/plan/list');
-    if (response.data.code === 200 && response.data.data) {
-      plans.value = response.data.data;
+    const response = await api.plans.getList();
+    if (response.code === 200 && response.data) {
+      plans.value = response.data;
     }
   } catch (error) {
     console.error('获取计划列表失败:', error);
@@ -205,20 +169,14 @@ const fetchRecords = async () => {
     const params = {
       page: currentPage.value,
       pageSize: pageSize.value,
-      planId: filters.value.planId,
-      date: filters.value.date,
-      status: filters.value.status
+      planId: filters.value.planId ? parseInt(filters.value.planId) : undefined,
+      date: filters.value.date || undefined
     };
 
-    const response = await apiClient.get('/api/workout/records', { params });
-    if (response.data.code === 200 && response.data.data) {
-      records.value = response.data.data.records.map((record: any) => {
-        if (record.exercisesJson) {
-          record.exercises = JSON.parse(record.exercisesJson);
-        }
-        return record;
-      });
-      totalPages.value = response.data.data.totalPages;
+    const response = await api.workout.getSessions(params);
+    if (response.code === 200 && response.data) {
+      records.value = response.data.records;
+      totalPages.value = response.data.totalPages;
     }
   } catch (error) {
     console.error('获取训练记录失败:', error);
@@ -234,18 +192,13 @@ const changePage = (page: number) => {
   }
 };
 
-const getPlanName = (planId: number): string => {
-  const plan = plans.value.find(p => p.id === planId);
-  return plan ? plan.name : '未知计划';
-};
-
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
-const viewRecordDetail = (record: TrainingRecord) => {
-  console.log('查看记录详情:', record);
+const goBack = () => {
+  router.push('/pages/home/index');
 };
 
 onMounted(() => {
@@ -261,11 +214,20 @@ onMounted(() => {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(15.0px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7.5px) rotate(2deg);
   }
 }
 
@@ -289,7 +251,7 @@ onMounted(() => {
   }
 }
 
-@keyframes scanLine {
+@keyframes scanlineMove {
   0% {
     transform: translateY(-100%);
   }
@@ -298,12 +260,24 @@ onMounted(() => {
   }
 }
 
-@keyframes float {
+@keyframes orbFloat {
   0%, 100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(15.0px, -15.0px) scale(1.1);
+  }
+  66% {
+    transform: translate(-10.0px, 10.0px) scale(0.9);
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
   }
   50% {
-    transform: translateY(-20px) rotate(5deg);
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-purple);
   }
 }
 
@@ -314,9 +288,10 @@ onMounted(() => {
 .records-container {
   width: 100%;
   min-height: 100vh;
-  background: var(--bg-primary);
+  background: var(--gradient-bg);
   position: relative;
   overflow: hidden;
+  color: var(--text-primary);
 }
 
 .particle-bg {
@@ -326,89 +301,116 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
 .particle {
   position: absolute;
   border-radius: 50%;
-  background: var(--neon-cyan);
-  box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
-  animation: float linear infinite;
-  opacity: 0.6;
+  animation: float 15s ease-in-out infinite;
 }
 
-.glow-orb {
+.glow-orbs {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.3;
-  pointer-events: none;
-  z-index: 1;
+  animation: orbFloat 20s ease-in-out infinite;
 }
 
 .orb-1 {
-  width: 400px;
-  height: 400px;
+  width: 200.0px;
+  height: 200.0px;
   background: var(--neon-cyan);
-  top: -100px;
-  left: -100px;
-  animation: float 8s ease-in-out infinite;
+  top: 10%;
+  left: -10%;
+  animation-delay: 0s;
 }
 
 .orb-2 {
-  width: 300px;
-  height: 300px;
+  width: 175.0px;
+  height: 175.0px;
   background: var(--neon-purple);
   top: 50%;
-  right: -50px;
-  animation: float 10s ease-in-out infinite reverse;
+  right: -10%;
+  animation-delay: -7s;
 }
 
 .orb-3 {
-  width: 350px;
-  height: 350px;
+  width: 150.0px;
+  height: 150.0px;
   background: var(--neon-pink);
-  bottom: -100px;
+  bottom: 10%;
   left: 30%;
-  animation: float 12s ease-in-out infinite;
+  animation-delay: -14s;
 }
 
 .header {
   position: relative;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  padding: 40px 20px;
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  padding: 25.0px 15.0px 20.0px;
   text-align: center;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom-left-radius: 20.0px;
+  border-bottom-right-radius: 20.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 245, 255, 0.15);
   overflow: hidden;
-  z-index: 10;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
 }
 
-.scan-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-  animation: scanLine 3s linear infinite;
-  z-index: 2;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: bold;
+.header-content {
   position: relative;
-  z-index: 5;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7.5px;
 }
 
-.neon-glow {
-  text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+.back-btn {
+  position: absolute;
+  left: 15.0px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36.0px;
+  height: 36.0px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(0, 245, 255, 0.1);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(0, 245, 255, 0.2);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+}
+
+.back-btn svg {
+  width: 20.0px;
+  height: 20.0px;
+  color: var(--neon-cyan);
+}
+
+.header-icon {
+  font-size: 22.0px;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -418,26 +420,107 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  animation: float 8s ease-in-out infinite;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent, var(--neon-cyan), transparent);
+  animation: scanlineMove 4s linear infinite;
+  opacity: 0.3;
+  z-index: 3;
+}
+
+.title {
+  font-size: 20.0px;
+  font-weight: bold;
+  position: relative;
+  z-index: 1;
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neon-glow {
+  animation: neon-pulse 3s ease-in-out infinite;
 }
 
 .content {
-  padding: 30px 20px;
-  padding-bottom: 120px;
+  padding: 15.0px 10.0px;
+  padding-bottom: 80.0px;
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
-.filter-section {
-  padding: 25px;
-  margin-bottom: 25px;
+.filter-section,
+.records-section {
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 15.0px;
+  padding: 20.0px;
+  margin-bottom: 15.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.filter-section::before,
+.records-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.0px;
+  background: var(--gradient-neon);
+  border-top-left-radius: 15.0px;
+  border-top-right-radius: 15.0px;
+}
+
+.filter-section::after,
+.records-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 15.0px;
+  padding: 1px;
+  background: var(--gradient-neon);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+.glow-card:hover {
+  transform: translateY(-3.0px) scale(1.01);
+  box-shadow: 0 8.0px 30.0px rgba(0, 245, 255, 0.25);
 }
 
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 15px;
 }
 
 .filter-item {
@@ -447,7 +530,7 @@ onMounted(() => {
 }
 
 .filter-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -458,10 +541,10 @@ onMounted(() => {
 .filter-input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
   font-size: 14px;
-  background: var(--glass-bg);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -471,47 +554,60 @@ onMounted(() => {
 .filter-input:focus {
   outline: none;
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1), 0 0 20px rgba(0, 245, 255, 0.2);
-}
-
-.records-section {
-  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
 }
 
 .section-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
+  margin-bottom: 20px;
   color: var(--text-primary);
-  margin-bottom: 25px;
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
 }
 
 .title-icon {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .record-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .record-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
-  animation: fadeInUp 0.6s ease forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.record-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-cyan);
   opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .record-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--neon-cyan);
-  box-shadow: 0 10px 40px rgba(0, 245, 255, 0.2), 0 0 30px rgba(0, 245, 255, 0.1);
+  background: rgba(0, 245, 255, 0.05);
+  border-color: rgba(0, 245, 255, 0.3);
+  transform: translateX(4px);
+}
+
+.record-card:hover::before {
+  opacity: 1;
 }
 
 .record-header {
@@ -520,7 +616,7 @@ onMounted(() => {
   align-items: flex-start;
   margin-bottom: 15px;
   padding-bottom: 15px;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
 }
 
 .record-info {
@@ -528,15 +624,15 @@ onMounted(() => {
 }
 
 .record-plan {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 5px 0;
 }
 
 .record-date {
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-size: 13px;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -545,27 +641,24 @@ onMounted(() => {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .record-status.completed {
-  background: linear-gradient(135deg, var(--neon-green), var(--neon-green));
-  color: var(--bg-primary);
-  box-shadow: 0 0 15px var(--neon-green);
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
 }
 
 .record-status.pending {
-  background: linear-gradient(135deg, var(--neon-orange), var(--neon-orange));
-  color: var(--bg-primary);
-  box-shadow: 0 0 15px var(--neon-orange);
-}
-
-.record-details {
-  margin-bottom: 15px;
+  background: rgba(255, 209, 102, 0.15);
+  color: var(--neon-orange);
+  border: 1px solid var(--neon-orange);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
 }
 
 .details-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 10px;
@@ -576,7 +669,7 @@ onMounted(() => {
 .exercise-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .exercise-item {
@@ -584,25 +677,31 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.exercise-item:hover {
+  background: rgba(0, 245, 255, 0.05);
+  transform: translateX(4px);
 }
 
 .exercise-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .exercise-name {
   font-size: 14px;
-  color: var(--text-primary);
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .exercise-sets {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .exercise-status {
@@ -614,11 +713,13 @@ onMounted(() => {
   border-radius: 50%;
   font-size: 14px;
   font-weight: bold;
+  border: 1px solid var(--border-color);
 }
 
 .exercise-status.completed {
   background: var(--neon-green);
   color: var(--bg-primary);
+  border-color: var(--neon-green);
   box-shadow: 0 0 10px var(--neon-green);
 }
 
@@ -627,7 +728,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding-top: 15px;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid rgba(0, 245, 255, 0.1);
 }
 
 .record-duration {
@@ -642,57 +743,8 @@ onMounted(() => {
   font-size: 16px;
 }
 
-.detail-button {
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--gradient-primary);
-}
-
-.neon-button {
-  background: var(--glass-bg);
-  color: var(--neon-cyan);
-  border: 1px solid var(--neon-cyan);
-  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.neon-button:hover:not(:disabled) {
-  background: var(--neon-cyan);
-  color: var(--bg-primary);
-  box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
-  transform: translateY(-2px);
-}
-
-.neon-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.loading {
+.loading,
+.no-records {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -704,53 +756,47 @@ onMounted(() => {
 .loading-spinner {
   width: 50px;
   height: 50px;
-  border: 3px solid var(--glass-border);
-  border-top-color: var(--neon-cyan);
+  border: 4px solid rgba(0, 245, 255, 0.1);
+  border-top: 4px solid var(--neon-cyan);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   box-shadow: 0 0 20px var(--neon-cyan);
 }
 
-.loading p {
+.loading p,
+.no-records p {
   color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.no-records {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  gap: 15px;
+  font-size: 16px;
 }
 
 .empty-icon {
-  font-size: 48px;
+  font-size: 60px;
   opacity: 0.5;
-}
-
-.no-records p {
-  color: var(--text-secondary);
-  font-size: 14px;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 10px;
+  margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid rgba(0, 245, 255, 0.1);
   flex-wrap: wrap;
 }
 
 .page-button {
-  padding: 10px 20px;
+  padding: 10px 18px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .page-info {
@@ -760,35 +806,30 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .header {
-    padding: 30px 15px;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
   .content {
-    padding: 20px 15px;
-    padding-bottom: 100px;
+    padding: 10.0px 7.5px;
+    padding-bottom: 80px;
   }
-
+  
+  .filter-section,
+  .records-section {
+    padding: 15.0px;
+  }
+  
   .filter-grid {
     grid-template-columns: 1fr;
   }
-
-  .filter-section,
-  .records-section {
-    padding: 20px;
+  
+  .title {
+    font-size: 17.0px;
   }
-
-  .pagination {
-    gap: 10px;
+  
+  .section-title {
+    font-size: 15px;
   }
-
-  .page-button {
-    padding: 8px 15px;
-    font-size: 12px;
+  
+  .record-plan {
+    font-size: 14px;
   }
 }
 </style>
