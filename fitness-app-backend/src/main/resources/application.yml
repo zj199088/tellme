@@ -40,3 +40,10 @@ server:
   port: 8080
   servlet:
     context-path: /api
+
+cos:
+  secret-id: your-secret-id
+  secret-key: your-secret-key
+  bucket-name: your-bucket-name
+  region: your-region
+  access-domain: your-access-domain

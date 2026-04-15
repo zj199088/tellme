@@ -1,14 +1,15 @@
 <template>
-  <view class="ai-container">
-    <view class="header">
-      <text class="title">AI健身助手</text>
-    </view>
-    <view class="chat-container">
-      <view class="messages" ref="messagesContainer">
-        <view v-for="(message, index) in messages" :key="index" :class="['message', message.role]">
-          <view class="message-content">
+  <div class="ai-container">
+    <div class="header">
+      <h1 class="title">AI健身助手</h1>
+      <div class="header-bg"></div>
+    </div>
+    <div class="chat-container">
+      <div class="messages" ref="messagesContainer">
+        <div v-for="(message, index) in messages" :key="index" :class="['message', message.role, 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
+          <div class="message-content">
             {{ message.content }}
-          </view>
+          </div>
           <button 
             v-if="message.role === 'assistant' && !message.saved" 
             @click="savePlan(message)" 
@@ -16,14 +17,19 @@
           >
             保存计划
           </button>
-        </view>
-        <view v-if="loading" class="message assistant">
-          <view class="message-content">
-            <text class="loading">生成中...</text>
-          </view>
-        </view>
-      </view>
-      <view class="input-area">
+        </div>
+        <div v-if="loading" class="message assistant animate-in">
+          <div class="message-content">
+            <div class="loading">
+              <span class="loading-dot"></span>
+              <span class="loading-dot"></span>
+              <span class="loading-dot"></span>
+              <span>生成中...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
         <input 
           v-model="inputMessage" 
           type="text" 
@@ -31,49 +37,51 @@
           @keyup.enter="sendMessage"
           class="input"
         />
-        <button @click="sendMessage" class="send-button">发送</button>
-      </view>
-    </view>
+        <button @click="sendMessage" class="send-button">
+          <span class="send-icon">→</span>
+        </button>
+      </div>
+    </div>
     <!-- 保存计划弹窗 -->
-    <view v-if="showSaveModal" class="modal-overlay">
-      <view class="modal-content">
-        <view class="modal-header">
-          <text class="modal-title">保存健身计划</text>
+    <div v-if="showSaveModal" class="modal-overlay">
+      <div class="modal-content animate-in">
+        <div class="modal-header">
+          <h2 class="modal-title">保存健身计划</h2>
           <button @click="showSaveModal = false" class="modal-close">×</button>
-        </view>
-        <view class="modal-body">
-          <view class="form-item">
-            <text class="form-label">计划名称</text>
+        </div>
+        <div class="modal-body">
+          <div class="form-item">
+            <label class="form-label">计划名称</label>
             <input v-model="planForm.name" type="text" placeholder="请输入计划名称" class="form-input" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">计划类型</text>
+          </div>
+          <div class="form-item">
+            <label class="form-label">计划类型</label>
             <input v-model="planForm.type" type="text" placeholder="如：力量训练、有氧运动等" class="form-input" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">目标</text>
+          </div>
+          <div class="form-item">
+            <label class="form-label">目标</label>
             <input v-model="planForm.goal" type="text" placeholder="如：增肌、减脂、塑形等" class="form-input" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">难度</text>
+          </div>
+          <div class="form-item">
+            <label class="form-label">难度</label>
             <input v-model="planForm.difficulty" type="text" placeholder="如：初级、中级、高级" class="form-input" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">持续周数</text>
+          </div>
+          <div class="form-item">
+            <label class="form-label">持续周数</label>
             <input v-model.number="planForm.duration_weeks" type="number" placeholder="请输入周数" class="form-input" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">开始日期</text>
+          </div>
+          <div class="form-item">
+            <label class="form-label">开始日期</label>
             <input v-model="planForm.start_date" type="date" class="form-input" />
-          </view>
-        </view>
-        <view class="modal-footer">
+          </div>
+        </div>
+        <div class="modal-footer">
           <button @click="showSaveModal = false" class="modal-button cancel">取消</button>
           <button @click="confirmSavePlan" class="modal-button confirm">保存</button>
-        </view>
-      </view>
-    </view>
-  </view>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -224,130 +232,290 @@ const confirmSavePlan = async () => {
 </script>
 
 <style scoped>
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10rpx) rotate(1deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5rpx);
+  }
+  60% {
+    transform: translateY(-3rpx);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* 主容器 */
 .ai-container {
   width: 100%;
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 120rpx;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 140rpx;
 }
 
+/* 头部设计 */
 .header {
-  background-color: #FF6B35;
+  position: relative;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
   color: white;
-  padding: 20rpx;
+  padding: 40rpx 20rpx;
   text-align: center;
+  border-bottom-left-radius: 30rpx;
+  border-bottom-right-radius: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(255, 107, 53, 0.3);
+  overflow: hidden;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  animation: float 6s ease-in-out infinite;
 }
 
 .title {
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: bold;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
+/* 聊天容器 */
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 200rpx);
-  padding: 20rpx;
+  height: calc(100vh - 220rpx);
+  padding: 30rpx 20rpx;
 }
 
+/* 消息区域 */
 .messages {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 20rpx;
-  padding: 20rpx;
-  background-color: white;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  margin-bottom: 25rpx;
+  padding: 25rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+  position: relative;
 }
 
+.messages::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: linear-gradient(90deg, #FF6B35, #FF8E53);
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+}
+
+/* 消息样式 */
 .message {
-  margin-bottom: 20rpx;
-  max-width: 80%;
+  margin-bottom: 25rpx;
+  max-width: 85%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .message.user {
   align-self: flex-end;
   margin-left: auto;
+  animation: bounce 0.6s ease;
 }
 
 .message.assistant {
   align-self: flex-start;
   margin-right: auto;
+  animation: bounce 0.6s ease;
 }
 
 .message-content {
-  padding: 15rpx 20rpx;
-  border-radius: 16rpx;
+  padding: 20rpx 25rpx;
+  border-radius: 20rpx;
   line-height: 1.5;
   font-size: 24rpx;
-  margin-bottom: 10rpx;
+  margin-bottom: 12rpx;
+  position: relative;
+  word-wrap: break-word;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .message.user .message-content {
-  background-color: #E3F2FD;
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
   color: #1976D2;
-  border-bottom-right-radius: 4rpx;
+  border-bottom-right-radius: 6rpx;
 }
 
 .message.assistant .message-content {
-  background-color: #F5F5F5;
+  background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
   color: #333;
-  border-bottom-left-radius: 4rpx;
+  border-bottom-left-radius: 6rpx;
 }
 
+/* 加载状态 */
 .loading {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
   color: #999;
   font-style: italic;
 }
 
+.loading-dot {
+  width: 8rpx;
+  height: 8rpx;
+  background: #FF6B35;
+  border-radius: 50%;
+  animation: dotPulse 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+/* 保存按钮 */
 .save-button {
   align-self: flex-start;
-  padding: 8rpx 16rpx;
-  background-color: #4CAF50;
+  padding: 10rpx 20rpx;
+  background: linear-gradient(135deg, #4CAF50, #45B7AA);
   color: white;
   border: none;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   font-size: 20rpx;
+  font-weight: 600;
   cursor: pointer;
   margin-top: 5rpx;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 8rpx rgba(76, 175, 80, 0.3);
 }
 
-.save-button:active {
-  opacity: 0.8;
+.save-button:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.4);
+  animation: pulse 0.6s ease-in-out;
 }
 
+/* 输入区域 */
 .input-area {
   display: flex;
-  gap: 10rpx;
-  padding: 10rpx;
-  background-color: white;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  gap: 15rpx;
+  padding: 15rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.input-area:focus-within {
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.12);
+  transform: translateY(-2rpx);
 }
 
 .input {
   flex: 1;
-  padding: 15rpx;
+  padding: 20rpx;
   border: 1rpx solid #E0E0E0;
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   font-size: 24rpx;
+  background: white;
+  transition: all 0.3s ease;
 }
 
+.input:focus {
+  outline: none;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3rpx rgba(255, 107, 53, 0.1);
+}
+
+/* 发送按钮 */
 .send-button {
-  padding: 0 30rpx;
-  background-color: #FF6B35;
+  width: 60rpx;
+  height: 60rpx;
+  background: linear-gradient(135deg, #FF6B35, #FF8E53);
   color: white;
   border: none;
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  border-radius: 50%;
+  font-size: 28rpx;
   font-weight: bold;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
 }
 
-.send-button:active {
-  opacity: 0.8;
+.send-button:hover {
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 6rpx 16rpx rgba(255, 107, 53, 0.4);
+  animation: pulse 0.6s ease-in-out;
+}
+
+.send-icon {
+  transition: transform 0.3s ease;
+}
+
+.send-button:hover .send-icon {
+  transform: translateX(3rpx);
 }
 
 /* 弹窗样式 */
@@ -357,33 +525,50 @@ const confirmSavePlan = async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5rpx);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeInUp 0.3s ease;
 }
 
 .modal-content {
-  background-color: white;
-  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24rpx;
   width: 90%;
   max-width: 500rpx;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.15);
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+}
+
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: linear-gradient(90deg, #FF6B35, #FF8E53);
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20rpx;
+  padding: 25rpx;
   border-bottom: 1rpx solid #E0E0E0;
 }
 
 .modal-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }
@@ -391,71 +576,126 @@ const confirmSavePlan = async () => {
 .modal-close {
   background: none;
   border: none;
-  font-size: 36rpx;
+  font-size: 40rpx;
   color: #999;
   cursor: pointer;
   padding: 0;
-  width: 40rpx;
-  height: 40rpx;
+  width: 45rpx;
+  height: 45rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+  transform: rotate(90deg);
 }
 
 .modal-body {
-  padding: 20rpx;
+  padding: 30rpx 25rpx;
 }
 
 .form-item {
-  margin-bottom: 20rpx;
+  margin-bottom: 25rpx;
 }
 
 .form-label {
   display: block;
   font-size: 24rpx;
-  font-weight: bold;
+  font-weight: 600;
   color: #333;
-  margin-bottom: 10rpx;
+  margin-bottom: 12rpx;
+  transition: color 0.3s ease;
 }
 
 .form-input {
   width: 100%;
-  padding: 15rpx;
+  padding: 20rpx;
   border: 1rpx solid #E0E0E0;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   font-size: 24rpx;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3rpx rgba(255, 107, 53, 0.1);
 }
 
 .modal-footer {
   display: flex;
   justify-content: space-between;
-  padding: 20rpx;
+  padding: 25rpx;
   border-top: 1rpx solid #E0E0E0;
-  gap: 10rpx;
+  gap: 15rpx;
 }
 
 .modal-button {
   flex: 1;
-  padding: 15rpx;
+  padding: 20rpx;
   border: none;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   font-size: 24rpx;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
 .modal-button.cancel {
-  background-color: #F5F5F5;
+  background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
   color: #333;
 }
 
 .modal-button.confirm {
-  background-color: #FF6B35;
+  background: linear-gradient(135deg, #FF6B35, #FF8E53);
   color: white;
 }
 
-.modal-button:active {
-  opacity: 0.8;
+.modal-button:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.15);
+  animation: pulse 0.6s ease-in-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .chat-container {
+    padding: 20rpx 15rpx;
+  }
+  
+  .messages {
+    padding: 20rpx;
+  }
+  
+  .message-content {
+    padding: 15rpx 20rpx;
+    font-size: 22rpx;
+  }
+  
+  .input {
+    padding: 15rpx;
+    font-size: 22rpx;
+  }
+  
+  .modal-body {
+    padding: 25rpx 20rpx;
+  }
+  
+  .form-input {
+    padding: 15rpx;
+    font-size: 22rpx;
+  }
+  
+  .title {
+    font-size: 32rpx;
+  }
 }
 </style>
