@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue';
-import axios from 'axios';
+import api, { Exercise as ApiExercise, FitnessPlan, WorkoutRecord } from '../../utils/api';
 
 interface Exercise {
   id: number;
@@ -125,29 +125,10 @@ interface TrainingRecord {
   planName?: string;
 }
 
-const plans = ref&lt;TrainingPlan[]&gt;([]);
-const activePlan = ref&lt;TrainingPlan | null&gt;(null);
-const todayRecord = ref&lt;TrainingRecord | null&gt;(null);
-const recentRecords = ref&lt;TrainingRecord[]&gt;([]);
-
-const getToken = () =&gt; {
-  return localStorage.getItem('token');
-};
-
-const apiClient = axios.create({
-  baseURL: 'http://localhost:8080',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-apiClient.interceptors.request.use((config) =&gt; {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+const plans = ref<TrainingPlan[]>([]);
+const activePlan = ref<TrainingPlan | null>(null);
+const todayRecord = ref<TrainingRecord | null>(null);
+const recentRecords = ref<TrainingRecord[]>([]);
 
 const initParticles = () =&gt; {
   const particleBg = document.getElementById('particleBg');
