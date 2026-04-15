@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '../../utils/api';
 
 const router = useRouter();
 const templates = ref<any[]>([]);
@@ -74,9 +75,12 @@ onMounted(() => {
 const fetchTemplates = async () => {
   try {
     loading.value = true;
-    const response = await fetch('/api/templates/list');
-    const data = await response.json();
-    templates.value = data.templates;
+    const response = await api.templates.getList();
+    if (response.code === 200 && response.data) {
+      templates.value = response.data;
+    } else {
+      error.value = '加载模板失败，请重试';
+    }
   } catch (err) {
     error.value = '加载模板失败，请重试';
     console.error(err);

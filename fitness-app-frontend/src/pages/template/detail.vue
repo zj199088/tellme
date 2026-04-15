@@ -29,16 +29,16 @@
           <text class="section-title">训练计划</text>
           <view v-for="day in templateDays" :key="day.id" class="day-card">
             <view class="day-header">
-              <text class="day-name">{{ getDayName(day.day_of_week) }}</text>
-              <text v-if="day.is_rest_day" class="rest-day-tag">休息日</text>
-              <text v-else class="duration">{{ day.estimated_duration }}分钟</text>
+              <text class="day-name">{{ getDayName(day.dayOfWeek) }}</text>
+              <text v-if="day.isRestDay" class="rest-day-tag">休息日</text>
+              <text v-else class="duration">{{ day.estimatedDuration }}分钟</text>
             </view>
-            <view v-if="day.is_rest_day" class="rest-note">
-              <text>{{ day.rest_note || '好好休息，让肌肉恢复' }}</text>
+            <view v-if="day.isRestDay" class="rest-note">
+              <text>{{ day.restNote || '好好休息，让肌肉恢复' }}</text>
             </view>
             <view v-else class="exercises">
               <view v-for="exercise in getExercisesByDayId(day.id)" :key="exercise.id" class="exercise-item">
-                <text class="exercise-name">{{ exercise.exercise_name }}</text>
+                <text class="exercise-name">{{ exercise.exerciseName }}</text>
                 <text class="exercise-detail">
                   {{ exercise.sets }}组
                   <text v-if="exercise.reps"> × {{ exercise.reps }}</text>
@@ -80,10 +80,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import api from '../../utils/api';
 
 const router = useRouter();
 const route = useRoute();
-const templateId = computed(() => route.query.id as string);
+const templateId = computed(() => parseInt(route.query.id as string) || 0);
 
 const template = ref<any>(null);
 const templateDays = ref<any[]>([]);
@@ -107,10 +108,13 @@ onMounted(() => {
 const fetchTemplateDetail = async () => {
   try {
     loading.value = true;
-    const response = await fetch(`/api/templates/detail/${templateId.value}`);
-    const data = await response.json();
-    template.value = data;
-    planForm.value.name = `我的${data.name}`;
+    const response = await api.templates.getDetail(templateId.value);
+    if (response.code === 200 && response.data) {
+      template.value = response.data;
+      planForm.value.name = `我的${response.data.name}`;
+    } else {
+      error.value = '加载模板详情失败，请重试';
+    }
   } catch (err) {
     error.value = '加载模板详情失败，请重试';
     console.error(err);
@@ -121,14 +125,15 @@ const fetchTemplateDetail = async () => {
 
 const fetchTemplateDays = async () => {
   try {
-    const response = await fetch(`/api/templates/${templateId.value}/days`);
-    const data = await response.json();
-    templateDays.value = data;
-    
-    // 为每个训练日获取训练动作
-    for (const day of templateDays.value) {
-      if (!day.is_rest_day) {
-        await fetchTemplateExercises(day.id);
+    const response = await api.templates.getDays(templateId.value);
+    if (response.code === 200 && response.data) {
+      templateDays.value = response.data;
+      
+      // 为每个训练日获取训练动作
+      for (const day of templateDays.value) {
+        if (!day.isRestDay) {
+          await fetchTemplateExercises(day.id);
+        }
       }
     }
   } catch (err) {
@@ -138,16 +143,17 @@ const fetchTemplateDays = async () => {
 
 const fetchTemplateExercises = async (templateDayId: number) => {
   try {
-    const response = await fetch(`/api/templates/days/${templateDayId}/exercises`);
-    const data = await response.json();
-    templateExercises.value = [...templateExercises.value, ...data];
+    const response = await api.templates.getExercises(templateDayId);
+    if (response.code === 200 && response.data) {
+      templateExercises.value = [...templateExercises.value, ...response.data];
+    }
   } catch (err) {
     console.error('加载训练动作失败', err);
   }
 };
 
 const getExercisesByDayId = (dayId: number) => {
-  return templateExercises.value.filter(exercise => exercise.template_day_id === dayId);
+  return templateExercises.value.filter(exercise => exercise.templateDayId === dayId);
 };
 
 const getDayName = (dayOfWeek: number) => {
@@ -172,24 +178,15 @@ const createPlan = async () => {
 
   try {
     isCreating.value = true;
-    const response = await fetch('/api/templates/create-plan', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        template_id: templateId.value,
-        name: planForm.value.name,
-        type: 'template',
-        goal: planForm.value.goal,
-        difficulty: template.value.difficulty,
-        duration_weeks: planForm.value.duration_weeks,
-        start_date: planForm.value.start_date
-      })
+    const response = await api.templates.createPlan({
+      templateId: templateId.value,
+      name: planForm.value.name,
+      goal: planForm.value.goal,
+      difficulty: template.value.difficulty,
+      durationWeeks: planForm.value.duration_weeks
     });
 
-    const data = await response.json();
-    if (data.success) {
+    if (response.code === 200) {
       alert('计划创建成功');
       // 跳转到首页或计划详情页
       router.push('/pages/home/index');
