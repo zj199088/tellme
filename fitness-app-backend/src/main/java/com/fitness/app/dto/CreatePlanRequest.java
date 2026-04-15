@@ -3,11 +3,8 @@ package com.fitness.app.dto;
 public class CreatePlanRequest {
     private Long template_id;
     private String name;
-    private String type;
-    private String goal;
-    private String difficulty;
+    private String description;
     private int duration_weeks;
-    private String start_date;
 
     public Long getTemplate_id() {
         return template_id;
@@ -25,28 +22,12 @@ public class CreatePlanRequest {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public String getDescription() {
+        return description;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getGoal() {
-        return goal;
-    }
-
-    public void setGoal(String goal) {
-        this.goal = goal;
-    }
-
-    public String getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(String difficulty) {
-        this.difficulty = difficulty;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getDuration_weeks() {
@@ -55,13 +36,5 @@ public class CreatePlanRequest {
 
     public void setDuration_weeks(int duration_weeks) {
         this.duration_weeks = duration_weeks;
-    }
-
-    public String getStart_date() {
-        return start_date;
-    }
-
-    public void setStart_date(String start_date) {
-        this.start_date = start_date;
     }
 }

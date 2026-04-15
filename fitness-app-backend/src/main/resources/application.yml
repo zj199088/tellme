@@ -47,3 +47,8 @@ cos:
   bucket-name: your-bucket-name
   region: your-region
   access-domain: your-access-domain
+
+ai:
+  service:
+    url: https://ark.cn-beijing.volces.com/api/v3
+    apiKey: your-ai-api-key

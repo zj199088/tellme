@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @TableName("workout_record")
@@ -13,20 +14,20 @@ public class WorkoutRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
     
-    private Long userId;
+    private Long user_id;
     
-    private Long planId;
+    private Long plan_id;
     
     private LocalDate date;
     
-    private Integer dayNumber;
+    private Integer day_number;
     
     private Boolean completed;
     
-    private String exercisesJson;
+    private String exercises_json;
     
-    private java.time.LocalDateTime createdAt;
+    private LocalDateTime created_at;
     
-    private java.time.LocalDateTime updatedAt;
+    private LocalDateTime updated_at;
 }
 

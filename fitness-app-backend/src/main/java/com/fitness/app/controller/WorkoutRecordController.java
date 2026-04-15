@@ -1,18 +1,15 @@
-
 package com.fitness.app.controller;
 
 import com.fitness.app.entity.WorkoutRecord;
 import com.fitness.app.service.WorkoutRecordService;
+import com.fitness.app.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/workout")
@@ -22,71 +19,66 @@ public class WorkoutRecordController {
     private WorkoutRecordService workoutRecordService;
 
     @GetMapping("/today")
-    public Map&lt;String, Object&gt; getTodayWorkout(
+    public Result<?> getTodayWorkout(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Long userId = Long.parseLong(userDetails.getUsername());
-        
-        if (date == null) {
-            date = LocalDate.now();
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+            
+            if (date == null) {
+                date = LocalDate.now();
+            }
+            
+            WorkoutRecord record = workoutRecordService.getTodayWorkout(userId, date);
+            return Result.success(record);
+        } catch (Exception e) {
+            return Result.error("获取今日训练失败: " + e.getMessage());
         }
-        
-        WorkoutRecord record = workoutRecordService.getTodayWorkout(userId, date);
-        
-        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();
-        response.put("success", true);
-        response.put("data", record);
-        return response;
     }
 
     @GetMapping("/recent")
-    public Map&lt;String, Object&gt; getRecentRecords(
+    public Result<?> getRecentRecords(
             @RequestParam(defaultValue = "10") int limit,
             Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Long userId = Long.parseLong(userDetails.getUsername());
-        
-        List&lt;WorkoutRecord&gt; records = workoutRecordService.getRecentRecords(userId, limit);
-        
-        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();
-        response.put("success", true);
-        response.put("data", records);
-        return response;
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+            
+            List<WorkoutRecord> records = workoutRecordService.getRecentRecords(userId, limit);
+            return Result.success(records);
+        } catch (Exception e) {
+            return Result.error("获取最近训练记录失败: " + e.getMessage());
+        }
     }
 
     @PostMapping("/record")
-    public Map&lt;String, Object&gt; createWorkoutRecord(
+    public Result<?> createWorkoutRecord(
             @RequestBody WorkoutRecord record,
             Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Long userId = Long.parseLong(userDetails.getUsername());
-        
-        record.setUserId(userId);
-        WorkoutRecord savedRecord = workoutRecordService.createWorkoutRecord(record);
-        
-        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();
-        response.put("success", true);
-        response.put("data", savedRecord);
-        return response;
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+            
+            record.setUser_id(userId);
+            WorkoutRecord savedRecord = workoutRecordService.createWorkoutRecord(record);
+            return Result.success(savedRecord);
+        } catch (Exception e) {
+            return Result.error("创建训练记录失败: " + e.getMessage());
+        }
     }
 
     @PutMapping("/record/{id}")
-    public Map&lt;String, Object&gt; updateWorkoutRecord(
+    public Result<?> updateWorkoutRecord(
             @PathVariable Long id,
             @RequestBody WorkoutRecord record,
             Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Long userId = Long.parseLong(userDetails.getUsername());
-        
-        record.setId(id);
-        record.setUserId(userId);
-        WorkoutRecord updatedRecord = workoutRecordService.updateWorkoutRecord(record);
-        
-        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();
-        response.put("success", true);
-        response.put("data", updatedRecord);
-        return response;
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+            
+            record.setId(id);
+            record.setUser_id(userId);
+            WorkoutRecord updatedRecord = workoutRecordService.updateWorkoutRecord(record);
+            return Result.success(updatedRecord);
+        } catch (Exception e) {
+            return Result.error("更新训练记录失败: " + e.getMessage());
+        }
     }
 }
-

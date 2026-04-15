@@ -6,22 +6,42 @@
       <div class="header-bg"></div>
     </div>
     <div class="content">
-      <!-- 当前计划卡片 -->
-      <div class="plan-card" v-if="activePlan" :class="['plan-card', 'animate-in']">
-        <h2 class="plan-title">当前计划</h2>
-        <h3 class="plan-name">{{ activePlan.name }}</h3>
-        <p class="plan-description">{{ activePlan.description }}</p>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: progressPercentage + '%' }"></div>
-            <div class="progress-glow" :style="{ left: progressPercentage + '%' }"></div>
+      <!-- 计划列表 -->
+      <div class="plans-section" :class="['plans-section', 'animate-in']">
+        <h2 class="section-title">我的计划</h2>
+        <div class="plan-list" v-if="plans.length > 0">
+          <div class="plan-card" v-for="(plan, index) in plans" :key="plan.id" :class="['plan-card', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
+            <div class="plan-header">
+              <h3 class="plan-name">{{ plan.name }}</h3>
+              <div class="plan-actions">
+                <button class="plan-action-btn pause" @click="togglePlanStatus(plan, 'pause')" v-if="plan.status === 'active'">
+                  暂停
+                </button>
+                <button class="plan-action-btn resume" @click="togglePlanStatus(plan, 'resume')" v-else-if="plan.status === 'paused'">
+                  继续
+                </button>
+                <button class="plan-action-btn stop" @click="togglePlanStatus(plan, 'stop')">
+                  停止
+                </button>
+              </div>
+            </div>
+            <p class="plan-description">{{ plan.description }}</p>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" :style="{ width: getPlanProgress(plan) + '%' }"></div>
+                <div class="progress-glow" :style="{ left: getPlanProgress(plan) + '%' }"></div>
+              </div>
+              <p class="progress-text">第 {{ plan.currentDay }} 天 / 共 {{ plan.totalDays }} 天</p>
+            </div>
+            <div class="plan-status" :class="plan.status">
+              {{ getStatusText(plan.status) }}
+            </div>
           </div>
-          <p class="progress-text">第 {{ activePlan.currentDay }} 天 / 共 {{ activePlan.totalDays }} 天</p>
         </div>
-      </div>
-      <div class="plan-card" v-else :class="['plan-card', 'animate-in']">
-        <h2 class="plan-title">当前计划</h2>
-        <p class="plan-description">暂无活跃计划</p>
+        <div class="no-plans" v-else>
+          <p class="no-plans-text">暂无计划</p>
+          <button class="create-plan-btn" @click="navigateToCreatePlan">创建计划</button>
+        </div>
       </div>
 
       <!-- 今日训练 -->
@@ -50,9 +70,12 @@
 
       <!-- 训练记录 -->
       <div class="records-section" :class="['records-section', 'animate-in']">
-        <h2 class="section-title">训练记录</h2>
+        <div class="section-header">
+          <h2 class="section-title">训练记录</h2>
+          <button class="more-btn" @click="navigateToMoreRecords">查看更多</button>
+        </div>
         <div class="record-list" v-if="recentRecords.length > 0">
-          <div class="record-item" v-for="(record, index) in recentRecords" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
+          <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-date">{{ formatDate(record.date) }}</div>
             <div class="record-info">
               <h3 class="record-plan">{{ record.planName }}</h3>
@@ -88,6 +111,7 @@ interface TrainingPlan {
   description: string;
   currentDay: number;
   totalDays: number;
+  status: string;
 }
 
 interface TrainingRecord {
@@ -98,8 +122,10 @@ interface TrainingRecord {
   completed: boolean;
   exercises: Exercise[];
   exercisesJson?: string;
+  planName?: string;
 }
 
+const plans = ref&lt;TrainingPlan[]&gt;([]);
 const activePlan = ref&lt;TrainingPlan | null&gt;(null);
 const todayRecord = ref&lt;TrainingRecord | null&gt;(null);
 const recentRecords = ref&lt;TrainingRecord[]&gt;([]);
@@ -146,20 +172,49 @@ const initParticles = () =&gt; {
   }
 };
 
-const progressPercentage = computed(() =&gt; {
-  if (!activePlan.value) return 0;
-  return (activePlan.value.currentDay / activePlan.value.totalDays) * 100;
-});
+const getPlanProgress = (plan: TrainingPlan): number =&gt; {
+  return (plan.currentDay / plan.totalDays) * 100;
+};
+
+const getStatusText = (status: string): string =&gt; {
+  switch (status) {
+    case 'active': return '进行中';
+    case 'paused': return '已暂停';
+    case 'completed': return '已完成';
+    case 'stopped': return '已停止';
+    default: return '未知';
+  }
+};
 
 const formatDate = (dateString: string): string =&gt; {
   const date = new Date(dateString);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
+const fetchPlans = async () =&gt; {
+  try {
+    const response = await apiClient.get('/api/plan/list');
+    if (response.data.code === 200 &amp;&amp; response.data.data) {
+      plans.value = response.data.data;
+      // 最近运动的计划在最前面
+      plans.value.sort((a, b) =&gt; {
+        if (a.status === 'active' &amp;&amp; b.status !== 'active') return -1;
+        if (a.status !== 'active' &amp;&amp; b.status === 'active') return 1;
+        return b.currentDay - a.currentDay;
+      });
+      // 设置活跃计划
+      activePlan.value = plans.value.find(plan =&gt; plan.status === 'active') || null;
+    }
+  } catch (error) {
+    console.error('获取计划列表失败:', error);
+    useLocalData();
+  }
+};
+
 const fetchTodayWorkout = async () =&gt; {
   try {
     const response = await apiClient.get('/api/workout/today');
-    if (response.data.success &amp;&amp; response.data.data) {
+    if (response.data.code === 200 &amp;&amp; response.data.data) {
       const record = response.data.data;
       if (record.exercisesJson) {
         record.exercises = JSON.parse(record.exercisesJson);
@@ -168,14 +223,13 @@ const fetchTodayWorkout = async () =&gt; {
     }
   } catch (error) {
     console.error('获取今日训练失败:', error);
-    useLocalData();
   }
 };
 
 const fetchRecentRecords = async () =&gt; {
   try {
-    const response = await apiClient.get('/api/workout/recent?limit=5');
-    if (response.data.success &amp;&amp; response.data.data) {
+    const response = await apiClient.get('/api/workout/recent?limit=10');
+    if (response.data.code === 200 &amp;&amp; response.data.data) {
       recentRecords.value = response.data.data.map((record: any) =&gt; {
         if (record.exercisesJson) {
           record.exercises = JSON.parse(record.exercisesJson);
@@ -185,18 +239,38 @@ const fetchRecentRecords = async () =&gt; {
     }
   } catch (error) {
     console.error('获取训练记录失败:', error);
-    useLocalData();
   }
 };
 
 const useLocalData = () =&gt; {
-  activePlan.value = {
-    id: 1,
-    name: '新手增肌计划',
-    description: '专为新手设计的全身增肌训练计划',
-    currentDay: 3,
-    totalDays: 28
-  };
+  plans.value = [
+    {
+      id: 1,
+      name: '新手增肌计划',
+      description: '专为新手设计的全身增肌训练计划',
+      currentDay: 3,
+      totalDays: 28,
+      status: 'active'
+    },
+    {
+      id: 2,
+      name: '减脂塑形计划',
+      description: '通过有氧运动和力量训练相结合的减脂计划',
+      currentDay: 5,
+      totalDays: 30,
+      status: 'paused'
+    },
+    {
+      id: 3,
+      name: '耐力提升计划',
+      description: '提高心肺功能和耐力的训练计划',
+      currentDay: 2,
+      totalDays: 21,
+      status: 'active'
+    }
+  ];
+  
+  activePlan.value = plans.value.find(plan =&gt; plan.status === 'active') || null;
   
   todayRecord.value = {
     id: 1,
@@ -215,6 +289,7 @@ const useLocalData = () =&gt; {
     {
       id: 1,
       planId: 1,
+      planName: '新手增肌计划',
       date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
       dayNumber: 2,
       completed: true,
@@ -223,12 +298,44 @@ const useLocalData = () =&gt; {
     {
       id: 2,
       planId: 1,
+      planName: '新手增肌计划',
       date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
       dayNumber: 1,
       completed: true,
       exercises: []
+    },
+    {
+      id: 3,
+      planId: 2,
+      planName: '减脂塑形计划',
+      date: new Date(Date.now() - 259200000).toISOString().split('T')[0],
+      dayNumber: 5,
+      completed: true,
+      exercises: []
     }
   ];
+};
+
+const togglePlanStatus = async (plan: TrainingPlan, action: string) =&gt; {
+  try {
+    const newStatus = action === 'pause' ? 'paused' : action === 'resume' ? 'active' : 'stopped';
+    const response = await apiClient.put(`/api/plan/status/${plan.id}`, {
+      status: newStatus
+    });
+    if (response.data.code === 200) {
+      plan.status = newStatus;
+      // 重新排序计划
+      plans.value.sort((a, b) =&gt; {
+        if (a.status === 'active' &amp;&amp; b.status !== 'active') return -1;
+        if (a.status !== 'active' &amp;&amp; b.status === 'active') return 1;
+        return b.currentDay - a.currentDay;
+      });
+      // 重新设置活跃计划
+      activePlan.value = plans.value.find(p =&gt; p.status === 'active') || null;
+    }
+  } catch (error) {
+    console.error('更新计划状态失败:', error);
+  }
 };
 
 const startTraining = async () =&gt; {
@@ -252,7 +359,7 @@ const startTraining = async () =&gt; {
       ...newRecord,
       exercisesJson: JSON.stringify(newRecord.exercises)
     });
-    if (response.data.success) {
+    if (response.data.code === 200) {
       todayRecord.value = { ...response.data.data, exercises: newRecord.exercises };
     }
   } catch (error) {
@@ -300,9 +407,30 @@ const completeTraining = async () =&gt; {
     });
     
     activePlan.value.currentDay++;
+    // 检查是否完成计划
+    if (activePlan.value.currentDay &gt; activePlan.value.totalDays) {
+      activePlan.value.status = 'completed';
+      await apiClient.put(`/api/plan/status/${activePlan.value.id}`, {
+        status: 'completed'
+      });
+    }
   } catch (error) {
     console.error('完成训练失败:', error);
   }
+};
+
+const navigateToCreatePlan = () =&gt; {
+  // 导航到创建计划页面
+  uni.navigateTo({
+    url: '/pages/template/list'
+  });
+};
+
+const navigateToMoreRecords = () =&gt; {
+  // 导航到更多训练记录页面
+  uni.navigateTo({
+    url: '/pages/records/index'
+  });
 };
 
 onMounted(() =&gt; {
@@ -311,6 +439,7 @@ onMounted(() =&gt; {
   });
   
   useLocalData();
+  fetchPlans();
   fetchTodayWorkout();
   fetchRecentRecords();
 });
@@ -392,7 +521,8 @@ onMounted(() =&gt; {
 /* 卡片设计 */
 .plan-card,
 .today-section,
-.records-section {
+.records-section,
+.plans-section {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 24rpx;
@@ -406,7 +536,8 @@ onMounted(() =&gt; {
 
 .plan-card::before,
 .today-section::before,
-.records-section::before {
+.records-section::before,
+.plans-section::before {
   content: '';
   position: absolute;
   top: 0;
@@ -420,7 +551,8 @@ onMounted(() =&gt; {
 
 .plan-card:hover,
 .today-section:hover,
-.records-section:hover {
+.records-section:hover,
+.plans-section:hover {
   transform: translateY(-4rpx);
   box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.12);
 }
@@ -446,28 +578,143 @@ onMounted(() =&gt; {
   margin-right: 12rpx;
 }
 
+/* 计划列表 */
+.plan-list {
+  margin-top: 15rpx;
+}
+
+.plan-card {
+  margin-bottom: 20rpx;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15rpx;
+}
+
 .plan-name {
   font-size: 28rpx;
   font-weight: 600;
-  margin-bottom: 12rpx;
   color: #333;
   transition: color 0.3s ease;
+  flex: 1;
 }
 
 .plan-card:hover .plan-name {
   color: #FF6B35;
 }
 
+.plan-actions {
+  display: flex;
+  gap: 10rpx;
+}
+
+.plan-action-btn {
+  padding: 8rpx 16rpx;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 60rpx;
+  text-align: center;
+}
+
+.plan-action-btn.pause {
+  background: linear-gradient(135deg, #FFD166, #FFE066);
+  color: #333;
+}
+
+.plan-action-btn.resume {
+  background: linear-gradient(135deg, #4ECDC4, #45B7AA);
+  color: white;
+}
+
+.plan-action-btn.stop {
+  background: linear-gradient(135deg, #EF476F, #E74C3C);
+  color: white;
+}
+
+.plan-action-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+}
+
 .plan-description {
   font-size: 24rpx;
   color: #666;
-  margin-bottom: 25rpx;
+  margin-bottom: 20rpx;
   line-height: 1.5;
+}
+
+.plan-status {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 18rpx;
+  font-weight: 500;
+}
+
+.plan-status.active {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ECDC4;
+}
+
+.plan-status.paused {
+  background: rgba(255, 209, 102, 0.2);
+  color: #FFD166;
+}
+
+.plan-status.completed {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.plan-status.stopped {
+  background: rgba(239, 71, 111, 0.2);
+  color: #EF476F;
+}
+
+/* 无计划状态 */
+.no-plans {
+  text-align: center;
+  padding: 80rpx 0;
+  background: rgba(255, 107, 53, 0.03);
+  border-radius: 16rpx;
+  margin-top: 10rpx;
+}
+
+.no-plans-text {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 25rpx;
+}
+
+.create-plan-btn {
+  background: linear-gradient(135deg, #FF6B35, #FF8E53);
+  color: white;
+  border: none;
+  border-radius: 12rpx;
+  padding: 20rpx 40rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-plan-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8rpx 20rpx rgba(255, 107, 53, 0.4);
 }
 
 /* 进度条设计 */
 .progress-container {
-  margin-top: 25rpx;
+  margin-top: 20rpx;
 }
 
 .progress-bar {
@@ -683,6 +930,29 @@ onMounted(() =&gt; {
 }
 
 /* 训练记录 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.more-btn {
+  background: none;
+  border: none;
+  color: #FF6B35;
+  font-size: 22rpx;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.more-btn:hover {
+  text-decoration: underline;
+  transform: scale(1.05);
+}
+
 .record-list {
   margin-top: 15rpx;
 }
@@ -777,7 +1047,8 @@ onMounted(() =&gt; {
   
   .plan-card,
   .today-section,
-  .records-section {
+  .records-section,
+  .plans-section {
     padding: 25rpx;
   }
   
@@ -796,6 +1067,11 @@ onMounted(() =&gt; {
   
   .exercise-name {
     font-size: 24rpx;
+  }
+  
+  .plan-action-btn {
+    font-size: 18rpx;
+    padding: 6rpx 12rpx;
   }
 }
 </style>

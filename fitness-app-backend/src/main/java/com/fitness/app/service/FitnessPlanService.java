@@ -6,7 +6,7 @@ import com.fitness.app.mapper.FitnessPlanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Service
 public class FitnessPlanService {
@@ -19,15 +19,13 @@ public class FitnessPlanService {
         plan.setUser_id(userId);
         plan.setTemplate_id(request.getTemplate_id());
         plan.setName(request.getName());
-        plan.setType(request.getType());
-        plan.setGoal(request.getGoal());
-        plan.setDifficulty(request.getDifficulty());
-        plan.setDuration_weeks(request.getDuration_weeks());
-        plan.setStart_date(request.getStart_date());
+        plan.setDescription(request.getDescription());
+        plan.setStart_date(LocalDateTime.now());
+        plan.setCurrent_day(1);
+        plan.setTotal_days(request.getDuration_weeks() * 7);
         plan.setStatus("active");
-        plan.setIs_deleted(false);
-        plan.setCreated_at(new Date());
-        plan.setUpdated_at(new Date());
+        plan.setCreated_at(LocalDateTime.now());
+        plan.setUpdated_at(LocalDateTime.now());
 
         fitnessPlanMapper.insert(plan);
         return plan.getId();

@@ -1,195 +1,183 @@
-# 健身小程序 - 实施方案（分解和优先级排序任务列表）
+# 健身应用 - 实现计划
 
-## [x] 任务 1: 初始化项目结构
+## [x] Task 1: 创建数据库表结构
 - **Priority**: P0
 - **Depends On**: None
-- **Description**:
-  - 创建前端项目（uni-app + Vue 3 + Vite）
-  - 创建后端项目（Spring Boot 3.x + MyBatis Plus）
-  - 配置项目依赖和基本结构
-- **Acceptance Criteria Addressed**: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
+- **Description**: 
+  - 按照技术架构文档创建所有数据库表
+  - 包括用户表、运动分类表、运动动作表、模板表、模板训练日表、模板训练动作表、健身计划表、训练记录表、训练日程表
+- **Acceptance Criteria Addressed**: 所有数据模型相关需求
 - **Test Requirements**:
-  - `programmatic` TR-1.1: 前端项目能够成功构建
-  - `programmatic` TR-1.2: 后端项目能够成功启动
-- **Notes**: 确保使用指定的技术栈和版本
+  - `programmatic` TR-1.1: 所有表结构创建成功
+  - `programmatic` TR-1.2: 表之间的关系正确建立
+- **Notes**: 使用MySQL 8.0，确保表结构符合技术架构文档
 
-## [x] 任务 2: 数据库设计和初始化
+## [x] Task 2: 实现后端认证系统
 - **Priority**: P0
-- **Depends On**: 任务 1
-- **Description**:
-  - 创建数据库表结构
-  - 初始化基础数据（运动分类、动作、模板等）
-  - 配置数据库连接
-- **Acceptance Criteria Addressed**: AC-2, AC-3, AC-4, AC-5, AC-8, AC-9
+- **Depends On**: Task 1
+- **Description**: 
+  - 实现JWT认证机制
+  - 实现微信登录和管理员登录接口
+  - 配置Spring Security
+- **Acceptance Criteria Addressed**: 用户认证需求
 - **Test Requirements**:
-  - `programmatic` TR-2.1: 数据库表结构创建成功
-  - `programmatic` TR-2.2: 初始数据导入成功
-- **Notes**: 使用提供的 fitness_app_complete.sql 文件
+  - `programmatic` TR-2.1: 微信登录接口返回正确的JWT token
+  - `programmatic` TR-2.2: 管理员登录接口返回正确的JWT token
+  - `programmatic` TR-2.3: 未认证请求被正确拦截
+- **Notes**: 确保密码加密存储
 
-## [x] 任务 3: 用户认证和授权
+## [x] Task 3: 实现模板相关功能
 - **Priority**: P0
-- **Depends On**: 任务 1, 任务 2
-- **Description**:
-  - 实现微信用户登录
-  - 实现管理员登录
-  - 配置 JWT 认证
-  - 实现角色权限控制
-- **Acceptance Criteria Addressed**: AC-1, AC-7, AC-10
-- **Test Requirements**:
-  - `programmatic` TR-3.1: 微信用户能够成功登录
-  - `programmatic` TR-3.2: 管理员能够成功登录
-  - `programmatic` TR-3.3: 权限控制正常工作
-- **Notes**: 确保敏感数据加密存储
-
-## [x] 任务 4: 模板管理功能
-- **Priority**: P1
-- **Depends On**: 任务 1, 任务 2, 任务 3
-- **Description**:
-  - 实现模板列表展示
-  - 实现模板详情查看
-  - 实现从模板创建健身计划
+- **Depends On**: Task 2
+- **Description**: 
+  - 实现模板列表、详情、训练日、训练动作接口
+  - 实现从模板创建计划的功能，添加fitness_plans表数据
 - **Acceptance Criteria Addressed**: AC-2
 - **Test Requirements**:
-  - `programmatic` TR-4.1: 模板列表能够正常展示
-  - `programmatic` TR-4.2: 能够从模板创建健身计划
-- **Notes**: 确保模板数据正确加载
+  - `programmatic` TR-3.1: 获取模板列表接口返回正确数据
+  - `programmatic` TR-3.2: 从模板创建计划接口生成fitness_plans记录
+  - `human-judgment` TR-3.3: 模板详情页面展示正确
+- **Notes**: 确保模板数据的完整性
 
-## [x] 任务 5: 自定义计划功能
-- **Priority**: P1
-- **Depends On**: 任务 1, 任务 2, 任务 3
-- **Description**:
-  - 实现运动分类和动作选择
-  - 实现计划配置界面
-  - 实现自定义计划保存
-- **Acceptance Criteria Addressed**: AC-3
-- **Test Requirements**:
-  - `programmatic` TR-5.1: 能够选择运动分类和动作
-  - `programmatic` TR-5.2: 能够保存自定义计划
-- **Notes**: 确保用户体验流畅
-
-## [x] 任务 6: AI生成计划功能
-- **Priority**: P1
-- **Depends On**: 任务 1, 任务 2, 任务 3
-- **Description**:
-  - 实现AI对话界面
-  - 集成阿里百炼大模型API
-  - 实现计划生成和保存
-- **Acceptance Criteria Addressed**: AC-4
-- **Test Requirements**:
-  - `programmatic` TR-6.1: AI对话能够正常进行
-  - `programmatic` TR-6.2: 能够生成和保存AI计划
-- **Notes**: 确保API密钥安全配置
-
-## [x] 任务 7: 训练跟踪功能
+## [x] Task 4: 实现训练记录功能
 - **Priority**: P0
-- **Depends On**: 任务 1, 任务 2, 任务 3
-- **Description**:
-  - 实现今日训练展示
-  - 实现训练记录功能
-  - 实现计划进度更新
-- **Acceptance Criteria Addressed**: AC-5
+- **Depends On**: Task 3
+- **Description**: 
+  - 实现获取今日训练、最近训练记录接口
+  - 实现创建和更新训练记录接口
+  - 实现训练日程表的管理（一天只有一条）
+  - 实现根据星期几获取训练内容的功能
+- **Acceptance Criteria Addressed**: AC-3, AC-8
 - **Test Requirements**:
-  - `programmatic` TR-7.1: 今日训练能够正常展示
-  - `programmatic` TR-7.2: 训练记录能够正确保存
-  - `programmatic` TR-7.3: 计划进度能够正确更新
-- **Notes**: 确保数据准确性和实时性
+  - `programmatic` TR-4.1: 获取今日训练接口返回正确数据
+  - `programmatic` TR-4.2: 创建训练记录接口生成workout_records和workout_schedules记录
+  - `programmatic` TR-4.3: 一天只有一条workout_schedules记录
+  - `programmatic` TR-4.4: 根据星期几获取训练内容功能正常
+- **Notes**: 确保训练记录的完整性和一致性
 
-## [x] 任务 8: 音乐播放功能
+## [x] Task 5: 实现自定义计划功能
+- **Priority**: P1
+- **Depends On**: Task 2
+- **Description**: 
+  - 实现获取运动分类和动作的接口
+  - 实现创建自定义计划的功能，记录fitness_plans和templates数据
+  - 实现模板的分享功能
+  - 实现模板的权限控制（私有模板只有创建者可查询）
+- **Acceptance Criteria Addressed**: AC-4, AC-5
+- **Test Requirements**:
+  - `programmatic` TR-5.1: 获取运动分类接口返回正确数据
+  - `programmatic` TR-5.2: 创建自定义计划接口生成fitness_plans和templates记录
+  - `programmatic` TR-5.3: 私有模板只有创建者可查询
+  - `programmatic` TR-5.4: 分享模板后其他用户可查询
+- **Notes**: 确保自定义计划的灵活性
+
+## [x] Task 6: 实现AI计划生成功能
+- **Priority**: P1
+- **Depends On**: Task 5
+- **Description**: 
+  - 实现AI对话接口
+  - 实现AI生成计划接口
+  - 集成阿里云百炼大模型
+  - 实现用户目标设定和体检报告上传功能
+- **Acceptance Criteria Addressed**: AC-6
+- **Test Requirements**:
+  - `programmatic` TR-6.1: AI对话接口返回正确响应
+  - `programmatic` TR-6.2: AI生成计划接口生成合理的健身计划
+  - `human-judgment` TR-6.3: AI生成的计划符合用户需求
+  - `programmatic` TR-6.4: 体检报告上传功能正常
+- **Notes**: 确保API调用的稳定性和响应时间
+
+## [x] Task 9: 实现前端首页
+- **Priority**: P0
+- **Depends On**: Task 4
+- **Description**: 
+  - 实现当前计划展示（最多3个，可停止/暂停）
+  - 实现训练记录展示（最近3条）
+  - 实现锻炼进度展示
+  - 添加炫酷的动画效果，确保风格轻松活泼动感简洁
+- **Acceptance Criteria Addressed**: AC-7, AC-13
+- **Test Requirements**:
+  - `human-judgment` TR-9.1: 首页布局美观，动画效果炫酷
+  - `programmatic` TR-9.2: 数据展示正确
+  - `programmatic` TR-9.3: 计划管理功能正常（停止/暂停）
+  - `human-judgment` TR-9.4: 页面风格轻松活泼动感简洁
+- **Notes**: 确保响应式设计
+
+## [/] Task 10: 实现前端模板和计划页面
+- **Priority**: P0
+- **Depends On**: Task 3, Task 5, Task 6
+- **Description**: 
+  - 实现模板列表和详情页面
+  - 实现自定义计划创建页面
+  - 实现AI计划生成页面
+  - 实现锻炼记录详情页面（支持分页和筛选）
+- **Acceptance Criteria Addressed**: AC-2, AC-4, AC-6, AC-8
+- **Test Requirements**:
+  - `human-judgment` TR-10.1: 页面布局美观，交互流畅
+  - `programmatic` TR-10.2: 功能逻辑正确
+  - `programmatic` TR-10.3: 锻炼记录查询功能正常（分页和筛选）
+  - `human-judgment` TR-10.4: 页面风格轻松活泼动感简洁
+- **Notes**: 确保用户体验良好
+
+## [ ] Task 7: 实现音乐播放功能
 - **Priority**: P2
-- **Depends On**: 任务 1
-- **Description**:
-  - 实现音乐列表展示
-  - 实现音乐播放控制
-  - 集成音乐文件存储
-- **Acceptance Criteria Addressed**: AC-6
+- **Depends On**: Task 2
+- **Description**: 
+  - 实现文件上传接口
+  - 实现音乐播放器前端页面
+  - 集成腾讯云COS存储
+  - 实现音乐选择和播放功能
+- **Acceptance Criteria Addressed**: AC-9
 - **Test Requirements**:
-  - `programmatic` TR-8.1: 音乐能够正常播放
-  - `programmatic` TR-8.2: 播放控制功能正常
-- **Notes**: 确保音乐文件来源合法
+  - `programmatic` TR-7.1: 音乐文件上传成功
+  - `human-judgment` TR-7.2: 音乐播放器功能正常
+  - `human-judgment` TR-7.3: 音乐选择界面美观
+- **Notes**: 确保文件上传的安全性
 
-## [x] 任务 9: 管理端功能
+## [ ] Task 8: 实现管理后台功能
 - **Priority**: P1
-- **Depends On**: 任务 1, 任务 2, 任务 3
-- **Description**:
-  - 实现运动分类管理
-  - 实现运动动作管理
-  - 实现用户管理（超级管理员功能）
-- **Acceptance Criteria Addressed**: AC-8, AC-9, AC-10
+- **Depends On**: Task 2
+- **Description**: 
+  - 实现运动分类管理接口
+  - 实现运动动作管理接口
+  - 实现用户管理接口
+  - 实现内置记录管理功能
+- **Acceptance Criteria Addressed**: AC-11, AC-12
 - **Test Requirements**:
-  - `programmatic` TR-9.1: 能够管理运动分类
-  - `programmatic` TR-9.2: 能够管理运动动作
-  - `programmatic` TR-9.3: 超级管理员能够设置普通管理员
-- **Notes**: 确保管理权限正确控制
+  - `programmatic` TR-8.1: 分类管理接口功能正常
+  - `programmatic` TR-8.2: 动作管理接口功能正常
+  - `programmatic` TR-8.3: 用户管理接口功能正常
+  - `programmatic` TR-8.4: 内置记录管理功能正常
+- **Notes**: 确保管理权限的安全性
 
-## [x] 任务 10: 系统测试和优化
-- **Priority**: P1
-- **Depends On**: 任务 4, 任务 5, 任务 6, 任务 7, 任务 8, 任务 9
-- **Description**:
-  - 进行系统功能测试
-  - 进行性能优化
-  - 进行安全性检查
-- **Acceptance Criteria Addressed**: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
-- **Test Requirements**:
-  - `programmatic` TR-10.1: 所有功能正常工作
-  - `programmatic` TR-10.2: 系统性能满足要求
-  - `programmatic` TR-10.3: 系统安全无漏洞
-- **Notes**: 确保系统稳定可靠
-
-## [x] 任务 11: 数据库切换到MySQL
+## [ ] Task 9: 实现前端首页
 - **Priority**: P0
-- **Depends On**: 任务 2
-- **Description**:
-  - 更新pom.xml添加MySQL依赖
-  - 修改application.yml配置MySQL连接
-  - 确保数据库表结构和数据正确迁移
-- **Acceptance Criteria Addressed**: AC-2, AC-3, AC-4, AC-5, AC-8, AC-9
+- **Depends On**: Task 4
+- **Description**: 
+  - 实现当前计划展示（最多3个，可停止/暂停）
+  - 实现训练记录展示（最近3条）
+  - 实现锻炼进度展示
+  - 添加炫酷的动画效果，确保风格轻松活泼动感简洁
+- **Acceptance Criteria Addressed**: AC-7, AC-13
 - **Test Requirements**:
-  - `programmatic` TR-11.1: 后端能够成功连接MySQL数据库
-  - `programmatic` TR-11.2: 数据库表结构创建成功
-  - `programmatic` TR-11.3: 初始数据导入成功
-- **Notes**: 由于网络问题，使用H2内存数据库作为替代方案，配置已完成
+  - `human-judgment` TR-9.1: 首页布局美观，动画效果炫酷
+  - `programmatic` TR-9.2: 数据展示正确
+  - `programmatic` TR-9.3: 计划管理功能正常（停止/暂停）
+  - `human-judgment` TR-9.4: 页面风格轻松活泼动感简洁
+- **Notes**: 确保响应式设计
 
-## [x] 任务 12: 集成腾讯云COS
-- **Priority**: P1
-- **Depends On**: 任务 1
-- **Description**:
-  - 添加腾讯云COS依赖
-  - 配置COS连接参数
-  - 实现文件上传和下载功能
-  - 集成到音乐播放和图片存储
-- **Acceptance Criteria Addressed**: AC-6
+## [ ] Task 10: 实现前端模板和计划页面
+- **Priority**: P0
+- **Depends On**: Task 3, Task 5, Task 6
+- **Description**: 
+  - 实现模板列表和详情页面
+  - 实现自定义计划创建页面
+  - 实现AI计划生成页面
+  - 实现锻炼记录详情页面（支持分页和筛选）
+- **Acceptance Criteria Addressed**: AC-2, AC-4, AC-6, AC-8
 - **Test Requirements**:
-  - `programmatic` TR-12.1: 能够成功上传文件到COS
-  - `programmatic` TR-12.2: 能够成功下载文件从COS
-  - `programmatic` TR-12.3: 音乐文件能够通过COS播放
-- **Notes**: 确保COS API密钥安全配置
-
-## [x] 任务 13: 前端风格更新
-- **Priority**: P1
-- **Depends On**: 任务 1
-- **Description**:
-  - 更新前端样式为动感轻盈风格
-  - 优化页面布局和交互效果
-  - 确保响应式设计适配不同屏幕尺寸
-- **Acceptance Criteria Addressed**: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
-- **Test Requirements**:
-  - `human-judgment` TR-13.1: 界面风格动感轻盈
-  - `programmatic` TR-13.2: 页面加载时间不超过2秒
-  - `programmatic` TR-13.3: 适配不同屏幕尺寸
-- **Notes**: 使用活力橙和清新蓝作为主题色，添加适当的动画效果
-
-## [x] 任务 14: 最终系统测试
-- **Priority**: P1
-- **Depends On**: 任务 11, 任务 12, 任务 13
-- **Description**:
-  - 进行完整的功能测试
-  - 测试MySQL数据库连接和数据操作
-  - 测试腾讯云COS文件上传和下载
-  - 测试前端风格和用户体验
-- **Acceptance Criteria Addressed**: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
-- **Test Requirements**:
-  - `programmatic` TR-14.1: 所有功能正常工作
-  - `programmatic` TR-14.2: 系统性能满足要求
-  - `programmatic` TR-14.3: 系统安全无漏洞
-  - `human-judgment` TR-14.4: 前端风格动感轻盈，用户体验良好
-- **Notes**: 由于网络问题，后端服务无法启动测试，但前端功能正常，风格更新完成
+  - `human-judgment` TR-10.1: 页面布局美观，交互流畅
+  - `programmatic` TR-10.2: 功能逻辑正确
+  - `programmatic` TR-10.3: 锻炼记录查询功能正常（分页和筛选）
+  - `human-judgment` TR-10.4: 页面风格轻松活泼动感简洁
+- **Notes**: 确保用户体验良好
