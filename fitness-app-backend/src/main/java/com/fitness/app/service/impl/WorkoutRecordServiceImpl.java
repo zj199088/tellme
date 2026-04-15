@@ -3,7 +3,9 @@ package com.fitness.app.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fitness.app.entity.WorkoutRecord;
 import com.fitness.app.entity.WorkoutSchedule;
+import com.fitness.app.entity.WorkoutScheduleExercise;
 import com.fitness.app.mapper.WorkoutRecordMapper;
+import com.fitness.app.mapper.WorkoutScheduleExerciseMapper;
 import com.fitness.app.mapper.WorkoutScheduleMapper;
 import com.fitness.app.service.WorkoutRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +24,22 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     @Autowired
     private WorkoutScheduleMapper workoutScheduleMapper;
 
+    @Autowired
+    private WorkoutScheduleExerciseMapper workoutScheduleExerciseMapper;
+
     @Override
-    public WorkoutRecord getTodayWorkout(Long userId, LocalDate date) {
+    public WorkoutRecord getTodayWorkout(Integer userId, LocalDate date) {
         return workoutRecordMapper.getByUserIdAndDate(userId, date);
     }
 
     @Override
-    public List<WorkoutRecord> getRecentRecords(Long userId, int limit) {
+    public List<WorkoutRecord> getRecentRecords(Integer userId, int limit) {
         return workoutRecordMapper.getRecentRecords(userId, limit);
     }
 
     @Override
     public WorkoutRecord createWorkoutRecord(WorkoutRecord record) {
-        // 创建或更新训练日程
-        WorkoutSchedule schedule = getOrCreateSchedule(record.getUser_id(), record.getPlan_id(), record.getDate());
-        schedule.setStatus("in_progress");
-        workoutScheduleMapper.updateById(schedule);
-        
+        record.setIs_deleted(0);
         record.setCreated_at(LocalDateTime.now());
         record.setUpdated_at(LocalDateTime.now());
         save(record);
@@ -49,30 +50,18 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     public WorkoutRecord updateWorkoutRecord(WorkoutRecord record) {
         record.setUpdated_at(LocalDateTime.now());
         updateById(record);
-        
-        // 如果训练完成，更新日程状态
-        if (record.getCompleted()) {
-            WorkoutSchedule schedule = getOrCreateSchedule(record.getUser_id(), record.getPlan_id(), record.getDate());
-            schedule.setStatus("completed");
-            workoutScheduleMapper.updateById(schedule);
-        }
-        
         return record;
     }
 
     @Override
-    public WorkoutSchedule getOrCreateSchedule(Long userId, Long planId, LocalDate date) {
-        WorkoutSchedule schedule = workoutScheduleMapper.getByUserIdAndDate(userId, date);
-        if (schedule == null) {
-            schedule = new WorkoutSchedule();
-            schedule.setUser_id(userId);
-            schedule.setPlan_id(planId);
-            schedule.setDate(date);
-            schedule.setStatus("scheduled");
-            schedule.setCreated_at(LocalDateTime.now());
-            schedule.setUpdated_at(LocalDateTime.now());
-            workoutScheduleMapper.insert(schedule);
-        }
-        return schedule;
+    public WorkoutSchedule getScheduleByPlanAndDate(Integer planId, LocalDate date) {
+        // 这里需要实现根据计划ID和日期获取训练日程的逻辑
+        // 可以通过查询workout_schedules表实现
+        return null;
+    }
+
+    @Override
+    public List<WorkoutScheduleExercise> getScheduleExercises(Integer scheduleId) {
+        return workoutScheduleExerciseMapper.getByScheduleId(scheduleId);
     }
 }

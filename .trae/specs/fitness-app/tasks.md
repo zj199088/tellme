@@ -5,11 +5,12 @@
 - **Depends On**: None
 - **Description**: 
   - 按照技术架构文档创建所有数据库表
-  - 包括用户表、运动分类表、运动动作表、模板表、模板训练日表、模板训练动作表、健身计划表、训练记录表、训练日程表
+  - 包括用户表、用户设备表、应用配置表、运动分类表、运动动作表、模板表、模板训练日表、模板动作关联表、健身计划表、训练日程表、训练日程动作表、锻炼记录表、AI对话历史表、音乐表
 - **Acceptance Criteria Addressed**: 所有数据模型相关需求
 - **Test Requirements**:
   - `programmatic` TR-1.1: 所有表结构创建成功
   - `programmatic` TR-1.2: 表之间的关系正确建立
+  - `programmatic` TR-1.3: 索引设置合理
 - **Notes**: 使用MySQL 8.0，确保表结构符合技术架构文档
 
 ## [x] Task 2: 实现后端认证系统
@@ -45,13 +46,13 @@
 - **Description**: 
   - 实现获取今日训练、最近训练记录接口
   - 实现创建和更新训练记录接口
-  - 实现训练日程表的管理（一天只有一条）
+  - 实现训练日程表和训练日程动作表的管理
   - 实现根据星期几获取训练内容的功能
 - **Acceptance Criteria Addressed**: AC-3, AC-8
 - **Test Requirements**:
   - `programmatic` TR-4.1: 获取今日训练接口返回正确数据
-  - `programmatic` TR-4.2: 创建训练记录接口生成workout_records和workout_schedules记录
-  - `programmatic` TR-4.3: 一天只有一条workout_schedules记录
+  - `programmatic` TR-4.2: 创建训练记录接口生成workout_records记录
+  - `programmatic` TR-4.3: 训练日程和训练日程动作管理功能正常
   - `programmatic` TR-4.4: 根据星期几获取训练内容功能正常
 - **Notes**: 确保训练记录的完整性和一致性
 
@@ -79,12 +80,14 @@
   - 实现AI生成计划接口
   - 集成阿里云百炼大模型
   - 实现用户目标设定和体检报告上传功能
+  - 实现AI对话历史管理功能
 - **Acceptance Criteria Addressed**: AC-6
 - **Test Requirements**:
   - `programmatic` TR-6.1: AI对话接口返回正确响应
   - `programmatic` TR-6.2: AI生成计划接口生成合理的健身计划
   - `human-judgment` TR-6.3: AI生成的计划符合用户需求
   - `programmatic` TR-6.4: 体检报告上传功能正常
+  - `programmatic` TR-6.5: AI对话历史记录功能正常
 - **Notes**: 确保API调用的稳定性和响应时间
 
 ## [x] Task 9: 实现前端首页
@@ -127,11 +130,13 @@
   - 实现音乐播放器前端页面
   - 集成腾讯云COS存储
   - 实现音乐选择和播放功能
+  - 实现音乐管理功能（CRUD操作）
 - **Acceptance Criteria Addressed**: AC-9
 - **Test Requirements**:
   - `programmatic` TR-7.1: 音乐文件上传成功
-  - `human-judgment` TR-7.2: 音乐播放器功能正常
-  - `human-judgment` TR-7.3: 音乐选择界面美观
+  - `programmatic` TR-7.2: 音乐管理接口功能正常
+  - `human-judgment` TR-7.3: 音乐播放器功能正常
+  - `human-judgment` TR-7.4: 音乐选择界面美观
 - **Notes**: 确保文件上传的安全性
 
 ## [ ] Task 8: 实现管理后台功能
@@ -141,13 +146,17 @@
   - 实现运动分类管理接口
   - 实现运动动作管理接口
   - 实现用户管理接口
+  - 实现用户设备管理接口
+  - 实现应用配置管理接口
   - 实现内置记录管理功能
 - **Acceptance Criteria Addressed**: AC-11, AC-12
 - **Test Requirements**:
   - `programmatic` TR-8.1: 分类管理接口功能正常
   - `programmatic` TR-8.2: 动作管理接口功能正常
   - `programmatic` TR-8.3: 用户管理接口功能正常
-  - `programmatic` TR-8.4: 内置记录管理功能正常
+  - `programmatic` TR-8.4: 用户设备管理接口功能正常
+  - `programmatic` TR-8.5: 应用配置管理接口功能正常
+  - `programmatic` TR-8.6: 内置记录管理功能正常
 - **Notes**: 确保管理权限的安全性
 
 ## [ ] Task 9: 实现前端首页

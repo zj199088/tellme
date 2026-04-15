@@ -5,26 +5,40 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("workout_record")
+@TableName("workout_records")
 public class WorkoutRecord {
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
     
-    private Long user_id;
+    private Integer user_id;
     
-    private Long plan_id;
+    private Integer plan_id;
+    
+    private Integer schedule_id;
+    
+    private Integer schedule_exercise_id;
+    
+    private Integer exercise_id;
+    
+    private String exercise_name;
     
     private LocalDate date;
     
-    private Integer day_number;
+    private String sets_completed;
     
-    private Boolean completed;
+    private BigDecimal weight;
     
-    private String exercises_json;
+    private Integer duration;
+    
+    private String notes;
+    
+    private Integer is_deleted;
     
     private LocalDateTime created_at;
     

@@ -1,6 +1,8 @@
 package com.fitness.app.controller;
 
 import com.fitness.app.entity.WorkoutRecord;
+import com.fitness.app.entity.WorkoutSchedule;
+import com.fitness.app.entity.WorkoutScheduleExercise;
 import com.fitness.app.service.WorkoutRecordService;
 import com.fitness.app.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ public class WorkoutRecordController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Authentication authentication) {
         try {
-            Long userId = Long.parseLong(authentication.getName());
+            Integer userId = Integer.parseInt(authentication.getName());
             
             if (date == null) {
                 date = LocalDate.now();
@@ -41,7 +43,7 @@ public class WorkoutRecordController {
             @RequestParam(defaultValue = "10") int limit,
             Authentication authentication) {
         try {
-            Long userId = Long.parseLong(authentication.getName());
+            Integer userId = Integer.parseInt(authentication.getName());
             
             List<WorkoutRecord> records = workoutRecordService.getRecentRecords(userId, limit);
             return Result.success(records);
@@ -55,7 +57,7 @@ public class WorkoutRecordController {
             @RequestBody WorkoutRecord record,
             Authentication authentication) {
         try {
-            Long userId = Long.parseLong(authentication.getName());
+            Integer userId = Integer.parseInt(authentication.getName());
             
             record.setUser_id(userId);
             WorkoutRecord savedRecord = workoutRecordService.createWorkoutRecord(record);
@@ -67,11 +69,11 @@ public class WorkoutRecordController {
 
     @PutMapping("/record/{id}")
     public Result<?> updateWorkoutRecord(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @RequestBody WorkoutRecord record,
             Authentication authentication) {
         try {
-            Long userId = Long.parseLong(authentication.getName());
+            Integer userId = Integer.parseInt(authentication.getName());
             
             record.setId(id);
             record.setUser_id(userId);
@@ -79,6 +81,28 @@ public class WorkoutRecordController {
             return Result.success(updatedRecord);
         } catch (Exception e) {
             return Result.error("更新训练记录失败: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/schedule")
+    public Result<?> getScheduleByPlanAndDate(
+            @RequestParam Integer planId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        try {
+            WorkoutSchedule schedule = workoutRecordService.getScheduleByPlanAndDate(planId, date);
+            return Result.success(schedule);
+        } catch (Exception e) {
+            return Result.error("获取训练日程失败: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/schedule/{scheduleId}/exercises")
+    public Result<?> getScheduleExercises(@PathVariable Integer scheduleId) {
+        try {
+            List<WorkoutScheduleExercise> exercises = workoutRecordService.getScheduleExercises(scheduleId);
+            return Result.success(exercises);
+        } catch (Exception e) {
+            return Result.error("获取训练日程动作失败: " + e.getMessage());
         }
     }
 }

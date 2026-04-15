@@ -8,15 +8,14 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("movement_categories")
-public class MovementCategory {
+@TableName("app_configs")
+public class AppConfig {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String categoryName;
+    private String configKey;
+    private String configValue;
+    private String configType;
     private String description;
-    private String icon;
-    private Integer sortOrder;
-    private Integer parentId;
     private Integer isActive;
     private Integer isDeleted;
     private LocalDateTime createdAt;

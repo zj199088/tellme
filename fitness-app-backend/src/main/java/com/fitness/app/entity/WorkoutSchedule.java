@@ -4,22 +4,30 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 
 @Data
-@TableName("workout_schedule")
+@TableName("workout_schedules")
 public class WorkoutSchedule {
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
     
-    private Long user_id;
+    private Integer plan_id;
     
-    private Long plan_id;
+    private Integer week_num;
     
-    private LocalDate date;
+    private Integer day_of_week;
     
-    private String status;
+    private Integer is_rest_day;
+    
+    private String rest_note;
+    
+    private Integer estimated_duration;
+    
+    private Integer template_day_id;
+    
+    private Integer is_deleted;
     
     private LocalDateTime created_at;
     

@@ -5,25 +5,27 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("movement_exercise")
+@TableName("movement_exercises")
 public class MovementExercise {
     @TableId(type = IdType.AUTO)
-    private Long id;
-    
-    private Long category_id;
-    
-    private String name;
-    
+    private Integer id;
+    private String exerciseName;
+    private String enName;
+    private Integer categoryId;
+    private String difficultyLevel;
+    private String targetMuscle;
+    private String equipmentNeeded;
     private String description;
-    
-    private String image_url;
-    
-    private String video_url;
-    
-    private LocalDateTime created_at;
-    
-    private LocalDateTime updated_at;
+    private String videoUrl;
+    private String imageUrl;
+    private BigDecimal caloriesPerHour;
+    private Integer isPopular;
+    private Integer isBodyweight;
+    private Integer isDeleted;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -8,15 +8,18 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("movement_categories")
-public class MovementCategory {
+@TableName("music_tracks")
+public class MusicTrack {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String categoryName;
-    private String description;
-    private String icon;
-    private Integer sortOrder;
-    private Integer parentId;
+    private String name;
+    private String artist;
+    private String album;
+    private Integer duration;
+    private String fileUrl;
+    private String coverUrl;
+    private String genre;
+    private Integer bpm;
     private Integer isActive;
     private Integer isDeleted;
     private LocalDateTime createdAt;

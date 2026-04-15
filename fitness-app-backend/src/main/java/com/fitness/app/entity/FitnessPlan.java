@@ -5,22 +5,28 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("fitness_plan")
+@TableName("fitness_plans")
 public class FitnessPlan {
     @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long user_id;
-    private Long template_id;
+    private Integer id;
+    private Integer user_id;
+    private Integer template_id;
     private String name;
-    private String description;
-    private LocalDateTime start_date;
-    private LocalDateTime end_date;
-    private Integer current_day;
-    private Integer total_days;
+    private String type;
+    private String goal;
+    private String difficulty;
+    private Integer duration_weeks;
+    private LocalDate start_date;
+    private LocalDate end_date;
     private String status;
+    private Integer is_shared;
+    private String shared_code;
+    private LocalDate last_workout_date;
+    private Integer is_deleted;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 }

@@ -8,16 +8,14 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("movement_categories")
-public class MovementCategory {
+@TableName("ai_conversations")
+public class AiConversation {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String categoryName;
-    private String description;
-    private String icon;
-    private Integer sortOrder;
-    private Integer parentId;
-    private Integer isActive;
+    private Integer userId;
+    private String messages;
+    private Integer planId;
+    private String status;
     private Integer isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

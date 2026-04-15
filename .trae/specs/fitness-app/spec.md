@@ -30,6 +30,22 @@
 - 认证使用 JWT + Spring Security
 - 缓存使用 Redis
 
+## Database Schema
+- **users**: 用户表
+- **user_devices**: 用户设备表
+- **app_configs**: 应用配置表
+- **movement_categories**: 运动分类表
+- **movement_exercises**: 运动动作表
+- **templates**: 健身模板表
+- **template_days**: 模板训练日表
+- **template_exercises**: 模板动作关联表
+- **fitness_plans**: 健身计划表
+- **workout_schedules**: 训练日程表
+- **workout_schedule_exercises**: 训练日程动作表
+- **workout_records**: 锻炼记录表
+- **ai_conversations**: AI对话历史表
+- **music_tracks**: 音乐表
+
 ## Functional Requirements
 - **FR-1**: 用户登录/注册 - 获取并保存微信用户信息
 - **FR-2**: 模板生成健身计划 - 从预设模板创建健身计划，添加表数据fitness_plans

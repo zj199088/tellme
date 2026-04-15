@@ -5,13 +5,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("user")
+@TableName("users")
 public class User {
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
     private String openId;
     private String nickname;
     private String avatarUrl;
@@ -24,8 +25,8 @@ public class User {
     private String password;
     private String fitnessGoals;
     private String fitnessLevel;
-    private Double height;
-    private Double weight;
+    private BigDecimal height;
+    private BigDecimal weight;
     private Integer isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

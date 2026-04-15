@@ -8,15 +8,16 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("movement_categories")
-public class MovementCategory {
+@TableName("user_devices")
+public class UserDevice {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String categoryName;
-    private String description;
-    private String icon;
-    private Integer sortOrder;
-    private Integer parentId;
+    private Integer userId;
+    private String deviceType;
+    private String deviceToken;
+    private String deviceId;
+    private String appVersion;
+    private LocalDateTime lastLoginAt;
     private Integer isActive;
     private Integer isDeleted;
     private LocalDateTime createdAt;

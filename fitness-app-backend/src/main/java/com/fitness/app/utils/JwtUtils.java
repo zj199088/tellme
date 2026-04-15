@@ -19,7 +19,7 @@ public class JwtUtils {
     @Value("${spring.security.jwt.expiration}")
     private long expiration;
 
-    public String generateToken(Long userId, String role) {
+    public String generateToken(Integer userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("role", role);
@@ -39,9 +39,9 @@ public class JwtUtils {
                 .getBody();
     }
 
-    public Long getUserIdFromToken(String token) {
+    public Integer getUserIdFromToken(String token) {
         Claims claims = parseToken(token);
-        return Long.parseLong(claims.getSubject());
+        return Integer.parseInt(claims.getSubject());
     }
 
     public String getRoleFromToken(String token) {
