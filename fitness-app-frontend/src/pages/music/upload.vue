@@ -1,7 +1,11 @@
 <template>
   <div class="upload-container">
-    <h3>上传音乐</h3>
-    <div class="upload-area" @dragover.prevent @drop="handleDrop">
+    <h2 class="section-title">
+      <span class="title-icon">📁</span>
+      上传音乐
+      <span class="title-glow"></span>
+    </h2>
+    <div class="upload-area" @dragover.prevent @drop="handleDrop" :class="{ 'drag-over': isDragOver }" @dragover="isDragOver = true" @dragleave="isDragOver = false">
       <input 
         type="file" 
         ref="fileInput"
@@ -10,49 +14,68 @@
         class="file-input"
       >
       <div class="upload-hint">
-        <span class="icon">📁</span>
-        <p>点击或拖拽音乐文件到此处上传</p>
+        <div class="upload-icon-wrapper">
+          <span class="icon">📁</span>
+        </div>
+        <p class="upload-text">点击或拖拽音乐文件到此处上传</p>
         <p class="hint-text">支持 MP3、WAV、FLAC 等音频格式</p>
       </div>
     </div>
     
     <div class="upload-form" v-if="selectedFile">
+      <div class="form-header">
+        <div class="form-header-icon">🎵</div>
+        <div class="form-header-text">
+          <h3 class="form-header-title">编辑音乐信息</h3>
+          <p class="form-header-desc">请完善音乐的详细信息</p>
+        </div>
+      </div>
       <div class="form-group">
-        <label>音乐名称</label>
+        <label class="form-label">音乐名称</label>
         <input 
           type="text" 
           v-model="formData.name"
           placeholder="请输入音乐名称"
+          class="form-input"
         >
       </div>
       <div class="form-group">
-        <label>艺术家</label>
+        <label class="form-label">艺术家</label>
         <input 
           type="text" 
           v-model="formData.artist"
           placeholder="请输入艺术家名称"
+          class="form-input"
         >
       </div>
       <div class="form-group">
-        <label>专辑</label>
+        <label class="form-label">专辑</label>
         <input 
           type="text" 
           v-model="formData.album"
           placeholder="请输入专辑名称"
+          class="form-input"
         >
       </div>
       <div class="form-group">
-        <label>音乐流派</label>
+        <label class="form-label">音乐流派</label>
         <input 
           type="text" 
           v-model="formData.genre"
           placeholder="请输入音乐流派"
+          class="form-input"
         >
       </div>
       <div class="form-actions">
-        <button @click="cancelUpload" class="btn btn-secondary">取消</button>
-        <button @click="uploadFile" class="btn btn-primary" :disabled="isUploading">
-          {{ isUploading ? '上传中...' : '上传' }}
+        <button @click="cancelUpload" class="btn btn-secondary">
+          <span class="btn-icon">❌</span>
+          取消
+        </button>
+        <button @click="uploadFile" class="btn btn-primary glow-button" :disabled="isUploading">
+          <span class="btn-icon" v-if="!isUploading">📤</span>
+          <span class="btn-icon loading-spinner" v-else></span>
+          <span class="btn-text">{{ isUploading ? '上传中...' : '上传' }}</span>
+          <span class="btn-glow"></span>
         </button>
       </div>
     </div>
@@ -65,7 +88,8 @@
     </div>
     
     <div class="message" :class="{ success: messageType === 'success', error: messageType === 'error' }" v-if="message">
-      {{ message }}
+      <span class="message-icon">{{ messageType === 'success' ? '✅' : '❌' }}</span>
+      <span class="message-text">{{ message }}</span>
     </div>
   </div>
 </template>
@@ -73,10 +97,9 @@
 <script setup>
 import { ref, reactive } from 'vue';
 
-// 组件属性
 const emit = defineEmits(['file-uploaded']);
 
-// 状态
+const isDragOver = ref(false);
 const fileInput = ref(null);
 const selectedFile = ref(null);
 const isUploading = ref(false);
@@ -84,7 +107,6 @@ const uploadProgress = ref(0);
 const message = ref('');
 const messageType = ref('');
 
-// 表单数据
 const formData = reactive({
   name: '',
   artist: '',
@@ -92,19 +114,17 @@ const formData = reactive({
   genre: ''
 });
 
-// 处理文件选择
 const handleFileChange = (e) => {
   const file = e.target.files[0];
   if (file) {
     selectedFile.value = file;
-    // 默认使用文件名作为音乐名称
     formData.name = file.name.replace(/\.[^/.]+$/, '');
   }
 };
 
-// 处理拖拽上传
 const handleDrop = (e) => {
   e.preventDefault();
+  isDragOver.value = false;
   const file = e.dataTransfer.files[0];
   if (file && file.type.startsWith('audio/')) {
     selectedFile.value = file;
@@ -112,7 +132,6 @@ const handleDrop = (e) => {
   }
 };
 
-// 上传文件
 const uploadFile = async () => {
   if (!selectedFile.value) {
     showMessage('请选择要上传的音乐文件', 'error');
@@ -128,19 +147,17 @@ const uploadFile = async () => {
   uploadProgress.value = 0;
   
   try {
-    // 模拟文件上传过程
     for (let i = 0; i <= 100; i += 10) {
       await new Promise(resolve => setTimeout(resolve, 300));
       uploadProgress.value = i;
     }
     
-    // 模拟上传成功，返回音乐信息
     const musicInfo = {
       id: Date.now(),
       name: formData.name,
       artist: formData.artist,
       album: formData.album,
-      duration: 180, // 模拟3分钟
+      duration: 180,
       file_url: `https://example.com/music/${Date.now()}.mp3`,
       cover_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover&image_size=square_hd',
       genre: formData.genre
@@ -149,7 +166,6 @@ const uploadFile = async () => {
     emit('file-uploaded', musicInfo);
     showMessage('音乐上传成功', 'success');
     
-    // 重置表单
     resetForm();
   } catch (error) {
     showMessage('上传失败，请重试', 'error');
@@ -159,12 +175,10 @@ const uploadFile = async () => {
   }
 };
 
-// 取消上传
 const cancelUpload = () => {
   resetForm();
 };
 
-// 重置表单
 const resetForm = () => {
   selectedFile.value = null;
   formData.name = '';
@@ -176,7 +190,6 @@ const resetForm = () => {
   }
 };
 
-// 显示消息
 const showMessage = (msg, type) => {
   message.value = msg;
   messageType.value = type;
@@ -188,32 +201,73 @@ const showMessage = (msg, type) => {
 </script>
 
 <style scoped>
-.upload-container {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 20px;
-  margin-bottom: 20px;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10.0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.upload-container h3 {
-  color: #333;
-  margin-bottom: 20px;
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.upload-area {
-  border: 2px dashed #ddd;
-  border-radius: 8px;
-  padding: 40px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
+.section-title {
+  font-size: 14.0px;
+  font-weight: bold;
+  margin-bottom: 10.0px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5.0px;
   position: relative;
 }
 
-.upload-area:hover {
-  border-color: #FF6B35;
-  background-color: #FFF5F0;
+.title-icon {
+  font-size: 16.0px;
+}
+
+.title-glow {
+  position: absolute;
+  bottom: -4.0px;
+  left: 0;
+  width: 25.0px;
+  height: 1.5px;
+  background: var(--gradient-cyan);
+  border-radius: 1.0px;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.upload-container {
+  position: relative;
+}
+
+.upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: 10.0px;
+  padding: 30.0px 15.0px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 245, 255, 0.08);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
 }
 
 .file-input {
@@ -232,133 +286,301 @@ const showMessage = (msg, type) => {
   z-index: 0;
 }
 
+.upload-icon-wrapper {
+  width: 50.0px;
+  height: 50.0px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10.0px;
+  border: 2px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover .upload-icon-wrapper,
+.upload-area.drag-over .upload-icon-wrapper {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  transform: scale(1.1);
+}
+
 .upload-hint .icon {
-  font-size: 48px;
-  display: block;
-  margin-bottom: 15px;
+  font-size: 25.0px;
 }
 
-.upload-hint p {
-  margin: 0 0 5px 0;
-  color: #666;
-  font-size: 16px;
+.upload-text {
+  margin: 0 0 5.0px 0;
+  color: var(--text-primary);
+  font-size: 12.0px;
+  font-weight: 600;
 }
 
-.upload-hint .hint-text {
-  font-size: 14px;
-  color: #999;
+.hint-text {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 11.0px;
 }
 
 .upload-form {
-  margin-top: 20px;
+  margin-top: 15.0px;
+  animation: fadeInUp 0.4s ease;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 10.0px;
+  margin-bottom: 12.5px;
+  padding-bottom: 10.0px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.form-header-icon {
+  width: 30.0px;
+  height: 30.0px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16.0px;
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+}
+
+.form-header-title {
+  margin: 0 0 2.5px 0;
+  color: var(--text-primary);
+  font-size: 13.0px;
+  font-weight: 600;
+}
+
+.form-header-desc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11.0px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 10.0px;
 }
 
-.form-group label {
+.form-label {
   display: block;
-  margin-bottom: 5px;
-  color: #333;
-  font-size: 14px;
+  margin-bottom: 5.0px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 12.0px;
 }
 
-.form-group input {
+.form-input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s;
+  padding: 9.0px;
+  border: 1px solid var(--border-color);
+  border-radius: 6.0px;
+  font-size: 12.0px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+.form-input:focus {
   outline: none;
-  border-color: #FF6B35;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
 }
 
 .form-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 7.5px;
+  margin-top: 12.5px;
 }
 
 .btn {
-  padding: 10px 20px;
+  flex: 1;
+  padding: 9.0px;
   border: none;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 6.0px;
+  font-size: 12.0px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: #FF6B35;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #e55a2b;
-}
-
-.btn-primary:disabled {
-  background-color: #ffb399;
-  cursor: not-allowed;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5.0px;
 }
 
 .btn-secondary {
-  background-color: #ddd;
-  color: #333;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-  background-color: #ccc;
+  background: rgba(255, 0, 110, 0.1);
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
+  transform: translateY(-1.0px);
+}
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
+  color: white;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1.0px) scale(1.02);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-glow {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.glow-button:hover .btn-glow {
+  left: 100%;
+}
+
+.btn-icon {
+  font-size: 10.0px;
+  position: relative;
+  z-index: 1;
+}
+
+.loading-spinner {
+  width: 10.0px;
+  height: 10.0px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-top: 1.5px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.btn-text {
+  position: relative;
+  z-index: 1;
 }
 
 .upload-progress {
-  margin-top: 20px;
+  margin-top: 12.5px;
+  animation: fadeInUp 0.3s ease;
 }
 
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background-color: #ddd;
-  border-radius: 4px;
+  height: 6.0px;
+  background: var(--bg-tertiary);
+  border-radius: 3.0px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 6.0px;
+  border: 1px solid var(--border-color);
 }
 
 .progress-fill {
   height: 100%;
-  background-color: #4ECDC4;
-  transition: width 0.3s;
+  background: var(--gradient-neon);
+  border-radius: 3.0px;
+  transition: width 0.3s ease;
 }
 
 .progress-text {
   text-align: center;
-  color: #666;
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 11.0px;
   margin: 0;
+  font-weight: 600;
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .message {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 14px;
+  margin-top: 12.5px;
+  padding: 9.0px;
+  border-radius: 6.0px;
+  display: flex;
+  align-items: center;
+  gap: 6.0px;
+  font-size: 12.0px;
+  animation: fadeInUp 0.3s ease;
 }
 
 .message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
 }
 
 .message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: rgba(255, 0, 110, 0.1);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+}
+
+.message-icon {
+  font-size: 12.0px;
+}
+
+.message-text {
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 12.0px;
+  }
+  
+  .upload-area {
+    padding: 20.0px 10.0px;
+  }
+  
+  .upload-icon-wrapper {
+    width: 40.0px;
+    height: 40.0px;
+  }
+  
+  .upload-hint .icon {
+    font-size: 20.0px;
+  }
+  
+  .upload-text {
+    font-size: 11.0px;
+  }
+  
+  .form-label {
+    font-size: 11.0px;
+  }
+  
+  .form-input {
+    padding: 7.5px;
+    font-size: 11.0px;
+  }
+  
+  .btn {
+    padding: 7.5px;
+    font-size: 11.0px;
+  }
 }
 </style>

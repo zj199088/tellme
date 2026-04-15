@@ -1,52 +1,82 @@
 <template>
   <div class="home-container">
     <div class="particle-bg" id="particleBg"></div>
-    <div class="header">
-      <h1 class="title neon-glow">健身计划</h1>
-      <div class="header-bg"></div>
+    <div class="glow-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
     </div>
+    
+    <div class="header">
+      <div class="header-content">
+        <div class="header-icon">💪</div>
+        <h1 class="title neon-glow">健身计划</h1>
+      </div>
+      <div class="header-bg"></div>
+      <div class="scanline"></div>
+    </div>
+    
     <div class="content">
       <!-- 计划列表 -->
       <div class="plans-section" :class="['plans-section', 'animate-in']">
-        <h2 class="section-title">我的计划</h2>
+        <h2 class="section-title">
+          <span class="title-icon">📋</span>
+          <span>我的计划</span>
+          <span class="title-glow"></span>
+        </h2>
         <div class="plan-list" v-if="plans.length > 0">
-          <div class="plan-card" v-for="(plan, index) in plans" :key="plan.id" :class="['plan-card', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
-            <div class="plan-header">
-              <h3 class="plan-name">{{ plan.name }}</h3>
-              <div class="plan-actions">
-                <button class="plan-action-btn pause" @click="togglePlanStatus(plan, 'pause')" v-if="plan.status === 'active'">
-                  暂停
-                </button>
-                <button class="plan-action-btn resume" @click="togglePlanStatus(plan, 'resume')" v-else-if="plan.status === 'paused'">
-                  继续
-                </button>
-                <button class="plan-action-btn stop" @click="togglePlanStatus(plan, 'stop')">
-                  停止
-                </button>
+          <div class="plan-card" v-for="(plan, index) in plans" :key="plan.id" :class="['plan-card', 'animate-in', 'glow-card']" :style="{ animationDelay: `${index * 0.1}s` }">
+            <div class="plan-card-inner">
+              <div class="plan-header">
+                <div class="plan-title-group">
+                  <h3 class="plan-name">{{ plan.name }}</h3>
+                  <div class="plan-status" :class="plan.status">
+                    {{ getStatusText(plan.status) }}
+                  </div>
+                </div>
+                <div class="plan-actions">
+                  <button class="plan-action-btn pause" @click="togglePlanStatus(plan, 'pause')" v-if="plan.status === 'active'">
+                    <span>⏸</span>
+                  </button>
+                  <button class="plan-action-btn resume" @click="togglePlanStatus(plan, 'resume')" v-else-if="plan.status === 'paused'">
+                    <span>▶</span>
+                  </button>
+                  <button class="plan-action-btn stop" @click="togglePlanStatus(plan, 'stop')">
+                    <span>⏹</span>
+                  </button>
+                </div>
               </div>
-            </div>
-            <p class="plan-description">{{ plan.description }}</p>
-            <div class="progress-container">
-              <div class="progress-bar">
-                <div class="progress-fill" :style="{ width: getPlanProgress(plan) + '%' }"></div>
-                <div class="progress-glow" :style="{ left: getPlanProgress(plan) + '%' }"></div>
+              <p class="plan-description">{{ plan.description }}</p>
+              <div class="progress-container">
+                <div class="progress-bar">
+                  <div class="progress-fill" :style="{ width: getPlanProgress(plan) + '%' }"></div>
+                  <div class="progress-glow" :style="{ left: getPlanProgress(plan) + '%' }"></div>
+                </div>
+                <div class="progress-info">
+                  <p class="progress-text">第 {{ plan.currentDay }} 天 / 共 {{ plan.totalDays }} 天</p>
+                  <p class="progress-percent">{{ Math.round(getPlanProgress(plan)) }}%</p>
+                </div>
               </div>
-              <p class="progress-text">第 {{ plan.currentDay }} 天 / 共 {{ plan.totalDays }} 天</p>
-            </div>
-            <div class="plan-status" :class="plan.status">
-              {{ getStatusText(plan.status) }}
             </div>
           </div>
         </div>
         <div class="no-plans" v-else>
+          <div class="no-plans-icon">📝</div>
           <p class="no-plans-text">暂无计划</p>
-          <button class="create-plan-btn" @click="navigateToCreatePlan">创建计划</button>
+          <button class="create-plan-btn glow-button" @click="navigateToCreatePlan">
+            <span>创建计划</span>
+            <span class="btn-glow"></span>
+          </button>
         </div>
       </div>
 
       <!-- 今日训练 -->
-      <div class="today-section" v-if="activePlan" :class="['today-section', 'animate-in']">
-        <h2 class="section-title">今日训练</h2>
+      <div class="today-section" v-if="activePlan" :class="['today-section', 'animate-in', 'glow-card']">
+        <h2 class="section-title">
+          <span class="title-icon">🔥</span>
+          <span>今日训练</span>
+          <span class="title-glow"></span>
+        </h2>
         <div class="exercise-list" v-if="todayRecord">
           <div class="exercise-item" v-for="exercise in todayRecord.exercises" :key="exercise.id" :class="['exercise-item', exercise.completed ? 'completed' : '']">
             <div class="exercise-info">
@@ -55,24 +85,38 @@
               <p class="exercise-weight" v-if="exercise.weight">{{ exercise.weight }} kg</p>
             </div>
             <div class="exercise-checkbox" :class="{ checked: exercise.completed }" @click="toggleExercise(exercise)">
-              <span v-if="exercise.completed">✓</span>
+              <svg v-if="exercise.completed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
             </div>
           </div>
-          <button class="complete-button" :class="{ completed: todayRecord.completed }" @click="completeTraining">
-            {{ todayRecord.completed ? '已完成' : '完成训练' }}
+          <button class="complete-button glow-button" :class="{ completed: todayRecord.completed }" @click="completeTraining">
+            <span>{{ todayRecord.completed ? '已完成' : '完成训练' }}</span>
+            <span class="btn-glow"></span>
           </button>
         </div>
         <div class="no-training" v-else>
+          <div class="no-training-icon">🏃</div>
           <p class="no-training-text">开始今日训练</p>
-          <button class="start-button" @click="startTraining">开始训练</button>
+          <button class="start-button glow-button" @click="startTraining">
+            <span>开始训练</span>
+            <span class="btn-glow"></span>
+          </button>
         </div>
       </div>
 
       <!-- 训练记录 -->
-      <div class="records-section" :class="['records-section', 'animate-in']">
+      <div class="records-section" :class="['records-section', 'animate-in', 'glow-card']">
         <div class="section-header">
-          <h2 class="section-title">训练记录</h2>
-          <button class="more-btn" @click="navigateToMoreRecords">查看更多</button>
+          <h2 class="section-title">
+            <span class="title-icon">📊</span>
+            <span>训练记录</span>
+            <span class="title-glow"></span>
+          </h2>
+          <button class="more-btn" @click="navigateToMoreRecords">
+            查看更多
+            <span class="arrow">→</span>
+          </button>
         </div>
         <div class="record-list" v-if="recentRecords.length > 0">
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
@@ -94,7 +138,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import api, { Exercise as ApiExercise, FitnessPlan, WorkoutRecord } from '../../utils/api';
+
+const router = useRouter();
 
 interface Exercise {
   id: number;
@@ -134,20 +181,20 @@ const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
   if (!particleBg) return;
   
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 25; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
-    const size = Math.random() * 30 + 10;
+    const size = Math.random() * 25 + 8;
     particle.style.width = `${size}px`;
     particle.style.height = `${size}px`;
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.top = `${Math.random() * 100}%`;
     particle.style.animationDelay = `${Math.random() * 15}s`;
-    particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    particle.style.animationDuration = `${Math.random() * 12 + 8}s`;
     
-    const colors = ['#FF6B35', '#4ECDC4', '#FFD166', '#EF476F'];
+    const colors = ['var(--neon-cyan)', 'var(--neon-purple)', 'var(--neon-pink)', 'var(--neon-blue)'];
     const color = colors[Math.floor(Math.random() * colors.length)];
-    particle.style.background = `radial-gradient(circle, ${color}40 0%, ${color}00 70%)`;
+    particle.style.background = `radial-gradient(circle, ${color}60 0%, ${color}00 70%)`;
     
     particleBg.appendChild(particle);
   }
@@ -177,13 +224,11 @@ const fetchPlans = async () => {
     const response = await api.plans.getList();
     if (response.code === 200 && response.data) {
       plans.value = response.data;
-      // 最近运动的计划在最前面
       plans.value.sort((a, b) => {
         if (a.status === 'active' && b.status !== 'active') return -1;
         if (a.status !== 'active' && b.status === 'active') return 1;
         return b.currentDay - a.currentDay;
       });
-      // 设置活跃计划
       activePlan.value = plans.value.find(plan => plan.status === 'active') || null;
     }
   } catch (error) {
@@ -303,13 +348,11 @@ const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
     const response = await api.plans.updateStatus(plan.id, newStatus);
     if (response.code === 200) {
       plan.status = newStatus;
-      // 重新排序计划
       plans.value.sort((a, b) => {
         if (a.status === 'active' && b.status !== 'active') return -1;
         if (a.status !== 'active' && b.status === 'active') return 1;
         return b.currentDay - a.currentDay;
       });
-      // 重新设置活跃计划
       activePlan.value = plans.value.find(p => p.status === 'active') || null;
     }
   } catch (error) {
@@ -391,7 +434,6 @@ const completeTraining = async () => {
     });
     
     activePlan.value.currentDay++;
-    // 检查是否完成计划
     if (activePlan.value.currentDay > activePlan.value.totalDays) {
       activePlan.value.status = 'completed';
       await api.plans.updateStatus(activePlan.value.id, 'completed');
@@ -402,17 +444,11 @@ const completeTraining = async () => {
 };
 
 const navigateToCreatePlan = () => {
-  // 导航到创建计划页面
-  uni.navigateTo({
-    url: '/pages/template/list'
-  });
+  router.push('/pages/template/list');
 };
 
 const navigateToMoreRecords = () => {
-  // 导航到更多训练记录页面
-  uni.navigateTo({
-    url: '/pages/records/index'
-  });
+  router.push('/pages/records/index');
 };
 
 onMounted(() => {
@@ -428,11 +464,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 动画效果 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30rpx);
+    transform: translateY(15.0px);
   }
   to {
     opacity: 1;
@@ -440,292 +475,24 @@ onMounted(() => {
   }
 }
 
-.animate-in {
-  animation: fadeInUp 0.6s ease forwards;
-}
-
-/* 主容器 */
-.home-container {
-  width: 100%;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-/* 头部设计 */
-.header {
-  position: relative;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
-  color: white;
-  padding: 40rpx 20rpx;
-  text-align: center;
-  border-bottom-left-radius: 30rpx;
-  border-bottom-right-radius: 30rpx;
-  box-shadow: 0 4rpx 20rpx rgba(255, 107, 53, 0.3);
-  overflow: hidden;
-}
-
-.header-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  animation: float 6s ease-in-out infinite;
-}
-
 @keyframes float {
   0%, 100% {
     transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-10rpx) rotate(1deg);
+    transform: translateY(-7.5px) rotate(2deg);
   }
 }
 
-.title {
-  font-size: 36rpx;
-  font-weight: bold;
-  position: relative;
-  z-index: 1;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
-}
-
-/* 内容区域 */
-.content {
-  padding: 30rpx 20rpx;
-  padding-bottom: 160rpx;
-}
-
-/* 卡片设计 */
-.plan-card,
-.today-section,
-.records-section,
-.plans-section {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 24rpx;
-  padding: 35rpx;
-  margin-bottom: 25rpx;
-  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.plan-card::before,
-.today-section::before,
-.records-section::before,
-.plans-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4rpx;
-  background: linear-gradient(90deg, #FF6B35, #FF8E53);
-  border-top-left-radius: 24rpx;
-  border-top-right-radius: 24rpx;
-}
-
-.plan-card:hover,
-.today-section:hover,
-.records-section:hover,
-.plans-section:hover {
-  transform: translateY(-4rpx);
-  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.12);
-}
-
-/* 标题样式 */
-.plan-title,
-.section-title {
-  font-size: 30rpx;
-  font-weight: bold;
-  margin-bottom: 15rpx;
-  color: #333;
-  display: flex;
-  align-items: center;
-}
-
-.plan-title::before,
-.section-title::before {
-  content: '';
-  width: 8rpx;
-  height: 24rpx;
-  background: #FF6B35;
-  border-radius: 4rpx;
-  margin-right: 12rpx;
-}
-
-/* 计划列表 */
-.plan-list {
-  margin-top: 15rpx;
-}
-
-.plan-card {
-  margin-bottom: 20rpx;
-}
-
-.plan-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15rpx;
-}
-
-.plan-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333;
-  transition: color 0.3s ease;
-  flex: 1;
-}
-
-.plan-card:hover .plan-name {
-  color: #FF6B35;
-}
-
-.plan-actions {
-  display: flex;
-  gap: 10rpx;
-}
-
-.plan-action-btn {
-  padding: 8rpx 16rpx;
-  border: none;
-  border-radius: 8rpx;
-  font-size: 20rpx;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 60rpx;
-  text-align: center;
-}
-
-.plan-action-btn.pause {
-  background: linear-gradient(135deg, #FFD166, #FFE066);
-  color: #333;
-}
-
-.plan-action-btn.resume {
-  background: linear-gradient(135deg, #4ECDC4, #45B7AA);
-  color: white;
-}
-
-.plan-action-btn.stop {
-  background: linear-gradient(135deg, #EF476F, #E74C3C);
-  color: white;
-}
-
-.plan-action-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-}
-
-.plan-description {
-  font-size: 24rpx;
-  color: #666;
-  margin-bottom: 20rpx;
-  line-height: 1.5;
-}
-
-.plan-status {
-  position: absolute;
-  top: 20rpx;
-  right: 20rpx;
-  padding: 6rpx 12rpx;
-  border-radius: 12rpx;
-  font-size: 18rpx;
-  font-weight: 500;
-}
-
-.plan-status.active {
-  background: rgba(78, 205, 196, 0.2);
-  color: #4ECDC4;
-}
-
-.plan-status.paused {
-  background: rgba(255, 209, 102, 0.2);
-  color: #FFD166;
-}
-
-.plan-status.completed {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4CAF50;
-}
-
-.plan-status.stopped {
-  background: rgba(239, 71, 111, 0.2);
-  color: #EF476F;
-}
-
-/* 无计划状态 */
-.no-plans {
-  text-align: center;
-  padding: 80rpx 0;
-  background: rgba(255, 107, 53, 0.03);
-  border-radius: 16rpx;
-  margin-top: 10rpx;
-}
-
-.no-plans-text {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 25rpx;
-}
-
-.create-plan-btn {
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-  color: white;
-  border: none;
-  border-radius: 12rpx;
-  padding: 20rpx 40rpx;
-  font-size: 24rpx;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.create-plan-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8rpx 20rpx rgba(255, 107, 53, 0.4);
-}
-
-/* 进度条设计 */
-.progress-container {
-  margin-top: 20rpx;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 12rpx;
-  background-color: #f0f0f0;
-  border-radius: 6rpx;
-  overflow: hidden;
-  margin-bottom: 15rpx;
-  position: relative;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #FF6B35, #FF8E53);
-  border-radius: 6rpx;
-  transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-}
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
 }
 
 @keyframes shimmer {
@@ -737,35 +504,548 @@ onMounted(() => {
   }
 }
 
+@keyframes borderGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+  50% {
+    box-shadow: 0 0 15px var(--neon-purple), 0 0 30px var(--neon-purple);
+  }
+}
+
+@keyframes scanlineMove {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes orbFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(15.0px, -15.0px) scale(1.1);
+  }
+  66% {
+    transform: translate(-10.0px, 10.0px) scale(0.9);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.home-container {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--gradient-bg);
+  position: relative;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.particle-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 15s ease-in-out infinite;
+}
+
+.glow-orbs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 200.0px;
+  height: 200.0px;
+  background: var(--neon-cyan);
+  top: 10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 175.0px;
+  height: 175.0px;
+  background: var(--neon-purple);
+  top: 50%;
+  right: -10%;
+  animation-delay: -7s;
+}
+
+.orb-3 {
+  width: 150.0px;
+  height: 150.0px;
+  background: var(--neon-pink);
+  bottom: 10%;
+  left: 30%;
+  animation-delay: -14s;
+}
+
+.header {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  padding: 25.0px 15.0px 20.0px;
+  text-align: center;
+  border-bottom-left-radius: 20.0px;
+  border-bottom-right-radius: 20.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 245, 255, 0.15);
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7.5px;
+}
+
+.header-icon {
+  font-size: 22.0px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  animation: float 8s ease-in-out infinite;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent, var(--neon-cyan), transparent);
+  animation: scanlineMove 4s linear infinite;
+  opacity: 0.3;
+  z-index: 3;
+}
+
+.title {
+  font-size: 20.0px;
+  font-weight: bold;
+  position: relative;
+  z-index: 1;
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neon-glow {
+  text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-purple);
+  }
+}
+
+.content {
+  padding: 15.0px 10.0px;
+  padding-bottom: 80.0px;
+  position: relative;
+  z-index: 1;
+}
+
+.plan-card,
+.today-section,
+.records-section,
+.plans-section {
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 15.0px;
+  padding: 20.0px;
+  margin-bottom: 15.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.plan-card::before,
+.today-section::before,
+.records-section::before,
+.plans-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.0px;
+  background: var(--gradient-neon);
+  border-top-left-radius: 15.0px;
+  border-top-right-radius: 15.0px;
+}
+
+.plan-card::after,
+.today-section::after,
+.records-section::after,
+.plans-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 15.0px;
+  padding: 1px;
+  background: var(--gradient-neon);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+.glow-card:hover {
+  transform: translateY(-3.0px) scale(1.01);
+  box-shadow: 0 8.0px 30.0px rgba(0, 245, 255, 0.25);
+}
+
+.section-title {
+  font-size: 16.0px;
+  font-weight: bold;
+  margin-bottom: 12.5px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6.0px;
+  position: relative;
+}
+
+.title-icon {
+  font-size: 18.0px;
+}
+
+.title-glow {
+  position: absolute;
+  bottom: -4.0px;
+  left: 0;
+  width: 30.0px;
+  height: 1.5px;
+  background: var(--gradient-cyan);
+  border-radius: 1.0px;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.plan-list {
+  margin-top: 10.0px;
+}
+
+.plan-card {
+  margin-bottom: 12.5px;
+  padding: 0;
+}
+
+.plan-card-inner {
+  padding: 17.5px;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10.0px;
+  gap: 10.0px;
+}
+
+.plan-title-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5.0px;
+}
+
+.plan-name {
+  font-size: 15.0px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.plan-card:hover .plan-name {
+  color: var(--neon-cyan);
+}
+
+.plan-status {
+  display: inline-block;
+  padding: 3.0px 8.0px;
+  border-radius: 10.0px;
+  font-size: 10.0px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.plan-status.active {
+  background: rgba(0, 245, 255, 0.15);
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+}
+
+.plan-status.paused {
+  background: rgba(255, 209, 102, 0.15);
+  color: var(--neon-orange);
+  border: 1px solid var(--neon-orange);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+}
+
+.plan-status.completed {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+}
+
+.plan-status.stopped {
+  background: rgba(255, 0, 110, 0.15);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 0, 110, 0.2);
+}
+
+.plan-actions {
+  display: flex;
+  gap: 6.0px;
+}
+
+.plan-action-btn {
+  width: 25.0px;
+  height: 25.0px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  font-size: 12.0px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-action-btn.pause {
+  background: linear-gradient(135deg, var(--neon-orange), var(--neon-orange));
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+}
+
+.plan-action-btn.resume {
+  background: var(--gradient-cyan);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.4);
+}
+
+.plan-action-btn.stop {
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-pink));
+  box-shadow: 0 0 15px rgba(255, 0, 110, 0.4);
+}
+
+.plan-action-btn:hover {
+  transform: scale(1.15);
+}
+
+.plan-action-btn:active {
+  transform: scale(0.95);
+}
+
+.plan-description {
+  font-size: 12.0px;
+  color: var(--text-secondary);
+  margin-bottom: 12.5px;
+  line-height: 1.6;
+}
+
+.progress-container {
+  margin-top: 12.5px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8.0px;
+  background: var(--bg-tertiary);
+  border-radius: 5.0px;
+  overflow: hidden;
+  margin-bottom: 6.0px;
+  position: relative;
+  border: 1px solid rgba(0, 245, 255, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gradient-neon);
+  border-radius: 5.0px;
+  transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
 .progress-glow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%) translateX(-50%);
-  width: 40rpx;
-  height: 40rpx;
-  background: radial-gradient(circle, rgba(255, 107, 53, 0.3) 0%, transparent 70%);
+  width: 25.0px;
+  height: 25.0px;
+  background: radial-gradient(circle, rgba(0, 245, 255, 0.5) 0%, transparent 70%);
   border-radius: 50%;
   animation: pulse 2s infinite;
 }
 
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .progress-text {
-  font-size: 22rpx;
-  color: #999;
-  text-align: right;
+  font-size: 11.0px;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
-/* 训练项目 */
+.progress-percent {
+  font-size: 12.0px;
+  font-weight: 700;
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.no-plans {
+  text-align: center;
+  padding: 40.0px 20.0px;
+  background: rgba(0, 245, 255, 0.03);
+  border-radius: 12.0px;
+  margin-top: 7.5px;
+  border: 1px dashed var(--border-color);
+}
+
+.no-plans-icon {
+  font-size: 40.0px;
+  margin-bottom: 10.0px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.no-plans-text {
+  font-size: 13.0px;
+  color: var(--text-muted);
+  margin-bottom: 15.0px;
+}
+
+.create-plan-btn,
+.complete-button,
+.start-button {
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
+  color: white;
+  border: none;
+  border-radius: 8.0px;
+  padding: 12.0px 24.0px;
+  font-size: 13.0px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.glow-button:hover {
+  transform: translateY(-2.0px) scale(1.02);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.5), 0 0 60px rgba(0, 245, 255, 0.3);
+}
+
+.glow-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-glow {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.glow-button:hover .btn-glow {
+  left: 100%;
+}
+
 .exercise-list {
-  margin-bottom: 25rpx;
+  margin-bottom: 15.0px;
 }
 
 .exercise-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 14.0px 0;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
 }
@@ -775,19 +1055,21 @@ onMounted(() => {
 }
 
 .exercise-item:hover {
-  background: rgba(255, 107, 53, 0.03);
-  border-radius: 12rpx;
-  padding-left: 15rpx;
-  padding-right: 15rpx;
+  background: rgba(0, 245, 255, 0.05);
+  border-radius: 8.0px;
+  padding-left: 10.0px;
+  padding-right: 10.0px;
+  margin-left: -10.0px;
+  margin-right: -10.0px;
 }
 
 .exercise-item.completed {
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 .exercise-item.completed .exercise-name {
   text-decoration: line-through;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .exercise-info {
@@ -795,39 +1077,43 @@ onMounted(() => {
 }
 
 .exercise-name {
-  font-size: 26rpx;
+  font-size: 14.0px;
   font-weight: 600;
-  margin-bottom: 8rpx;
-  color: #333;
+  margin-bottom: 5.0px;
+  color: var(--text-primary);
   transition: all 0.3s ease;
 }
 
+.exercise-item:hover .exercise-name {
+  color: var(--neon-cyan);
+}
+
 .exercise-sets {
-  font-size: 22rpx;
-  color: #666;
-  margin-bottom: 4rpx;
+  font-size: 11.0px;
+  color: var(--text-secondary);
+  margin-bottom: 3.0px;
 }
 
 .exercise-weight {
-  font-size: 20rpx;
-  color: #999;
+  font-size: 10.0px;
+  color: var(--text-muted);
 }
 
-/* 复选框设计 */
 .exercise-checkbox {
-  width: 48rpx;
-  height: 48rpx;
-  border: 2rpx solid #ddd;
+  width: 28.0px;
+  height: 28.0px;
+  border: 2px solid var(--border-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
+  font-size: 14.0px;
   color: white;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
   overflow: hidden;
+  background: transparent;
 }
 
 .exercise-checkbox::before {
@@ -837,7 +1123,7 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.2), transparent);
   transition: left 0.5s;
 }
 
@@ -845,106 +1131,106 @@ onMounted(() => {
   left: 100%;
 }
 
-.exercise-checkbox.checked {
-  background: linear-gradient(135deg, #4CAF50, #66BB6A);
-  border-color: #4CAF50;
-  transform: scale(1.1) rotate(10deg);
-  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.4);
+.exercise-checkbox:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
 }
 
-/* 按钮设计 */
-.complete-button,
-.start-button {
-  width: 100%;
-  padding: 25rpx;
-  border: none;
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+.exercise-checkbox.checked {
+  background: var(--gradient-cyan);
+  border-color: var(--neon-cyan);
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+}
+
+.exercise-checkbox svg {
+  width: 14.0px;
+  height: 14.0px;
+  stroke-width: 3;
 }
 
 .complete-button {
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-  color: white;
-  margin-top: 25rpx;
-}
-
-.complete-button:hover {
-  transform: translateY(-2rpx);
-  box-shadow: 0 8rpx 20rpx rgba(255, 107, 53, 0.4);
+  width: 100%;
+  padding: 14.0px;
+  margin-top: 15.0px;
 }
 
 .complete-button.completed {
-  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-green));
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
   animation: pulse 1s ease-in-out;
 }
 
-.start-button {
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-  color: white;
-  padding: 25rpx 50rpx;
-  font-size: 26rpx;
-}
-
-.start-button:hover {
-  transform: translateY(-2rpx) scale(1.05);
-  box-shadow: 0 8rpx 20rpx rgba(255, 107, 53, 0.4);
-}
-
-/* 无训练状态 */
 .no-training {
   text-align: center;
-  padding: 80rpx 0;
-  background: rgba(255, 107, 53, 0.03);
-  border-radius: 16rpx;
-  margin: 20rpx 0;
+  padding: 40.0px 20.0px;
+  background: rgba(0, 245, 255, 0.03);
+  border-radius: 12.0px;
+  margin: 10.0px 0;
+  border: 1px dashed var(--border-color);
+}
+
+.no-training-icon {
+  font-size: 40.0px;
+  margin-bottom: 10.0px;
+  animation: float 4s ease-in-out infinite;
 }
 
 .no-training-text {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 25rpx;
+  font-size: 13.0px;
+  color: var(--text-muted);
+  margin-bottom: 15.0px;
 }
 
-/* 训练记录 */
+.start-button {
+  padding: 14.0px 30.0px;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15rpx;
+  margin-bottom: 10.0px;
 }
 
 .more-btn {
   background: none;
   border: none;
-  color: #FF6B35;
-  font-size: 22rpx;
-  font-weight: 500;
+  color: var(--neon-cyan);
+  font-size: 11.0px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  padding: 0;
+  padding: 4.0px 8.0px;
+  border-radius: 6.0px;
+  display: flex;
+  align-items: center;
+  gap: 3.0px;
 }
 
 .more-btn:hover {
-  text-decoration: underline;
-  transform: scale(1.05);
+  background: rgba(0, 245, 255, 0.1);
+  transform: translateX(2.0px);
+}
+
+.more-btn .arrow {
+  transition: transform 0.3s ease;
+}
+
+.more-btn:hover .arrow {
+  transform: translateX(2.0px);
 }
 
 .record-list {
-  margin-top: 15rpx;
+  margin-top: 10.0px;
 }
 
 .record-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 14.0px 0;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -955,105 +1241,111 @@ onMounted(() => {
 }
 
 .record-item:hover {
-  background: rgba(255, 107, 53, 0.03);
-  border-radius: 12rpx;
-  padding-left: 15rpx;
-  padding-right: 15rpx;
+  background: rgba(0, 245, 255, 0.05);
+  border-radius: 8.0px;
+  padding-left: 10.0px;
+  padding-right: 10.0px;
+  margin-left: -10.0px;
+  margin-right: -10.0px;
 }
 
 .record-date {
-  font-size: 22rpx;
-  color: #999;
-  min-width: 120rpx;
+  font-size: 11.0px;
+  color: var(--text-muted);
+  min-width: 60.0px;
   font-weight: 500;
 }
 
 .record-info {
   flex: 1;
-  margin-left: 20rpx;
+  margin-left: 10.0px;
 }
 
 .record-plan {
-  font-size: 24rpx;
+  font-size: 13.0px;
   font-weight: 600;
-  margin-bottom: 6rpx;
+  margin-bottom: 4.0px;
   display: block;
-  color: #333;
+  color: var(--text-primary);
   transition: color 0.3s ease;
 }
 
 .record-item:hover .record-plan {
-  color: #FF6B35;
+  color: var(--neon-cyan);
 }
 
 .record-status {
-  font-size: 20rpx;
-  color: #999;
+  font-size: 10.0px;
+  color: var(--text-muted);
   transition: all 0.3s ease;
 }
 
 .record-status.completed {
-  color: #4CAF50;
+  color: var(--neon-green);
   font-weight: 600;
 }
 
 .record-indicator {
-  width: 12rpx;
-  height: 12rpx;
+  width: 7.0px;
+  height: 7.0px;
   border-radius: 50%;
-  background: #ddd;
+  background: var(--text-muted);
   transition: all 0.3s ease;
 }
 
 .record-indicator.completed {
-  background: #4CAF50;
-  box-shadow: 0 0 10rpx rgba(76, 175, 80, 0.5);
+  background: var(--neon-green);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
   animation: pulse 2s infinite;
 }
 
 .no-records {
-  font-size: 24rpx;
-  color: #999;
+  font-size: 12.0px;
+  color: var(--text-muted);
   text-align: center;
-  padding: 60rpx 0;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 12rpx;
-  margin-top: 10rpx;
+  padding: 30.0px 0;
+  background: rgba(0, 245, 255, 0.03);
+  border-radius: 8.0px;
+  margin-top: 7.5px;
+  border: 1px dashed var(--border-color);
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .content {
-    padding: 20rpx 15rpx;
+    padding: 10.0px 7.5px;
   }
   
   .plan-card,
   .today-section,
   .records-section,
   .plans-section {
-    padding: 25rpx;
+    padding: 15.0px;
+  }
+  
+  .plan-card-inner {
+    padding: 14.0px;
   }
   
   .title {
-    font-size: 32rpx;
+    font-size: 17.0px;
   }
   
-  .plan-title,
   .section-title {
-    font-size: 28rpx;
+    font-size: 14.0px;
   }
   
   .plan-name {
-    font-size: 26rpx;
+    font-size: 13.0px;
   }
   
   .exercise-name {
-    font-size: 24rpx;
+    font-size: 12.0px;
   }
   
   .plan-action-btn {
-    font-size: 18rpx;
-    padding: 6rpx 12rpx;
+    width: 22.0px;
+    height: 22.0px;
+    font-size: 10.0px;
   }
 }
 </style>

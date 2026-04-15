@@ -1,53 +1,83 @@
 <template>
   <div class="ai-container">
     <div class="particle-bg" id="particleBg"></div>
-    <div class="header">
-      <h1 class="title neon-glow">AI健身助手</h1>
-      <div class="header-bg"></div>
+    <div class="glow-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
     </div>
-    <div class="chat-container">
-      <div class="messages" ref="messagesContainer">
-        <div v-for="(message, index) in messages" :key="index" :class="['message', message.role, 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
-          <div class="message-content">
-            {{ message.content }}
+    
+    <div class="header">
+      <div class="header-content">
+        <div class="header-icon">🤖</div>
+        <h1 class="title neon-glow">AI健身助手</h1>
+      </div>
+      <div class="header-bg"></div>
+      <div class="scanline"></div>
+    </div>
+    
+    <div class="content">
+      <div class="chat-container animate-in glow-card">
+        <div class="messages" ref="messagesContainer">
+          <div v-for="(message, index) in messages" :key="index" :class="['message', message.role, 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
+            <div class="message-avatar">
+              <span v-if="message.role === 'user'">👤</span>
+              <span v-else>🤖</span>
+            </div>
+            <div class="message-wrapper">
+              <div class="message-content">
+                {{ message.content }}
+              </div>
+              <button 
+                v-if="message.role === 'assistant' && !message.saved" 
+                @click="savePlan(message)" 
+                class="save-button glow-button"
+              >
+                <span class="btn-icon">💾</span>
+                <span>保存计划</span>
+                <span class="btn-glow"></span>
+              </button>
+            </div>
           </div>
-          <button 
-            v-if="message.role === 'assistant' && !message.saved" 
-            @click="savePlan(message)" 
-            class="save-button"
-          >
-            保存计划
-          </button>
-        </div>
-        <div v-if="loading" class="message assistant animate-in">
-          <div class="message-content">
-            <div class="loading">
-              <span class="loading-dot"></span>
-              <span class="loading-dot"></span>
-              <span class="loading-dot"></span>
-              <span>生成中...</span>
+          <div v-if="loading" class="message assistant animate-in">
+            <div class="message-avatar">
+              <span>🤖</span>
+            </div>
+            <div class="message-wrapper">
+              <div class="message-content">
+                <div class="loading">
+                  <span class="loading-dot"></span>
+                  <span class="loading-dot"></span>
+                  <span class="loading-dot"></span>
+                  <span>生成中...</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="input-area">
-        <input 
-          v-model="inputMessage" 
-          type="text" 
-          placeholder="请输入您的健身需求..."
-          @keyup.enter="sendMessage"
-          class="input"
-        />
-        <button @click="sendMessage" class="send-button">
-          <span class="send-icon">→</span>
-        </button>
+        <div class="input-area">
+          <input 
+            v-model="inputMessage" 
+            type="text" 
+            placeholder="请输入您的健身需求..."
+            @keyup.enter="sendMessage"
+            class="input"
+          />
+          <button @click="sendMessage" class="send-button glow-button">
+            <span class="send-icon">🚀</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
       </div>
     </div>
-    <!-- 保存计划弹窗 -->
+    
     <div v-if="showSaveModal" class="modal-overlay">
-      <div class="modal-content animate-in">
+      <div class="modal-content animate-in glow-card">
         <div class="modal-header">
-          <h2 class="modal-title">保存健身计划</h2>
+          <h2 class="modal-title">
+            <span class="title-icon">💪</span>
+            保存健身计划
+          </h2>
           <button @click="showSaveModal = false" class="modal-close">×</button>
         </div>
         <div class="modal-body">
@@ -78,7 +108,10 @@
         </div>
         <div class="modal-footer">
           <button @click="showSaveModal = false" class="modal-button cancel">取消</button>
-          <button @click="confirmSavePlan" class="modal-button confirm">保存</button>
+          <button @click="confirmSavePlan" class="modal-button confirm glow-button">
+            <span>保存</span>
+            <span class="btn-glow"></span>
+          </button>
         </div>
       </div>
     </div>
@@ -93,20 +126,20 @@ const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
   if (!particleBg) return;
   
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 25; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
-    const size = Math.random() * 20 + 6;
+    const size = Math.random() * 25 + 8;
     particle.style.width = `${size}px`;
     particle.style.height = `${size}px`;
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.top = `${Math.random() * 100}%`;
     particle.style.animationDelay = `${Math.random() * 15}s`;
-    particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    particle.style.animationDuration = `${Math.random() * 12 + 8}s`;
     
-    const colors = ['#FF6B35', '#4ECDC4', '#FFD166', '#EF476F'];
+    const colors = ['var(--neon-cyan)', 'var(--neon-purple)', 'var(--neon-pink)', 'var(--neon-blue)'];
     const color = colors[Math.floor(Math.random() * colors.length)];
-    particle.style.background = `radial-gradient(circle, ${color}40 0%, ${color}00 70%)`;
+    particle.style.background = `radial-gradient(circle, ${color}60 0%, ${color}00 70%)`;
     
     particleBg.appendChild(particle);
   }
@@ -216,22 +249,20 @@ const confirmSavePlan = async () => {
   try {
     const response = await axios.post('http://localhost:8080/api/templates/create-plan', {
       ...planForm.value,
-      template_id: 1 // 这里使用默认模板ID，实际应用中可能需要根据情况调整
+      template_id: 1
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token') // 假设token存储在localStorage中
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
       }
     });
 
     if (response.data.success) {
-      // 标记消息为已保存
       const index = messages.value.findIndex(msg => msg === currentMessage.value);
       if (index !== -1) {
         messages.value[index].saved = true;
       }
       showSaveModal.value = false;
-      // 重置表单
       planForm.value = {
         name: '',
         type: '',
@@ -240,7 +271,6 @@ const confirmSavePlan = async () => {
         duration_weeks: 4,
         start_date: new Date().toISOString().split('T')[0]
       };
-      // 显示保存成功消息
       messages.value.push({
         role: 'assistant',
         content: '计划保存成功！您可以在首页查看您的健身计划。'
@@ -262,15 +292,23 @@ const confirmSavePlan = async () => {
 </script>
 
 <style scoped>
-/* 动画效果 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20rpx);
+    transform: translateY(15.0px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7.5px) rotate(2deg);
   }
 }
 
@@ -283,27 +321,6 @@ const confirmSavePlan = async () => {
   }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10rpx) rotate(1deg);
-  }
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-5rpx);
-  }
-  60% {
-    transform: translateY(-3rpx);
-  }
-}
-
 @keyframes dotPulse {
   0%, 80%, 100% {
     transform: scale(0);
@@ -313,31 +330,138 @@ const confirmSavePlan = async () => {
   }
 }
 
-.animate-in {
-  animation: fadeInUp 0.5s ease forwards;
+@keyframes neon-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-purple);
+  }
 }
 
-/* 主容器 */
+@keyframes scanlineMove {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes orbFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(15.0px, -15.0px) scale(1.1);
+  }
+  66% {
+    transform: translate(-10.0px, 10.0px) scale(0.9);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
 .ai-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--gradient-bg);
   position: relative;
   overflow: hidden;
-  padding-bottom: 140rpx;
+  color: var(--text-primary);
 }
 
-/* 头部设计 */
+.particle-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 15s ease-in-out infinite;
+}
+
+.glow-orbs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 200.0px;
+  height: 200.0px;
+  background: var(--neon-cyan);
+  top: 10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 175.0px;
+  height: 175.0px;
+  background: var(--neon-purple);
+  top: 50%;
+  right: -10%;
+  animation-delay: -7s;
+}
+
+.orb-3 {
+  width: 150.0px;
+  height: 150.0px;
+  background: var(--neon-pink);
+  bottom: 10%;
+  left: 30%;
+  animation-delay: -14s;
+}
+
 .header {
   position: relative;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
-  color: white;
-  padding: 40rpx 20rpx;
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  padding: 25.0px 15.0px 20.0px;
   text-align: center;
-  border-bottom-left-radius: 30rpx;
-  border-bottom-right-radius: 30rpx;
-  box-shadow: 0 4rpx 20rpx rgba(255, 107, 53, 0.3);
+  border-bottom-left-radius: 20.0px;
+  border-bottom-right-radius: 20.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 245, 255, 0.15);
   overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7.5px;
+}
+
+.header-icon {
+  font-size: 22.0px;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .header-bg {
@@ -346,109 +470,189 @@ const confirmSavePlan = async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  animation: float 6s ease-in-out infinite;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  animation: float 8s ease-in-out infinite;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent, var(--neon-cyan), transparent);
+  animation: scanlineMove 4s linear infinite;
+  opacity: 0.3;
+  z-index: 3;
 }
 
 .title {
-  font-size: 36rpx;
+  font-size: 20.0px;
   font-weight: bold;
   position: relative;
   z-index: 1;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* 聊天容器 */
+.neon-glow {
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.content {
+  padding: 15.0px 10.0px;
+  padding-bottom: 80.0px;
+  position: relative;
+  z-index: 1;
+}
+
 .chat-container {
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 15.0px;
+  padding: 15.0px;
+  box-shadow: 0 4.0px 20.0px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 220rpx);
-  padding: 30rpx 20rpx;
+  height: calc(100vh - 130.0px);
 }
 
-/* 消息区域 */
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 25rpx;
-  padding: 25rpx;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 24rpx;
-  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
-  position: relative;
-}
-
-.messages::before {
+.chat-container::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4rpx;
-  background: linear-gradient(90deg, #FF6B35, #FF8E53);
-  border-top-left-radius: 24rpx;
-  border-top-right-radius: 24rpx;
+  height: 2.0px;
+  background: var(--gradient-neon);
+  border-top-left-radius: 15.0px;
+  border-top-right-radius: 15.0px;
 }
 
-/* 消息样式 */
+.chat-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 15.0px;
+  padding: 1px;
+  background: var(--gradient-neon);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+.glow-card:hover {
+  transform: translateY(-3.0px) scale(1.01);
+  box-shadow: 0 8.0px 30.0px rgba(0, 245, 255, 0.25);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 12.5px;
+  padding: 5.0px 0;
+}
+
 .message {
-  margin-bottom: 25rpx;
-  max-width: 85%;
   display: flex;
-  flex-direction: column;
+  gap: 7.5px;
+  margin-bottom: 12.5px;
   position: relative;
 }
 
 .message.user {
-  align-self: flex-end;
-  margin-left: auto;
-  animation: bounce 0.6s ease;
+  flex-direction: row-reverse;
 }
 
-.message.assistant {
-  align-self: flex-start;
-  margin-right: auto;
-  animation: bounce 0.6s ease;
+.message-avatar {
+  width: 30.0px;
+  height: 30.0px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15.0px;
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+}
+
+.message.assistant .message-avatar {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+
+.message-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+
+.message.user .message-wrapper {
+  align-items: flex-end;
 }
 
 .message-content {
-  padding: 20rpx 25rpx;
-  border-radius: 20rpx;
-  line-height: 1.5;
-  font-size: 24rpx;
-  margin-bottom: 12rpx;
+  padding: 10.0px 12.5px;
+  border-radius: 10.0px;
+  line-height: 1.6;
+  font-size: 12.0px;
   position: relative;
   word-wrap: break-word;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .message.user .message-content {
-  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-  color: #1976D2;
-  border-bottom-right-radius: 6rpx;
+  background: var(--gradient-cyan);
+  color: white;
+  border-bottom-right-radius: 3.0px;
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
 }
 
 .message.assistant .message-content {
-  background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
-  color: #333;
-  border-bottom-left-radius: 6rpx;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-bottom-left-radius: 3.0px;
+  border: 1px solid var(--border-color);
 }
 
-/* 加载状态 */
 .loading {
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  color: #999;
+  gap: 5.0px;
+  color: var(--text-muted);
   font-style: italic;
 }
 
 .loading-dot {
-  width: 8rpx;
-  height: 8rpx;
-  background: #FF6B35;
+  width: 6.0px;
+  height: 6.0px;
+  background: var(--neon-purple);
   border-radius: 50%;
   animation: dotPulse 1.4s infinite ease-in-out both;
 }
@@ -461,102 +665,103 @@ const confirmSavePlan = async () => {
   animation-delay: -0.16s;
 }
 
-/* 保存按钮 */
 .save-button {
   align-self: flex-start;
-  padding: 10rpx 20rpx;
-  background: linear-gradient(135deg, #4CAF50, #45B7AA);
+  margin-top: 7.5px;
+  padding: 6.0px 12.0px;
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-green));
   color: white;
   border: none;
-  border-radius: 12rpx;
-  font-size: 20rpx;
+  border-radius: 6.0px;
+  font-size: 10.0px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 5rpx;
-  transition: all 0.3s ease;
-  box-shadow: 0 2rpx 8rpx rgba(76, 175, 80, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4.0px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
 }
 
-.save-button:hover {
-  transform: translateY(-2rpx);
-  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.4);
-  animation: pulse 0.6s ease-in-out;
+.btn-icon {
+  font-size: 10.0px;
 }
 
-/* 输入区域 */
 .input-area {
   display: flex;
-  gap: 15rpx;
-  padding: 15rpx;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 24rpx;
-  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+  gap: 7.5px;
+  padding: 7.5px;
+  background: var(--bg-tertiary);
+  border-radius: 12.0px;
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
 }
 
 .input-area:focus-within {
-  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.12);
-  transform: translateY(-2rpx);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  border-color: var(--neon-cyan);
 }
 
 .input {
   flex: 1;
-  padding: 20rpx;
-  border: 1rpx solid #E0E0E0;
-  border-radius: 16rpx;
-  font-size: 24rpx;
-  background: white;
+  padding: 10.0px;
+  border: none;
+  border-radius: 8.0px;
+  font-size: 12.0px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   transition: all 0.3s ease;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
 }
 
 .input:focus {
   outline: none;
-  border-color: #FF6B35;
-  box-shadow: 0 0 0 3rpx rgba(255, 107, 53, 0.1);
+  box-shadow: 0 0 0 1.0px var(--neon-cyan);
 }
 
-/* 发送按钮 */
 .send-button {
-  width: 60rpx;
-  height: 60rpx;
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-  color: white;
-  border: none;
+  width: 35.0px;
+  height: 35.0px;
   border-radius: 50%;
-  font-size: 28rpx;
-  font-weight: bold;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
-}
-
-.send-button:hover {
-  transform: scale(1.1) rotate(10deg);
-  box-shadow: 0 6rpx 16rpx rgba(255, 107, 53, 0.4);
-  animation: pulse 0.6s ease-in-out;
+  font-size: 14.0px;
+  position: relative;
+  overflow: hidden;
 }
 
 .send-icon {
-  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
-.send-button:hover .send-icon {
-  transform: translateX(3rpx);
+.btn-glow {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
 }
 
-/* 弹窗样式 */
+.glow-button:hover .btn-glow {
+  left: 100%;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5rpx);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -565,16 +770,19 @@ const confirmSavePlan = async () => {
 }
 
 .modal-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 24rpx;
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 15.0px;
   width: 90%;
-  max-width: 500rpx;
+  max-width: 250.0px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6.0px 20.0px rgba(0, 0, 0, 0.5);
   position: relative;
   animation: fadeInUp 0.4s ease;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
 }
 
 .modal-content::before {
@@ -583,35 +791,42 @@ const confirmSavePlan = async () => {
   top: 0;
   left: 0;
   right: 0;
-  height: 4rpx;
-  background: linear-gradient(90deg, #FF6B35, #FF8E53);
-  border-top-left-radius: 24rpx;
-  border-top-right-radius: 24rpx;
+  height: 2.0px;
+  background: var(--gradient-neon);
+  border-top-left-radius: 15.0px;
+  border-top-right-radius: 15.0px;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25rpx;
-  border-bottom: 1rpx solid #E0E0E0;
+  padding: 15.0px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-title {
-  font-size: 30rpx;
+  font-size: 15.0px;
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5.0px;
+}
+
+.title-icon {
+  font-size: 16.0px;
 }
 
 .modal-close {
-  background: none;
-  border: none;
-  font-size: 40rpx;
-  color: #999;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  font-size: 20.0px;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0;
-  width: 45rpx;
-  height: 45rpx;
+  width: 25.0px;
+  height: 25.0px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -620,112 +835,120 @@ const confirmSavePlan = async () => {
 }
 
 .modal-close:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #333;
+  background: rgba(255, 0, 110, 0.1);
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
   transform: rotate(90deg);
 }
 
 .modal-body {
-  padding: 30rpx 25rpx;
+  padding: 15.0px;
 }
 
 .form-item {
-  margin-bottom: 25rpx;
+  margin-bottom: 12.5px;
 }
 
 .form-label {
   display: block;
-  font-size: 24rpx;
+  font-size: 12.0px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 12rpx;
-  transition: color 0.3s ease;
+  color: var(--text-primary);
+  margin-bottom: 6.0px;
 }
 
 .form-input {
   width: 100%;
-  padding: 20rpx;
-  border: 1rpx solid #E0E0E0;
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  padding: 10.0px;
+  border: 1px solid var(--border-color);
+  border-radius: 6.0px;
+  font-size: 12.0px;
   box-sizing: border-box;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #FF6B35;
-  box-shadow: 0 0 0 3rpx rgba(255, 107, 53, 0.1);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
 }
 
 .modal-footer {
   display: flex;
   justify-content: space-between;
-  padding: 25rpx;
-  border-top: 1rpx solid #E0E0E0;
-  gap: 15rpx;
+  padding: 12.5px 15.0px;
+  border-top: 1px solid var(--border-color);
+  gap: 7.5px;
 }
 
 .modal-button {
   flex: 1;
-  padding: 20rpx;
+  padding: 10.0px;
   border: none;
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  border-radius: 6.0px;
+  font-size: 12.0px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
 .modal-button.cancel {
-  background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
-  color: #333;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.modal-button.cancel:hover {
+  background: rgba(255, 0, 110, 0.1);
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
 }
 
 .modal-button.confirm {
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-  color: white;
+  position: relative;
+  overflow: hidden;
 }
 
-.modal-button:hover {
-  transform: translateY(-2rpx);
-  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.15);
-  animation: pulse 0.6s ease-in-out;
-}
-
-/* 响应式设计 */
 @media (max-width: 768px) {
-  .chat-container {
-    padding: 20rpx 15rpx;
+  .content {
+    padding: 10.0px 7.5px;
   }
   
-  .messages {
-    padding: 20rpx;
+  .chat-container {
+    padding: 12.5px;
+  }
+  
+  .message-wrapper {
+    max-width: 85%;
   }
   
   .message-content {
-    padding: 15rpx 20rpx;
-    font-size: 22rpx;
+    padding: 7.5px 10.0px;
+    font-size: 11.0px;
   }
   
   .input {
-    padding: 15rpx;
-    font-size: 22rpx;
+    padding: 7.5px;
+    font-size: 11.0px;
   }
   
   .modal-body {
-    padding: 25rpx 20rpx;
+    padding: 12.5px 10.0px;
   }
   
   .form-input {
-    padding: 15rpx;
-    font-size: 22rpx;
+    padding: 7.5px;
+    font-size: 11.0px;
   }
   
   .title {
-    font-size: 32rpx;
+    font-size: 17.0px;
   }
 }
 </style>

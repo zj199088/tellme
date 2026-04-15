@@ -1,84 +1,141 @@
 <template>
-  <view class="template-detail-container">
-    <view class="header">
-      <text class="title">{{ template?.name || '模板详情' }}</text>
-      <view class="back-button" @click="goBack">
-        <text class="back-icon">←</text>
-      </view>
-    </view>
-    <view class="content">
-      <view v-if="loading" class="loading">
-        <text>加载中...</text>
-      </view>
-      <view v-else-if="error" class="error">
-        <text>{{ error }}</text>
-      </view>
-      <view v-else-if="template" class="template-detail">
-        <view class="template-image">
-          <image :src="template.image" mode="aspectFill"></image>
-        </view>
-        <view class="template-info">
-          <text class="template-name">{{ template.name }}</text>
-          <text class="template-description">{{ template.description }}</text>
-          <view class="template-meta">
-            <text class="difficulty-tag" :class="template.difficulty">{{ getDifficultyText(template.difficulty) }}</text>
-          </view>
-        </view>
+  <div class="template-detail-container">
+    <div class="particle-bg" id="particleBg"></div>
+    <div class="glow-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    
+    <div class="header">
+      <div class="header-content">
+        <div class="back-button" @click="goBack">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </div>
+        <h1 class="title neon-glow">{{ template?.name || '模板详情' }}</h1>
+        <div class="header-spacer"></div>
+      </div>
+      <div class="header-bg"></div>
+      <div class="scanline"></div>
+    </div>
+    
+    <div class="content">
+      <div v-if="loading" class="loading animate-in">
+        <div class="loading-spinner"></div>
+        <p>加载中...</p>
+      </div>
+      <div v-else-if="error" class="error animate-in">
+        <div class="error-icon">⚠️</div>
+        <p>{{ error }}</p>
+      </div>
+      <div v-else-if="template" class="template-detail">
+        <div class="template-card glow-card animate-in">
+          <div class="template-image-container">
+            <img :src="template.image" class="template-image" alt="模板图片" />
+            <div class="image-overlay"></div>
+          </div>
+          
+          <div class="template-info">
+            <h2 class="template-name">{{ template.name }}</h2>
+            <p class="template-description">{{ template.description }}</p>
+            <div class="template-meta">
+              <span class="difficulty-tag" :class="template.difficulty">
+                {{ getDifficultyText(template.difficulty) }}
+              </span>
+            </div>
+          </div>
+        </div>
         
-        <view class="training-days">
-          <text class="section-title">训练计划</text>
-          <view v-for="day in templateDays" :key="day.id" class="day-card">
-            <view class="day-header">
-              <text class="day-name">{{ getDayName(day.dayOfWeek) }}</text>
-              <text v-if="day.isRestDay" class="rest-day-tag">休息日</text>
-              <text v-else class="duration">{{ day.estimatedDuration }}分钟</text>
-            </view>
-            <view v-if="day.isRestDay" class="rest-note">
-              <text>{{ day.restNote || '好好休息，让肌肉恢复' }}</text>
-            </view>
-            <view v-else class="exercises">
-              <view v-for="exercise in getExercisesByDayId(day.id)" :key="exercise.id" class="exercise-item">
-                <text class="exercise-name">{{ exercise.exerciseName }}</text>
-                <text class="exercise-detail">
-                  {{ exercise.sets }}组
-                  <text v-if="exercise.reps"> × {{ exercise.reps }}</text>
-                  <text v-else-if="exercise.duration"> × {{ exercise.duration }}</text>
-                </text>
-                <text v-if="exercise.note" class="exercise-note">{{ exercise.note }}</text>
-              </view>
-            </view>
-          </view>
-        </view>
+        <div class="training-days glow-card animate-in" style="animation-delay: 0.1s">
+          <h2 class="section-title">
+            <span class="title-icon">📋</span>
+            <span>训练计划</span>
+            <span class="title-glow"></span>
+          </h2>
+          <div class="days-list">
+            <div v-for="(day, index) in templateDays" :key="day.id" 
+                 class="day-card animate-in" 
+                 :style="{ animationDelay: `${index * 0.1}s` }">
+              <div class="day-header">
+                <div class="day-info">
+                  <h3 class="day-name">{{ getDayName(day.dayOfWeek) }}</h3>
+                  <span v-if="day.isRestDay" class="rest-day-tag">休息日</span>
+                  <span v-else class="duration">{{ day.estimatedDuration }}分钟</span>
+                </div>
+                <div class="day-indicator"></div>
+              </div>
+              
+              <div v-if="day.isRestDay" class="rest-note">
+                <span class="rest-icon">💤</span>
+                <p>{{ day.restNote || '好好休息，让肌肉恢复' }}</p>
+              </div>
+              
+              <div v-else class="exercises">
+                <div v-for="exercise in getExercisesByDayId(day.id)" 
+                     :key="exercise.id" 
+                     class="exercise-item">
+                  <div class="exercise-info">
+                    <h4 class="exercise-name">{{ exercise.exerciseName }}</h4>
+                    <p class="exercise-detail">
+                      {{ exercise.sets }}组
+                      <span v-if="exercise.reps"> × {{ exercise.reps }}</span>
+                      <span v-else-if="exercise.duration"> × {{ exercise.duration }}</span>
+                    </p>
+                    <p v-if="exercise.note" class="exercise-note">{{ exercise.note }}</p>
+                  </div>
+                  <div class="exercise-icon">⚡</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         
-        <view class="create-plan-section">
-          <text class="section-title">创建计划</text>
-          <view class="form-item">
-            <text class="label">计划名称</text>
-            <input type="text" v-model="planForm.name" placeholder="输入计划名称" class="input" />
-          </view>
-          <view class="form-item">
-            <text class="label">健身目标</text>
-            <input type="text" v-model="planForm.goal" placeholder="输入健身目标" class="input" />
-          </view>
-          <view class="form-item">
-            <text class="label">训练周期</text>
-            <input type="number" v-model="planForm.duration_weeks" placeholder="输入训练周期(周)" class="input" />
-          </view>
-          <view class="form-item">
-            <text class="label">开始日期</text>
-            <input type="date" v-model="planForm.start_date" class="input" />
-          </view>
-          <button class="create-button" @click="createPlan" :disabled="isCreating">
-            {{ isCreating ? '创建中...' : '从模板创建计划' }}
-          </button>
-        </view>
-      </view>
-    </view>
-  </view>
+        <div class="create-plan-section glow-card animate-in" style="animation-delay: 0.2s">
+          <h2 class="section-title">
+            <span class="title-icon">✨</span>
+            <span>创建计划</span>
+            <span class="title-glow"></span>
+          </h2>
+          
+          <div class="form">
+            <div class="form-item">
+              <label class="label">计划名称</label>
+              <input type="text" v-model="planForm.name" 
+                     placeholder="输入计划名称" class="input" />
+            </div>
+            
+            <div class="form-item">
+              <label class="label">健身目标</label>
+              <input type="text" v-model="planForm.goal" 
+                     placeholder="输入健身目标" class="input" />
+            </div>
+            
+            <div class="form-item">
+              <label class="label">训练周期</label>
+              <input type="number" v-model="planForm.duration_weeks" 
+                     placeholder="输入训练周期(周)" class="input" />
+            </div>
+            
+            <div class="form-item">
+              <label class="label">开始日期</label>
+              <input type="date" v-model="planForm.start_date" class="input" />
+            </div>
+            
+            <button class="create-button glow-button" @click="createPlan" :disabled="isCreating">
+              <span>{{ isCreating ? '创建中...' : '从模板创建计划' }}</span>
+              <span class="btn-glow"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '../../utils/api';
 
@@ -100,7 +157,34 @@ const planForm = ref({
   start_date: new Date().toISOString().split('T')[0]
 });
 
+const initParticles = () => {
+  const particleBg = document.getElementById('particleBg');
+  if (!particleBg) return;
+  
+  for (let i = 0; i < 25; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const size = Math.random() * 25 + 8;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.animationDelay = `${Math.random() * 15}s`;
+    particle.style.animationDuration = `${Math.random() * 12 + 8}s`;
+    
+    const colors = ['var(--neon-cyan)', 'var(--neon-purple)', 'var(--neon-pink)', 'var(--neon-blue)'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.background = `radial-gradient(circle, ${color}60 0%, ${color}00 70%)`;
+    
+    particleBg.appendChild(particle);
+  }
+};
+
 onMounted(() => {
+  nextTick(() => {
+    initParticles();
+  });
+  
   fetchTemplateDetail();
   fetchTemplateDays();
 });
@@ -129,7 +213,6 @@ const fetchTemplateDays = async () => {
     if (response.code === 200 && response.data) {
       templateDays.value = response.data;
       
-      // 为每个训练日获取训练动作
       for (const day of templateDays.value) {
         if (!day.isRestDay) {
           await fetchTemplateExercises(day.id);
@@ -188,7 +271,6 @@ const createPlan = async () => {
 
     if (response.code === 200) {
       alert('计划创建成功');
-      // 跳转到首页或计划详情页
       router.push('/pages/home/index');
     } else {
       alert('计划创建失败，请重试');
@@ -207,88 +289,400 @@ const goBack = () => {
 </script>
 
 <style scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes scanlineMove {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes orbFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-purple);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
 .template-detail-container {
   width: 100%;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: var(--gradient-bg);
+  position: relative;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.particle-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 15s ease-in-out infinite;
+}
+
+.glow-orbs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--neon-cyan);
+  top: 10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 350px;
+  height: 350px;
+  background: var(--neon-purple);
+  top: 50%;
+  right: -10%;
+  animation-delay: -7s;
+}
+
+.orb-3 {
+  width: 300px;
+  height: 300px;
+  background: var(--neon-pink);
+  bottom: 10%;
+  left: 30%;
+  animation-delay: -14s;
 }
 
 .header {
-  background-color: #FF6B35;
-  color: white;
-  padding: 20rpx;
   position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  padding: 20px 20px 25px;
   text-align: center;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  box-shadow: 0 8px 40px rgba(0, 245, 255, 0.15);
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
 }
 
-.title {
-  font-size: 32rpx;
-  font-weight: bold;
+.header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
 }
 
 .back-button {
-  position: absolute;
-  left: 20rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 10rpx;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 245, 255, 0.1);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--neon-cyan);
 }
 
-.back-icon {
-  font-size: 36rpx;
+.back-button:hover {
+  background: rgba(0, 245, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  transform: translateX(-4px);
+}
+
+.back-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.header-spacer {
+  width: 44px;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  animation: float 8s ease-in-out infinite;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent, var(--neon-cyan), transparent);
+  animation: scanlineMove 4s linear infinite;
+  opacity: 0.3;
+  z-index: 3;
+}
+
+.title {
+  font-size: 28px;
   font-weight: bold;
+  position: relative;
+  z-index: 1;
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neon-glow {
+  animation: neon-pulse 3s ease-in-out infinite;
 }
 
 .content {
-  padding: 20rpx;
+  padding: 24px 16px;
+  padding-bottom: 120px;
+  position: relative;
+  z-index: 1;
 }
 
-.loading, .error {
-  text-align: center;
-  padding: 40rpx 0;
-  font-size: 24rpx;
-  color: #666;
-}
-
+.loading,
 .error {
-  color: #EF476F;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 20px;
 }
 
-.template-detail {
-  background-color: white;
-  border-radius: 16rpx;
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 245, 255, 0.1);
+  border-top: 4px solid var(--neon-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: var(--glow-cyan);
+}
+
+.error-icon {
+  font-size: 60px;
+}
+
+.loading p,
+.error p {
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+.template-card,
+.training-days,
+.create-plan-section {
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 30px;
+  padding: 30px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
   overflow: hidden;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.template-card::before,
+.training-days::before,
+.create-plan-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-neon);
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+}
+
+.template-card::after,
+.training-days::after,
+.create-plan-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 30px;
+  padding: 1px;
+  background: var(--gradient-neon);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+.glow-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 60px rgba(0, 245, 255, 0.25);
+}
+
+.template-image-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
 }
 
 .template-image {
   width: 100%;
-  height: 300rpx;
-  overflow: hidden;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
 }
 
-.template-image image {
-  width: 100%;
-  height: 100%;
+.template-card:hover .template-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(10, 10, 15, 0.8) 100%);
 }
 
 .template-info {
-  padding: 20rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+  z-index: 1;
 }
 
 .template-name {
-  font-size: 28rpx;
-  font-weight: bold;
-  margin-bottom: 10rpx;
-  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .template-description {
-  font-size: 24rpx;
-  color: #666;
-  margin-bottom: 15rpx;
-  line-height: 1.4;
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6;
 }
 
 .template-meta {
@@ -297,141 +691,329 @@ const goBack = () => {
 }
 
 .difficulty-tag {
-  padding: 4rpx 12rpx;
-  border-radius: 12rpx;
-  font-size: 20rpx;
-  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  width: fit-content;
 }
 
 .difficulty-tag.beginner {
-  background-color: #4ECDC4;
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
 }
 
 .difficulty-tag.intermediate {
-  background-color: #FFD166;
-  color: #333;
+  background: rgba(255, 209, 102, 0.15);
+  color: var(--neon-orange);
+  border: 1px solid var(--neon-orange);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
 }
 
 .difficulty-tag.advanced {
-  background-color: #EF476F;
-}
-
-.training-days {
-  padding: 20rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  background: rgba(255, 0, 110, 0.15);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 0, 110, 0.2);
 }
 
 .section-title {
-  font-size: 28rpx;
+  font-size: 24px;
   font-weight: bold;
-  margin-bottom: 20rpx;
-  display: block;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.title-icon {
+  font-size: 28px;
+}
+
+.title-glow {
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-cyan);
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .day-card {
-  background-color: #f9f9f9;
-  border-radius: 12rpx;
-  padding: 15rpx;
-  margin-bottom: 15rpx;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(0, 245, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.day-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-cyan);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.day-card:hover {
+  background: rgba(0, 245, 255, 0.05);
+  border-color: rgba(0, 245, 255, 0.3);
+  transform: translateX(4px);
+}
+
+.day-card:hover::before {
+  opacity: 1;
 }
 
 .day-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10rpx;
+  margin-bottom: 16px;
+}
+
+.day-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .day-name {
-  font-size: 24rpx;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .rest-day-tag {
-  font-size: 20rpx;
-  color: #EF476F;
-  font-weight: bold;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(255, 0, 110, 0.15);
+  color: var(--neon-pink);
+  border: 1px solid rgba(255, 0, 110, 0.3);
 }
 
 .duration {
-  font-size: 20rpx;
-  color: #666;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.day-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.6);
+  animation: pulse 2s infinite;
 }
 
 .rest-note {
-  font-size: 22rpx;
-  color: #666;
-  padding: 10rpx 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.rest-icon {
+  font-size: 28px;
+}
+
+.rest-note p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .exercises {
-  margin-top: 10rpx;
+  margin-top: 8px;
 }
 
 .exercise-item {
-  padding: 10rpx 0;
-  border-bottom: 1rpx solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 .exercise-item:last-child {
   border-bottom: none;
 }
 
+.exercise-item:hover {
+  padding-left: 12px;
+  background: rgba(0, 245, 255, 0.03);
+  border-radius: 12px;
+  margin-left: -12px;
+  margin-right: -12px;
+  padding-right: 12px;
+}
+
+.exercise-info {
+  flex: 1;
+}
+
 .exercise-name {
-  font-size: 24rpx;
-  font-weight: bold;
-  margin-bottom: 5rpx;
-  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  transition: color 0.3s ease;
+}
+
+.exercise-item:hover .exercise-name {
+  color: var(--neon-cyan);
 }
 
 .exercise-detail {
-  font-size: 22rpx;
-  color: #666;
-  margin-bottom: 5rpx;
-  display: block;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
 }
 
 .exercise-note {
-  font-size: 20rpx;
-  color: #999;
-  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
-.create-plan-section {
-  padding: 20rpx;
+.exercise-icon {
+  font-size: 20px;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.exercise-item:hover .exercise-icon {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-item {
-  margin-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .label {
-  font-size: 24rpx;
-  font-weight: bold;
-  margin-bottom: 10rpx;
-  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .input {
   width: 100%;
-  padding: 15rpx;
-  border: 1rpx solid #e0e0e0;
-  border-radius: 8rpx;
-  font-size: 24rpx;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  font-size: 15px;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+  background: rgba(0, 245, 255, 0.05);
 }
 
 .create-button {
-  width: 100%;
-  padding: 20rpx;
-  background-color: #FF6B35;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
   color: white;
-  font-size: 28rpx;
-  font-weight: bold;
-  border-radius: 8rpx;
-  margin-top: 20rpx;
+  border: none;
+  border-radius: 16px;
+  padding: 18px 32px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  margin-top: 10px;
 }
 
 .create-button:disabled {
-  background-color: #ccc;
+  background: var(--bg-tertiary);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.create-button:not(:disabled):hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.5), 0 0 60px rgba(0, 245, 255, 0.3);
+}
+
+.create-button:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-glow {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.create-button:not(:disabled):hover .btn-glow {
+  left: 100%;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 20px 12px;
+    padding-bottom: 100px;
+  }
+  
+  .template-card,
+  .training-days,
+  .create-plan-section {
+    padding: 24px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .section-title {
+    font-size: 20px;
+  }
+  
+  .template-name {
+    font-size: 22px;
+  }
 }
 </style>
