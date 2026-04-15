@@ -180,8 +180,39 @@ const loadWorkoutData = async () => {
   }
 };
 
-const toggleSet = (exercise: TrackExercise, index: number) => {
+const toggleSet = async (exercise: TrackExercise, index: number) => {
   exercise.completedSets[index] = !exercise.completedSets[index];
+  
+  // 每组完成后立即提交
+  try {
+    const record = {
+      planId: planId.value,
+      scheduleId: schedule.value?.id,
+      scheduleExerciseId: exercise.id,
+      exerciseId: exercise.exerciseId,
+      exerciseName: exercise.exerciseName,
+      date: new Date().toISOString().split('T')[0],
+      setsCompleted: JSON.stringify(exercise.completedSets.map(c => c ? 1 : 0)),
+      weight: exercise.weight || 0,
+      duration: 0,
+      notes: ''
+    };
+    
+    await api.workout.createBatch([record]);
+    
+    // 显示提交成功反馈
+    const setElement = document.querySelector(`.set-checkbox:nth-child(${index + 1})`);
+    if (setElement) {
+      setElement.classList.add('submitted');
+      setTimeout(() => {
+        setElement.classList.remove('submitted');
+      }, 1000);
+    }
+  } catch (err) {
+    console.error('提交组记录失败:', err);
+    // 提交失败时恢复原状态
+    exercise.completedSets[index] = !exercise.completedSets[index];
+  }
 };
 
 const allSetsCompleted = computed(() => {
@@ -748,6 +779,25 @@ onMounted(() => {
   border-color: var(--neon-cyan);
   transform: scale(1.1) rotate(5deg);
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+}
+
+.set-checkbox.submitted {
+  animation: submit-pulse 1s ease-in-out;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 0 60px rgba(0, 255, 136, 0.5);
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-green));
+  border-color: var(--neon-green);
+}
+
+@keyframes submit-pulse {
+  0% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(5deg);
+  }
 }
 
 .set-checkbox svg {

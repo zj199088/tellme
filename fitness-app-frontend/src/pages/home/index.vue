@@ -78,40 +78,7 @@
         </div>
       </div>
 
-      <!-- 今日训练 -->
-      <div class="today-section" v-if="activePlan" :class="['today-section', 'animate-in', 'glow-card']">
-        <h2 class="section-title">
-          <span class="title-icon">🔥</span>
-          <span>今日训练</span>
-          <span class="title-glow"></span>
-        </h2>
-        <div class="exercise-list" v-if="todayRecord">
-          <div class="exercise-item" v-for="exercise in todayRecord.exercises" :key="exercise.id" :class="['exercise-item', exercise.completed ? 'completed' : '']">
-            <div class="exercise-info">
-              <h3 class="exercise-name">{{ exercise.name }}</h3>
-              <p class="exercise-sets">{{ exercise.sets }} 组 × {{ exercise.reps }} {{ exercise.weight ? '次' : '秒' }}</p>
-              <p class="exercise-weight" v-if="exercise.weight">{{ exercise.weight }} kg</p>
-            </div>
-            <div class="exercise-checkbox" :class="{ checked: exercise.completed }" @click="toggleExercise(exercise)">
-              <svg v-if="exercise.completed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </div>
-          </div>
-          <button class="complete-button glow-button" :class="{ completed: todayRecord.completed }" @click="completeTraining">
-            <span>{{ todayRecord.completed ? '已完成' : '完成训练' }}</span>
-            <span class="btn-glow"></span>
-          </button>
-        </div>
-        <div class="no-training" v-else>
-          <div class="no-training-icon">🏃</div>
-          <p class="no-training-text">开始今日训练</p>
-          <button class="start-button glow-button" @click="startTraining">
-            <span>开始训练</span>
-            <span class="btn-glow"></span>
-          </button>
-        </div>
-      </div>
+
 
       <!-- 训练记录 -->
       <div class="records-section" :class="['records-section', 'animate-in', 'glow-card']">
@@ -181,8 +148,6 @@ interface TrainingRecord {
 }
 
 const plans = ref<TrainingPlan[]>([]);
-const activePlan = ref<TrainingPlan | null>(null);
-const todayRecord = ref<TrainingRecord | null>(null);
 const recentRecords = ref<TrainingRecord[]>([]);
 
 const initParticles = () => {
@@ -237,7 +202,6 @@ const fetchPlans = async () => {
         if (a.status !== 'active' && b.status === 'active') return 1;
         return b.currentDay - a.currentDay;
       });
-      activePlan.value = plans.value.find(plan => plan.status === 'active') || null;
     }
   } catch (error) {
     console.error('获取计划列表失败:', error);
@@ -245,20 +209,7 @@ const fetchPlans = async () => {
   }
 };
 
-const fetchTodayWorkout = async () => {
-  try {
-    const response = await api.workout.getToday();
-    if (response.code === 200 && response.data) {
-      const record = response.data;
-      if (record.exercisesJson) {
-        record.exercises = JSON.parse(record.exercisesJson);
-      }
-      todayRecord.value = record;
-    }
-  } catch (error) {
-    console.error('获取今日训练失败:', error);
-  }
-};
+
 
 const fetchRecentRecords = async () => {
   try {
@@ -303,21 +254,6 @@ const useLocalData = () => {
       status: 'active'
     }
   ];
-  
-  activePlan.value = plans.value.find(plan => plan.status === 'active') || null;
-  
-  todayRecord.value = {
-    id: 1,
-    planId: 1,
-    date: new Date().toISOString().split('T')[0],
-    dayNumber: 3,
-    completed: false,
-    exercises: [
-      { id: 1, name: '俯卧撑', sets: 3, reps: 15, completed: false },
-      { id: 2, name: '深蹲', sets: 4, reps: 12, completed: false },
-      { id: 3, name: '平板支撑', sets: 3, reps: 60, completed: false }
-    ]
-  };
   
   recentRecords.value = [
     {
@@ -368,88 +304,7 @@ const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
   }
 };
 
-const startTraining = async () => {
-  if (!activePlan.value) return;
-  
-  const newRecord: TrainingRecord = {
-    id: 0,
-    planId: activePlan.value.id,
-    date: new Date().toISOString().split('T')[0],
-    dayNumber: activePlan.value.currentDay,
-    completed: false,
-    exercises: [
-      { id: 1, name: '俯卧撑', sets: 3, reps: 15, completed: false },
-      { id: 2, name: '深蹲', sets: 4, reps: 12, completed: false },
-      { id: 3, name: '平板支撑', sets: 3, reps: 60, completed: false }
-    ]
-  };
-  
-  try {
-    const response = await api.workout.createRecord({
-      planId: newRecord.planId,
-      date: newRecord.date,
-      setsCompleted: JSON.stringify(newRecord.exercises.map(ex => ex.sets)),
-      duration: 600,
-      notes: ''
-    });
-    if (response.code === 200) {
-      todayRecord.value = { ...response.data, exercises: newRecord.exercises };
-    }
-  } catch (error) {
-    console.error('创建训练记录失败:', error);
-    todayRecord.value = newRecord;
-  }
-};
 
-const toggleExercise = async (exercise: Exercise) => {
-  if (!todayRecord.value) return;
-  
-  const updatedExercises = todayRecord.value.exercises.map(ex => 
-    ex.id === exercise.id ? { ...ex, completed: !ex.completed } : ex
-  );
-  
-  todayRecord.value = {
-    ...todayRecord.value,
-    exercises: updatedExercises,
-    completed: updatedExercises.every(ex => ex.completed)
-  };
-  
-  try {
-    await api.workout.updateRecord(todayRecord.value.id, {
-      setsCompleted: JSON.stringify(updatedExercises.map(ex => ex.sets)),
-      duration: 600,
-      notes: ''
-    });
-  } catch (error) {
-    console.error('更新训练记录失败:', error);
-  }
-};
-
-const completeTraining = async () => {
-  if (!todayRecord.value || !activePlan.value) return;
-  
-  todayRecord.value = {
-    ...todayRecord.value,
-    completed: true,
-    exercises: todayRecord.value.exercises.map(ex => ({ ...ex, completed: true }))
-  };
-  
-  try {
-    await api.workout.updateRecord(todayRecord.value.id, {
-      setsCompleted: JSON.stringify(todayRecord.value.exercises.map(ex => ex.sets)),
-      duration: 600,
-      notes: ''
-    });
-    
-    activePlan.value.currentDay++;
-    if (activePlan.value.currentDay > activePlan.value.totalDays) {
-      activePlan.value.status = 'completed';
-      await api.plans.updateStatus(activePlan.value.id, 'completed');
-    }
-  } catch (error) {
-    console.error('完成训练失败:', error);
-  }
-};
 
 const navigateToCreatePlan = () => {
   router.push('/pages/template/list');
@@ -473,7 +328,6 @@ onMounted(() => {
   
   useLocalData();
   fetchPlans();
-  fetchTodayWorkout();
   fetchRecentRecords();
 });
 </script>
@@ -710,7 +564,6 @@ onMounted(() => {
 }
 
 .plan-card,
-.today-section,
 .records-section,
 .plans-section {
   background: var(--bg-card);
@@ -727,7 +580,6 @@ onMounted(() => {
 }
 
 .plan-card::before,
-.today-section::before,
 .records-section::before,
 .plans-section::before {
   content: '';
@@ -742,7 +594,6 @@ onMounted(() => {
 }
 
 .plan-card::after,
-.today-section::after,
 .records-section::after,
 .plans-section::after {
   content: '';
@@ -1077,155 +928,7 @@ onMounted(() => {
   left: 100%;
 }
 
-.exercise-list {
-  margin-bottom: 15.0px;
-}
 
-.exercise-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14.0px 0;
-  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.exercise-item:last-child {
-  border-bottom: none;
-}
-
-.exercise-item:hover {
-  background: rgba(0, 245, 255, 0.05);
-  border-radius: 8.0px;
-  padding-left: 10.0px;
-  padding-right: 10.0px;
-  margin-left: -10.0px;
-  margin-right: -10.0px;
-}
-
-.exercise-item.completed {
-  opacity: 0.7;
-}
-
-.exercise-item.completed .exercise-name {
-  text-decoration: line-through;
-  color: var(--text-muted);
-}
-
-.exercise-info {
-  flex: 1;
-}
-
-.exercise-name {
-  font-size: 14.0px;
-  font-weight: 600;
-  margin-bottom: 5.0px;
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.exercise-item:hover .exercise-name {
-  color: var(--neon-cyan);
-}
-
-.exercise-sets {
-  font-size: 11.0px;
-  color: var(--text-secondary);
-  margin-bottom: 3.0px;
-}
-
-.exercise-weight {
-  font-size: 10.0px;
-  color: var(--text-muted);
-}
-
-.exercise-checkbox {
-  width: 28.0px;
-  height: 28.0px;
-  border: 2px solid var(--border-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14.0px;
-  color: white;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-  overflow: hidden;
-  background: transparent;
-}
-
-.exercise-checkbox::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.exercise-checkbox:hover::before {
-  left: 100%;
-}
-
-.exercise-checkbox:hover {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
-}
-
-.exercise-checkbox.checked {
-  background: var(--gradient-cyan);
-  border-color: var(--neon-cyan);
-  transform: scale(1.1) rotate(10deg);
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
-}
-
-.exercise-checkbox svg {
-  width: 14.0px;
-  height: 14.0px;
-  stroke-width: 3;
-}
-
-.complete-button {
-  width: 100%;
-  padding: 14.0px;
-  margin-top: 15.0px;
-}
-
-.complete-button.completed {
-  background: linear-gradient(135deg, var(--neon-green), var(--neon-green));
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
-  animation: pulse 1s ease-in-out;
-}
-
-.no-training {
-  text-align: center;
-  padding: 40.0px 20.0px;
-  background: rgba(0, 245, 255, 0.03);
-  border-radius: 12.0px;
-  margin: 10.0px 0;
-  border: 1px dashed var(--border-color);
-}
-
-.no-training-icon {
-  font-size: 40.0px;
-  margin-bottom: 10.0px;
-  animation: float 4s ease-in-out infinite;
-}
-
-.no-training-text {
-  font-size: 13.0px;
-  color: var(--text-muted);
-  margin-bottom: 15.0px;
-}
-
-.start-button {
-  padding: 14.0px 30.0px;
-}
 
 .section-header {
   display: flex;
