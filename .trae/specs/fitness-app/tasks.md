@@ -190,3 +190,26 @@
   - `programmatic` TR-10.3: 锻炼记录查询功能正常（分页和筛选）
   - `human-judgment` TR-10.4: 页面风格轻松活泼动感简洁
 - **Notes**: 确保用户体验良好
+
+## [x] Task 11: 实现前端环境配置
+- **Priority**: P0
+- **Depends On**: None
+- **Description**: 
+  - 创建环境配置文件，实现环境检测逻辑
+  - 实现模拟数据管理
+  - 更新API服务，根据环境切换数据来源
+  - 确保测试环境使用模拟数据，生产环境调用后端API
+- **Acceptance Criteria Addressed**: AC-14
+- **Test Requirements**:
+  - `programmatic` TR-11.1: 环境检测逻辑正确，能区分测试和生产环境 ✅
+  - `programmatic` TR-11.2: 测试环境返回模拟数据 ✅
+  - `programmatic` TR-11.3: 生产环境调用后端API ✅
+  - `programmatic` TR-11.4: 模拟数据结构与API响应一致 ✅
+- **Notes**: 确保模拟数据覆盖所有必要的API场景
+
+### 实现结果
+- 创建了 `src/utils/env.ts` 文件，包含环境检测逻辑和完整的模拟数据
+- 更新了 `src/utils/api.ts` 文件，实现了环境切换功能
+- 测试环境（开发模式）自动使用模拟数据
+- 生产环境（构建模式）自动调用后端API
+- 可通过设置 `VITE_IS_TEST=true` 强制使用模拟数据

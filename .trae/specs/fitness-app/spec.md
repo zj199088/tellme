@@ -64,6 +64,7 @@
 - **NFR-3**: 可靠性 - 系统可用性达到99.9%
 - **NFR-4**: 可扩展性 - 支持水平扩展以应对用户增长
 - **NFR-5**: 兼容性 - 适配不同屏幕尺寸的微信小程序
+- **NFR-6**: 环境配置 - 前端支持环境检测，测试环境使用模拟数据，生产环境调用后端API
 
 ## Constraints
 - **Technical**: 使用指定的技术栈，包括uni-app、Spring Boot、MySQL等
@@ -155,6 +156,12 @@
 - **When**: 页面加载完成
 - **Then**: 页面风格轻松活泼动感简洁
 - **Verification**: `human-judgment`
+
+### AC-14: 环境配置
+- **Given**: 前端应用运行
+- **When**: 应用检测运行环境
+- **Then**: 测试环境使用模拟数据，生产环境调用后端API
+- **Verification**: `programmatic`
 
 ## Open Questions
 - [ ] 阿里百炼大模型API的具体调用方式和参数
