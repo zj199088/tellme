@@ -130,11 +130,11 @@ const activePlan = ref<TrainingPlan | null>(null);
 const todayRecord = ref<TrainingRecord | null>(null);
 const recentRecords = ref<TrainingRecord[]>([]);
 
-const initParticles = () =&gt; {
+const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
   if (!particleBg) return;
   
-  for (let i = 0; i &lt; 20; i++) {
+  for (let i = 0; i < 20; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
     const size = Math.random() * 30 + 10;
@@ -153,11 +153,11 @@ const initParticles = () =&gt; {
   }
 };
 
-const getPlanProgress = (plan: TrainingPlan): number =&gt; {
+const getPlanProgress = (plan: TrainingPlan): number => {
   return (plan.currentDay / plan.totalDays) * 100;
 };
 
-const getStatusText = (status: string): string =&gt; {
+const getStatusText = (status: string): string => {
   switch (status) {
     case 'active': return '进行中';
     case 'paused': return '已暂停';
@@ -167,24 +167,24 @@ const getStatusText = (status: string): string =&gt; {
   }
 };
 
-const formatDate = (dateString: string): string =&gt; {
+const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
-const fetchPlans = async () =&gt; {
+const fetchPlans = async () => {
   try {
-    const response = await apiClient.get('/api/plan/list');
-    if (response.data.code === 200 &amp;&amp; response.data.data) {
-      plans.value = response.data.data;
+    const response = await api.plans.getList();
+    if (response.code === 200 && response.data) {
+      plans.value = response.data;
       // 最近运动的计划在最前面
-      plans.value.sort((a, b) =&gt; {
-        if (a.status === 'active' &amp;&amp; b.status !== 'active') return -1;
-        if (a.status !== 'active' &amp;&amp; b.status === 'active') return 1;
+      plans.value.sort((a, b) => {
+        if (a.status === 'active' && b.status !== 'active') return -1;
+        if (a.status !== 'active' && b.status === 'active') return 1;
         return b.currentDay - a.currentDay;
       });
       // 设置活跃计划
-      activePlan.value = plans.value.find(plan =&gt; plan.status === 'active') || null;
+      activePlan.value = plans.value.find(plan => plan.status === 'active') || null;
     }
   } catch (error) {
     console.error('获取计划列表失败:', error);
@@ -192,11 +192,11 @@ const fetchPlans = async () =&gt; {
   }
 };
 
-const fetchTodayWorkout = async () =&gt; {
+const fetchTodayWorkout = async () => {
   try {
-    const response = await apiClient.get('/api/workout/today');
-    if (response.data.code === 200 &amp;&amp; response.data.data) {
-      const record = response.data.data;
+    const response = await api.workout.getToday();
+    if (response.code === 200 && response.data) {
+      const record = response.data;
       if (record.exercisesJson) {
         record.exercises = JSON.parse(record.exercisesJson);
       }
@@ -207,11 +207,11 @@ const fetchTodayWorkout = async () =&gt; {
   }
 };
 
-const fetchRecentRecords = async () =&gt; {
+const fetchRecentRecords = async () => {
   try {
-    const response = await apiClient.get('/api/workout/recent?limit=10');
-    if (response.data.code === 200 &amp;&amp; response.data.data) {
-      recentRecords.value = response.data.data.map((record: any) =&gt; {
+    const response = await api.workout.getRecent(10);
+    if (response.code === 200 && response.data) {
+      recentRecords.value = response.data.map((record: any) => {
         if (record.exercisesJson) {
           record.exercises = JSON.parse(record.exercisesJson);
         }
@@ -223,7 +223,7 @@ const fetchRecentRecords = async () =&gt; {
   }
 };
 
-const useLocalData = () =&gt; {
+const useLocalData = () => {
   plans.value = [
     {
       id: 1,
@@ -251,7 +251,7 @@ const useLocalData = () =&gt; {
     }
   ];
   
-  activePlan.value = plans.value.find(plan =&gt; plan.status === 'active') || null;
+  activePlan.value = plans.value.find(plan => plan.status === 'active') || null;
   
   todayRecord.value = {
     id: 1,
@@ -297,29 +297,27 @@ const useLocalData = () =&gt; {
   ];
 };
 
-const togglePlanStatus = async (plan: TrainingPlan, action: string) =&gt; {
+const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
   try {
     const newStatus = action === 'pause' ? 'paused' : action === 'resume' ? 'active' : 'stopped';
-    const response = await apiClient.put(`/api/plan/status/${plan.id}`, {
-      status: newStatus
-    });
-    if (response.data.code === 200) {
+    const response = await api.plans.updateStatus(plan.id, newStatus);
+    if (response.code === 200) {
       plan.status = newStatus;
       // 重新排序计划
-      plans.value.sort((a, b) =&gt; {
-        if (a.status === 'active' &amp;&amp; b.status !== 'active') return -1;
-        if (a.status !== 'active' &amp;&amp; b.status === 'active') return 1;
+      plans.value.sort((a, b) => {
+        if (a.status === 'active' && b.status !== 'active') return -1;
+        if (a.status !== 'active' && b.status === 'active') return 1;
         return b.currentDay - a.currentDay;
       });
       // 重新设置活跃计划
-      activePlan.value = plans.value.find(p =&gt; p.status === 'active') || null;
+      activePlan.value = plans.value.find(p => p.status === 'active') || null;
     }
   } catch (error) {
     console.error('更新计划状态失败:', error);
   }
 };
 
-const startTraining = async () =&gt; {
+const startTraining = async () => {
   if (!activePlan.value) return;
   
   const newRecord: TrainingRecord = {
@@ -336,12 +334,15 @@ const startTraining = async () =&gt; {
   };
   
   try {
-    const response = await apiClient.post('/api/workout/record', {
-      ...newRecord,
-      exercisesJson: JSON.stringify(newRecord.exercises)
+    const response = await api.workout.createRecord({
+      planId: newRecord.planId,
+      date: newRecord.date,
+      setsCompleted: JSON.stringify(newRecord.exercises.map(ex => ex.sets)),
+      duration: 600,
+      notes: ''
     });
-    if (response.data.code === 200) {
-      todayRecord.value = { ...response.data.data, exercises: newRecord.exercises };
+    if (response.code === 200) {
+      todayRecord.value = { ...response.data, exercises: newRecord.exercises };
     }
   } catch (error) {
     console.error('创建训练记录失败:', error);
@@ -349,73 +350,73 @@ const startTraining = async () =&gt; {
   }
 };
 
-const toggleExercise = async (exercise: Exercise) =&gt; {
+const toggleExercise = async (exercise: Exercise) => {
   if (!todayRecord.value) return;
   
-  const updatedExercises = todayRecord.value.exercises.map(ex =&gt; 
+  const updatedExercises = todayRecord.value.exercises.map(ex => 
     ex.id === exercise.id ? { ...ex, completed: !ex.completed } : ex
   );
   
   todayRecord.value = {
     ...todayRecord.value,
     exercises: updatedExercises,
-    completed: updatedExercises.every(ex =&gt; ex.completed)
+    completed: updatedExercises.every(ex => ex.completed)
   };
   
   try {
-    await apiClient.put(`/api/workout/record/${todayRecord.value.id}`, {
-      ...todayRecord.value,
-      exercisesJson: JSON.stringify(updatedExercises)
+    await api.workout.updateRecord(todayRecord.value.id, {
+      setsCompleted: JSON.stringify(updatedExercises.map(ex => ex.sets)),
+      duration: 600,
+      notes: ''
     });
   } catch (error) {
     console.error('更新训练记录失败:', error);
   }
 };
 
-const completeTraining = async () =&gt; {
+const completeTraining = async () => {
   if (!todayRecord.value || !activePlan.value) return;
   
   todayRecord.value = {
     ...todayRecord.value,
     completed: true,
-    exercises: todayRecord.value.exercises.map(ex =&gt; ({ ...ex, completed: true }))
+    exercises: todayRecord.value.exercises.map(ex => ({ ...ex, completed: true }))
   };
   
   try {
-    await apiClient.put(`/api/workout/record/${todayRecord.value.id}`, {
-      ...todayRecord.value,
-      exercisesJson: JSON.stringify(todayRecord.value.exercises)
+    await api.workout.updateRecord(todayRecord.value.id, {
+      setsCompleted: JSON.stringify(todayRecord.value.exercises.map(ex => ex.sets)),
+      duration: 600,
+      notes: ''
     });
     
     activePlan.value.currentDay++;
     // 检查是否完成计划
-    if (activePlan.value.currentDay &gt; activePlan.value.totalDays) {
+    if (activePlan.value.currentDay > activePlan.value.totalDays) {
       activePlan.value.status = 'completed';
-      await apiClient.put(`/api/plan/status/${activePlan.value.id}`, {
-        status: 'completed'
-      });
+      await api.plans.updateStatus(activePlan.value.id, 'completed');
     }
   } catch (error) {
     console.error('完成训练失败:', error);
   }
 };
 
-const navigateToCreatePlan = () =&gt; {
+const navigateToCreatePlan = () => {
   // 导航到创建计划页面
   uni.navigateTo({
     url: '/pages/template/list'
   });
 };
 
-const navigateToMoreRecords = () =&gt; {
+const navigateToMoreRecords = () => {
   // 导航到更多训练记录页面
   uni.navigateTo({
     url: '/pages/records/index'
   });
 };
 
-onMounted(() =&gt; {
-  nextTick(() =&gt; {
+onMounted(() => {
+  nextTick(() => {
     initParticles();
   });
   
