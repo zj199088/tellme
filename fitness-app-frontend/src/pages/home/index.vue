@@ -1,7 +1,8 @@
 <template>
   <div class="home-container">
+    <div class="particle-bg" id="particleBg"></div>
     <div class="header">
-      <h1 class="title">健身计划</h1>
+      <h1 class="title neon-glow">健身计划</h1>
       <div class="header-bg"></div>
     </div>
     <div class="content">
@@ -69,85 +70,249 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import {
-  Exercise,
-  TrainingPlan,
-  TrainingRecord,
-  getActivePlan,
-  getTodayRecord,
-  getRecords,
-  createRecord,
-  updateRecord,
-  updatePlanProgress,
-  initializeSampleData
-} from '../../utils/trainingData';
+import { ref, computed, onMounted, nextTick } from 'vue';
+import axios from 'axios';
 
-// 响应式数据
-const activePlan = ref<TrainingPlan | null>(null);
-const todayRecord = ref<TrainingRecord | null>(null);
-const recentRecords = ref<TrainingRecord[]>([]);
+interface Exercise {
+  id: number;
+  name: string;
+  sets: number;
+  reps: number;
+  weight?: number;
+  completed?: boolean;
+}
 
-// 计算属性
-const progressPercentage = computed(() => {
+interface TrainingPlan {
+  id: number;
+  name: string;
+  description: string;
+  currentDay: number;
+  totalDays: number;
+}
+
+interface TrainingRecord {
+  id: number;
+  planId: number;
+  date: string;
+  dayNumber: number;
+  completed: boolean;
+  exercises: Exercise[];
+  exercisesJson?: string;
+}
+
+const activePlan = ref&lt;TrainingPlan | null&gt;(null);
+const todayRecord = ref&lt;TrainingRecord | null&gt;(null);
+const recentRecords = ref&lt;TrainingRecord[]&gt;([]);
+
+const getToken = () =&gt; {
+  return localStorage.getItem('token');
+};
+
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8080',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+apiClient.interceptors.request.use((config) =&gt; {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+const initParticles = () =&gt; {
+  const particleBg = document.getElementById('particleBg');
+  if (!particleBg) return;
+  
+  for (let i = 0; i &lt; 20; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const size = Math.random() * 30 + 10;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.animationDelay = `${Math.random() * 15}s`;
+    particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    
+    const colors = ['#FF6B35', '#4ECDC4', '#FFD166', '#EF476F'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.background = `radial-gradient(circle, ${color}40 0%, ${color}00 70%)`;
+    
+    particleBg.appendChild(particle);
+  }
+};
+
+const progressPercentage = computed(() =&gt; {
   if (!activePlan.value) return 0;
   return (activePlan.value.currentDay / activePlan.value.totalDays) * 100;
 });
 
-// 方法
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString: string): string =&gt; {
   const date = new Date(dateString);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
-const startTraining = () => {
-  if (activePlan.value) {
-    const record = createRecord(activePlan.value);
-    todayRecord.value = record;
+const fetchTodayWorkout = async () =&gt; {
+  try {
+    const response = await apiClient.get('/api/workout/today');
+    if (response.data.success &amp;&amp; response.data.data) {
+      const record = response.data.data;
+      if (record.exercisesJson) {
+        record.exercises = JSON.parse(record.exercisesJson);
+      }
+      todayRecord.value = record;
+    }
+  } catch (error) {
+    console.error('获取今日训练失败:', error);
+    useLocalData();
   }
 };
 
-const toggleExercise = (exercise: Exercise) => {
-  if (todayRecord.value) {
-    const updatedExercises = todayRecord.value.exercises.map(ex => 
-      ex.id === exercise.id ? { ...ex, completed: !ex.completed } : ex
-    );
-    todayRecord.value = {
-      ...todayRecord.value,
-      exercises: updatedExercises,
-      completed: updatedExercises.every(ex => ex.completed)
-    };
-    updateRecord(todayRecord.value);
+const fetchRecentRecords = async () =&gt; {
+  try {
+    const response = await apiClient.get('/api/workout/recent?limit=5');
+    if (response.data.success &amp;&amp; response.data.data) {
+      recentRecords.value = response.data.data.map((record: any) =&gt; {
+        if (record.exercisesJson) {
+          record.exercises = JSON.parse(record.exercisesJson);
+        }
+        return record;
+      });
+    }
+  } catch (error) {
+    console.error('获取训练记录失败:', error);
+    useLocalData();
   }
 };
 
-const completeTraining = () => {
-  if (todayRecord.value && activePlan.value) {
-    todayRecord.value = {
-      ...todayRecord.value,
+const useLocalData = () =&gt; {
+  activePlan.value = {
+    id: 1,
+    name: '新手增肌计划',
+    description: '专为新手设计的全身增肌训练计划',
+    currentDay: 3,
+    totalDays: 28
+  };
+  
+  todayRecord.value = {
+    id: 1,
+    planId: 1,
+    date: new Date().toISOString().split('T')[0],
+    dayNumber: 3,
+    completed: false,
+    exercises: [
+      { id: 1, name: '俯卧撑', sets: 3, reps: 15, completed: false },
+      { id: 2, name: '深蹲', sets: 4, reps: 12, completed: false },
+      { id: 3, name: '平板支撑', sets: 3, reps: 60, completed: false }
+    ]
+  };
+  
+  recentRecords.value = [
+    {
+      id: 1,
+      planId: 1,
+      date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+      dayNumber: 2,
       completed: true,
-      exercises: todayRecord.value.exercises.map(ex => ({ ...ex, completed: true }))
-    };
-    updateRecord(todayRecord.value);
-    updatePlanProgress(activePlan.value.id);
-    // 重新获取计划数据以更新进度
-    activePlan.value = getActivePlan();
+      exercises: []
+    },
+    {
+      id: 2,
+      planId: 1,
+      date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+      dayNumber: 1,
+      completed: true,
+      exercises: []
+    }
+  ];
+};
+
+const startTraining = async () =&gt; {
+  if (!activePlan.value) return;
+  
+  const newRecord: TrainingRecord = {
+    id: 0,
+    planId: activePlan.value.id,
+    date: new Date().toISOString().split('T')[0],
+    dayNumber: activePlan.value.currentDay,
+    completed: false,
+    exercises: [
+      { id: 1, name: '俯卧撑', sets: 3, reps: 15, completed: false },
+      { id: 2, name: '深蹲', sets: 4, reps: 12, completed: false },
+      { id: 3, name: '平板支撑', sets: 3, reps: 60, completed: false }
+    ]
+  };
+  
+  try {
+    const response = await apiClient.post('/api/workout/record', {
+      ...newRecord,
+      exercisesJson: JSON.stringify(newRecord.exercises)
+    });
+    if (response.data.success) {
+      todayRecord.value = { ...response.data.data, exercises: newRecord.exercises };
+    }
+  } catch (error) {
+    console.error('创建训练记录失败:', error);
+    todayRecord.value = newRecord;
   }
 };
 
-// 生命周期
-onMounted(() => {
-  // 初始化示例数据
-  initializeSampleData();
-  // 获取活跃计划
-  activePlan.value = getActivePlan();
-  // 获取今日记录
-  todayRecord.value = getTodayRecord();
-  // 获取最近的训练记录
-  const records = getRecords();
-  recentRecords.value = records
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+const toggleExercise = async (exercise: Exercise) =&gt; {
+  if (!todayRecord.value) return;
+  
+  const updatedExercises = todayRecord.value.exercises.map(ex =&gt; 
+    ex.id === exercise.id ? { ...ex, completed: !ex.completed } : ex
+  );
+  
+  todayRecord.value = {
+    ...todayRecord.value,
+    exercises: updatedExercises,
+    completed: updatedExercises.every(ex =&gt; ex.completed)
+  };
+  
+  try {
+    await apiClient.put(`/api/workout/record/${todayRecord.value.id}`, {
+      ...todayRecord.value,
+      exercisesJson: JSON.stringify(updatedExercises)
+    });
+  } catch (error) {
+    console.error('更新训练记录失败:', error);
+  }
+};
+
+const completeTraining = async () =&gt; {
+  if (!todayRecord.value || !activePlan.value) return;
+  
+  todayRecord.value = {
+    ...todayRecord.value,
+    completed: true,
+    exercises: todayRecord.value.exercises.map(ex =&gt; ({ ...ex, completed: true }))
+  };
+  
+  try {
+    await apiClient.put(`/api/workout/record/${todayRecord.value.id}`, {
+      ...todayRecord.value,
+      exercisesJson: JSON.stringify(todayRecord.value.exercises)
+    });
+    
+    activePlan.value.currentDay++;
+  } catch (error) {
+    console.error('完成训练失败:', error);
+  }
+};
+
+onMounted(() =&gt; {
+  nextTick(() =&gt; {
+    initParticles();
+  });
+  
+  useLocalData();
+  fetchTodayWorkout();
+  fetchRecentRecords();
 });
 </script>
 

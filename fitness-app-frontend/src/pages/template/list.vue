@@ -1,7 +1,8 @@
 <template>
   <div class="template-list-container">
+    <div class="particle-bg" id="particleBg"></div>
     <div class="header">
-      <h1 class="title">健身模板</h1>
+      <h1 class="title neon-glow">健身模板</h1>
       <div class="header-bg"></div>
     </div>
     <div class="content">
@@ -32,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -40,7 +41,33 @@ const templates = ref<any[]>([]);
 const loading = ref(true);
 const error = ref('');
 
+const initParticles = () => {
+  const particleBg = document.getElementById('particleBg');
+  if (!particleBg) return;
+  
+  for (let i = 0; i < 15; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const size = Math.random() * 25 + 8;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.animationDelay = `${Math.random() * 15}s`;
+    particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    
+    const colors = ['#FF6B35', '#4ECDC4', '#FFD166', '#EF476F'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.background = `radial-gradient(circle, ${color}40 0%, ${color}00 70%)`;
+    
+    particleBg.appendChild(particle);
+  }
+};
+
 onMounted(() => {
+  nextTick(() => {
+    initParticles();
+  });
   fetchTemplates();
 });
 

@@ -1,7 +1,8 @@
 <template>
   <div class="ai-container">
+    <div class="particle-bg" id="particleBg"></div>
     <div class="header">
-      <h1 class="title">AI健身助手</h1>
+      <h1 class="title neon-glow">AI健身助手</h1>
       <div class="header-bg"></div>
     </div>
     <div class="chat-container">
@@ -85,8 +86,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, onMounted } from 'vue';
 import axios from 'axios';
+
+const initParticles = () => {
+  const particleBg = document.getElementById('particleBg');
+  if (!particleBg) return;
+  
+  for (let i = 0; i < 12; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const size = Math.random() * 20 + 6;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.animationDelay = `${Math.random() * 15}s`;
+    particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    
+    const colors = ['#FF6B35', '#4ECDC4', '#FFD166', '#EF476F'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.background = `radial-gradient(circle, ${color}40 0%, ${color}00 70%)`;
+    
+    particleBg.appendChild(particle);
+  }
+};
+
+onMounted(() => {
+  nextTick(() => {
+    initParticles();
+  });
+});
 
 interface Message {
   role: 'user' | 'assistant';
