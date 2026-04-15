@@ -26,6 +26,11 @@ const routes = [
     component: () => import('../pages/ai/index.vue')
   },
   {
+    path: '/pages/mine/index',
+    name: 'Mine',
+    component: () => import('../pages/mine/index.vue')
+  },
+  {
     path: '/pages/music/player',
     name: 'MusicPlayer',
     component: () => import('../pages/music/player.vue')

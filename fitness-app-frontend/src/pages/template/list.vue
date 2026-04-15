@@ -29,6 +29,18 @@
         <button class="retry-button" @click="fetchTemplates">重试</button>
       </div>
     </div>
+    
+    <!-- 底部操作按钮 -->
+    <div class="bottom-actions">
+      <button class="action-btn custom-plan" @click="navigateToCustomPlan">
+        <span class="btn-icon">✏️</span>
+        <span class="btn-text">自定义计划</span>
+      </button>
+      <button class="action-btn ai-plan" @click="navigateToAIPlan">
+        <span class="btn-icon">🤖</span>
+        <span class="btn-text">AI智能定制</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -100,6 +112,15 @@ const getDifficultyText = (difficulty: string) => {
     advanced: '高级'
   };
   return map[difficulty as keyof typeof map] || difficulty;
+};
+
+const navigateToCustomPlan = () => {
+  // 导航到自定义计划页面（如果有的话）
+  alert('自定义计划功能开发中');
+};
+
+const navigateToAIPlan = () => {
+  router.push('/pages/ai/index');
 };
 </script>
 
@@ -410,6 +431,85 @@ const getDifficultyText = (difficulty: string) => {
   
   .template-name {
     font-size: 28rpx;
+  }
+}
+
+/* 底部操作按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 140rpx;
+  left: 0;
+  right: 0;
+  padding: 0 20rpx;
+  display: flex;
+  gap: 20rpx;
+  z-index: 90;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 25rpx;
+  border: none;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.action-btn.custom-plan {
+  background: linear-gradient(135deg, #4ECDC4, #45B7AA);
+  color: white;
+}
+
+.action-btn.ai-plan {
+  background: linear-gradient(135deg, #FF6B35, #FF8E53);
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.15);
+}
+
+.btn-icon {
+  font-size: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.btn-text {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+/* 为内容区域添加底部padding，避免被按钮遮挡 */
+.content {
+  padding-bottom: 240rpx;
+}
+
+@media (max-width: 768px) {
+  .bottom-actions {
+    padding: 0 15rpx;
+  }
+  
+  .action-btn {
+    padding: 20rpx;
+  }
+  
+  .btn-icon {
+    font-size: 36rpx;
+  }
+  
+  .btn-text {
+    font-size: 22rpx;
+  }
+  
+  .content {
+    padding-bottom: 220rpx;
   }
 }
 </style>

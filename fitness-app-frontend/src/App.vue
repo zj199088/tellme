@@ -12,11 +12,11 @@
       </router-link>
       <router-link to="/pages/template/list" class="nav-item" active-class="active">
         <div class="nav-icon">📋</div>
-        <div class="nav-text">模板</div>
+        <div class="nav-text">计划</div>
       </router-link>
-      <router-link to="/pages/ai/index" class="nav-item" active-class="active">
-        <div class="nav-icon">🤖</div>
-        <div class="nav-text">AI助手</div>
+      <router-link to="/pages/mine/index" class="nav-item" active-class="active">
+        <div class="nav-icon">👤</div>
+        <div class="nav-text">我的</div>
       </router-link>
     </nav>
   </div>
