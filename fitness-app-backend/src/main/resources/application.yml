@@ -2,22 +2,19 @@ spring:
   application:
     name: fitness-app
   datasource:
-    url: jdbc:h2:mem:fitness_app;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  redis:
-    host: localhost
-    port: 6379
-    password:
-    database: 0
+    url: jdbc:mysql://localhost:3306/fitness_app?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
   security:
     jwt:
-      secret: your-secret-key
+      secret: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D0E1F2
       expiration: 86400
 
 mybatis-plus:
@@ -25,16 +22,7 @@ mybatis-plus:
   type-aliases-package: com.fitness.app.entity
   configuration:
     map-underscore-to-camel-case: true
-  global-config:
-    db-config:
-      id-type: auto
-      logic-delete-field: isDeleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-  migration:
-    enabled: true
-    table-prefix: 
-    field-strategy: not_empty
+    safe-result-handler-enabled:
 
 server:
   port: 8080
@@ -42,13 +30,13 @@ server:
     context-path: /api
 
 cos:
-  secret-id: your-secret-id
-  secret-key: your-secret-key
-  bucket-name: your-bucket-name
-  region: your-region
-  access-domain: your-access-domain
+  secret-id: AKIDZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5j
+  secret-key: 0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jwZ0x5jw
+  region: fitness-app
+  bucket-name: fitness-app
+  access-domain: fitness-app.cos.ap-guangzhou.myqcloud.com
 
 ai:
   service:
-    url: https://ark.cn-beijing.volces.com/api/v3
-    apiKey: your-ai-api-key
+    url: http://localhost:8081
+    apiKey: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D0E1F2

@@ -33,7 +33,7 @@ public class MovementController {
 
     @GetMapping("/exercises")
     public Map<String, Object> getExercises(
-            @RequestParam(required = false) Long categoryId) {
+            @RequestParam(required = false) Integer categoryId) {
         List<MovementExercise> exercises;
         if (categoryId != null) {
             exercises = movementExerciseService.getExercisesByCategoryId(categoryId);

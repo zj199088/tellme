@@ -17,7 +17,7 @@ public class MovementExerciseServiceImpl extends ServiceImpl<MovementExerciseMap
     }
 
     @Override
-    public List<MovementExercise> getExercisesByCategoryId(Long categoryId) {
+    public List<MovementExercise> getExercisesByCategoryId(Integer categoryId) {
         return baseMapper.getByCategoryId(categoryId);
     }
 }

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface MovementExerciseService extends IService<MovementExercise> {
     List<MovementExercise> getAllExercises();
-    List<MovementExercise> getExercisesByCategoryId(Long categoryId);
+    List<MovementExercise> getExercisesByCategoryId(Integer categoryId);
 }
