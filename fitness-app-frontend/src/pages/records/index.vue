@@ -49,26 +49,22 @@
           <div class="record-card" v-for="(record, index) in records" :key="record.id" 
                :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-header">
-              <div class="record-info">
-                <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
-                <p class="record-date">{{ formatDateTime(record.date) }}</p>
-              </div>
+              <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
+              <p class="record-date">{{ formatDateTime(record.date) }}</p>
             </div>
-            <div class="record-details">
-              <div class="exercise-details">
-                <span class="exercise-name">{{ record.exerciseName }}</span>
-                <span class="exercise-sets">
-                  完成组数: {{ record.setsCompleted ? JSON.parse(record.setsCompleted).length : 0 }}
-                </span>
-                <span class="record-duration">
-                  <span class="duration-icon">⏱</span>
-                  {{ Math.round((record.duration || 0) / 60) }}分钟
-                </span>
-                <span class="record-weight" v-if="record.weight && record.weight > 0">
-                  <span class="weight-icon">🏋️</span>
-                  {{ record.weight }}kg
-                </span>
-              </div>
+            <div class="record-details glow-card">
+              <span class="record-exercise">{{ record.exerciseName }}</span>
+              <span class="record-sets" v-if="record.setsCompleted">
+                完成组数: {{ JSON.parse(record.setsCompleted).length }}
+              </span>
+              <span class="record-duration">
+                <span class="duration-icon">⏱</span>
+                {{ Math.round((record.duration || 0) / 60) }}分钟
+              </span>
+              <span class="record-weight" v-if="record.weight && record.weight > 0">
+                <span class="weight-icon">🏋️</span>
+                {{ record.weight }}kg
+              </span>
             </div>
           </div>
         </div>
@@ -584,6 +580,9 @@ onMounted(() => {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .record-card::before {
@@ -610,78 +609,46 @@ onMounted(() => {
 
 .record-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
-}
-
-.record-info {
-  flex: 1;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .record-plan {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 3px 0;
-}
-
-.record-date {
-  font-size: 11px;
-  color: var(--text-muted);
   margin: 0;
 }
 
-.record-status {
-  padding: 4px 12px;
-  border-radius: 16px;
+.record-date {
   font-size: 10px;
-  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 500;
 }
 
-.record-status.completed {
-  background: rgba(0, 255, 136, 0.15);
-  color: var(--neon-green);
-  border: 1px solid var(--neon-green);
-  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
-}
-
-.record-status.pending {
-  background: rgba(255, 209, 102, 0.15);
-  color: var(--neon-orange);
-  border: 1px solid var(--neon-orange);
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
-}
-
-.exercise-details {
+.record-details {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.exercise-details:hover {
+  padding: 10px 12px;
   background: rgba(0, 245, 255, 0.05);
-  transform: translateX(2px);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 245, 255, 0.1);
 }
 
-.exercise-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-primary);
+.record-exercise {
+  font-size: 11px;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
+  max-width: 140px;
+  font-weight: 500;
 }
 
-.exercise-sets {
+.record-sets {
   font-size: 10px;
   color: var(--text-muted);
   white-space: nowrap;

@@ -356,10 +356,10 @@ const mockData = {
       scheduleId: 2,
       scheduleExerciseId: 4,
       exerciseId: 14,
-      exerciseName: '开合跳',
+      exerciseName: '哑铃飞鸟',
       date: pastDates[1],
       setsCompleted: '[4, 4, 4, 4]',
-      weight: 0,
+      weight: 15,
       duration: 720,
       notes: '心率提升很快',
       completed: true
@@ -375,7 +375,7 @@ const mockData = {
       exerciseName: '深蹲',
       date: pastDates[7],
       setsCompleted: '[3, 3, 2]',
-      weight: 0,
+      weight: 20,
       duration: 660,
       notes: '最后一组有点吃力',
       completed: true

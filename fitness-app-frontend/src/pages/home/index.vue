@@ -95,20 +95,23 @@
         </div>
         <div class="record-list" v-if="recentRecords.length > 0">
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
-            <div class="record-date">{{ formatDateTime(record.date) }}</div>
-            <div class="record-info">
+            <div class="record-header">
               <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
-              <div class="record-details">
-                <span class="record-exercise">{{ record.exerciseName }}</span>
-                <span class="record-duration">
-                  <span class="duration-icon">⏱</span>
-                  {{ Math.round((record.duration || 0) / 60) }}分钟
-                </span>
-                <span class="record-weight" v-if="record.weight && record.weight > 0">
-                  <span class="weight-icon">🏋️</span>
-                  {{ record.weight }}kg
-                </span>
-              </div>
+              <div class="record-date">{{ formatDateTime(record.date) }}</div>
+            </div>
+            <div class="record-details glow-card">
+              <span class="record-exercise">{{ record.exerciseName }}</span>
+              <span class="record-sets" v-if="record.setsCompleted">
+                完成组数: {{ JSON.parse(record.setsCompleted).length }}
+              </span>
+              <span class="record-duration">
+                <span class="duration-icon">⏱</span>
+                {{ Math.round((record.duration || 0) / 60) }}分钟
+              </span>
+              <span class="record-weight" v-if="record.weight && record.weight > 0">
+                <span class="weight-icon">🏋️</span>
+                {{ record.weight }}kg
+              </span>
             </div>
           </div>
         </div>
@@ -978,13 +981,13 @@ onMounted(() => {
 
 .record-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10.0px 0;
+  flex-direction: column;
+  padding: 12.0px 0;
   border-bottom: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  gap: 8.0px;
 }
 
 .record-item:last-child {
@@ -992,33 +995,23 @@ onMounted(() => {
 }
 
 .record-item:hover {
-  background: rgba(0, 245, 255, 0.05);
-  border-radius: 6.0px;
-  padding-left: 8.0px;
-  padding-right: 8.0px;
-  margin-left: -8.0px;
-  margin-right: -8.0px;
+  background: rgba(0, 245, 255, 0.03);
+  border-radius: 8.0px;
+  padding-left: 10.0px;
+  padding-right: 10.0px;
+  margin-left: -10.0px;
+  margin-right: -10.0px;
 }
 
-.record-date {
-  font-size: 10.0px;
-  color: var(--text-muted);
-  min-width: 160.0px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: right;
-}
-
-.record-info {
-  flex: 1;
-  margin-left: 8.0px;
+.record-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4.0px;
 }
 
 .record-plan {
-  font-size: 12.0px;
+  font-size: 13.0px;
   font-weight: 600;
-  margin-bottom: 2.0px;
-  display: block;
   color: var(--text-primary);
   transition: color 0.3s ease;
 }
@@ -1027,46 +1020,64 @@ onMounted(() => {
   color: var(--neon-cyan);
 }
 
+.record-date {
+  font-size: 10.0px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
 .record-details {
   display: flex;
   align-items: center;
-  gap: 8.0px;
+  gap: 12.0px;
   flex-wrap: wrap;
+  padding: 10.0px 12.0px;
+  background: rgba(0, 245, 255, 0.05);
+  border-radius: 8.0px;
+  border: 1px solid rgba(0, 245, 255, 0.1);
 }
 
 .record-exercise {
-  font-size: 10.0px;
+  font-size: 11.0px;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 140px;
+  font-weight: 500;
+}
+
+.record-sets {
+  font-size: 10.0px;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .record-duration {
-  font-size: 9.0px;
+  font-size: 10.0px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 2.0px;
+  gap: 3.0px;
   white-space: nowrap;
 }
 
 .duration-icon {
-  font-size: 9.0px;
+  font-size: 10.0px;
 }
 
 .record-weight {
-  font-size: 9.0px;
+  font-size: 10.0px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 2.0px;
+  gap: 3.0px;
   white-space: nowrap;
 }
 
 .weight-icon {
-  font-size: 9.0px;
+  font-size: 10.0px;
 }
 
 .no-records {
