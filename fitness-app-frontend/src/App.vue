@@ -6,13 +6,13 @@
       </transition>
     </router-view>
     <nav class="bottom-nav">
-      <router-link to="/pages/home/index" class="nav-item" active-class="active">
-        <div class="nav-icon">🏠</div>
-        <div class="nav-text">首页</div>
+      <router-link to="/pages/custom/create" class="nav-item" active-class="active">
+        <div class="nav-icon">✨</div>
+        <div class="nav-text">定制计划</div>
       </router-link>
-      <router-link to="/pages/template/list" class="nav-item" active-class="active">
+      <router-link to="/pages/home/index" class="nav-item" active-class="active">
         <div class="nav-icon">📋</div>
-        <div class="nav-text">计划</div>
+        <div class="nav-text">查看计划</div>
       </router-link>
       <router-link to="/pages/workout/track" class="nav-item" active-class="active">
         <div class="nav-icon">🏃</div>
