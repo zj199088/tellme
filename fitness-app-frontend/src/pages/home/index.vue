@@ -398,7 +398,6 @@ onMounted(() => {
     initParticles();
   });
   
-  useLocalData();
   fetchPlans();
   fetchRecentRecords();
 });
