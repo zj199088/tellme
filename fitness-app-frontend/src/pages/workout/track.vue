@@ -165,130 +165,29 @@ const loadWorkoutData = async () => {
     const id = route.query.planId ? parseInt(route.query.planId as string) : 1;
     planId.value = id;
     
-    try {
-      const todayResponse = await api.workout.getToday(id);
-      if (todayResponse.code === 200 && todayResponse.data) {
-        schedule.value = todayResponse.data.schedule;
-        
-        if (todayResponse.data.exercises) {
-          exercises.value = todayResponse.data.exercises.map(ex => ({
-            ...ex,
-            completedSets: new Array(ex.sets).fill(false)
-          }));
-        }
-        
-        const plansResponse = await api.plans.getList();
-        if (plansResponse.code === 200 && plansResponse.data) {
-          const plan = plansResponse.data.find(p => p.id === id);
-          planName.value = plan?.name || '我的训练计划';
-        }
-        
-        dayNumber.value = schedule.value?.dayOfWeek || 1;
+    const todayResponse = await api.workout.getToday(id);
+    if (todayResponse.code === 200 && todayResponse.data) {
+      schedule.value = todayResponse.data.schedule;
+      
+      if (todayResponse.data.exercises) {
+        exercises.value = todayResponse.data.exercises.map(ex => ({
+          ...ex,
+          completedSets: new Array(ex.sets).fill(false)
+        }));
       }
-    } catch (apiError) {
-      console.warn('API调用失败，使用模拟数据:', apiError);
-      // 使用模拟数据
-      planName.value = '我的训练计划';
-      dayNumber.value = new Date().getDay() || 7;
-      schedule.value = {
-        id: 1,
-        planId: id,
-        dayOfWeek: dayNumber.value,
-        isRestDay: 0,
-        estimatedDuration: 45,
-        date: new Date().toISOString().split('T')[0]
-      };
-      exercises.value = [
-        {
-          id: 1,
-          scheduleId: 1,
-          exerciseId: 1,
-          exerciseName: '俯卧撑',
-          sets: 3,
-          reps: '12-15',
-          duration: '',
-          weight: 0,
-          sortOrder: 1,
-          completedSets: [false, false, false]
-        },
-        {
-          id: 2,
-          scheduleId: 1,
-          exerciseId: 2,
-          exerciseName: '深蹲',
-          sets: 3,
-          reps: '10-12',
-          duration: '',
-          weight: 20,
-          sortOrder: 2,
-          completedSets: [false, false, false]
-        },
-        {
-          id: 3,
-          scheduleId: 1,
-          exerciseId: 3,
-          exerciseName: '平板支撑',
-          sets: 3,
-          reps: '',
-          duration: '30-45秒',
-          weight: 0,
-          sortOrder: 3,
-          completedSets: [false, false, false]
-        }
-      ];
+      
+      const plansResponse = await api.plans.getList();
+      if (plansResponse.code === 200 && plansResponse.data) {
+        const plan = plansResponse.data.find(p => p.id === id);
+        planName.value = plan?.name || '我的训练计划';
+      }
+      
+      dayNumber.value = schedule.value?.dayOfWeek || 1;
     }
   } catch (err) {
     console.error('加载训练数据失败:', err);
-    // 即使捕获到错误，也使用模拟数据
-    planName.value = '我的训练计划';
-    dayNumber.value = new Date().getDay() || 7;
-    schedule.value = {
-      id: 1,
-      planId: planId.value || 1,
-      dayOfWeek: dayNumber.value,
-      isRestDay: 0,
-      estimatedDuration: 45,
-      date: new Date().toISOString().split('T')[0]
-    };
-    exercises.value = [
-      {
-        id: 1,
-        scheduleId: 1,
-        exerciseId: 1,
-        exerciseName: '俯卧撑',
-        sets: 3,
-        reps: '12-15',
-        duration: '',
-        weight: 0,
-        sortOrder: 1,
-        completedSets: [false, false, false]
-      },
-      {
-        id: 2,
-        scheduleId: 1,
-        exerciseId: 2,
-        exerciseName: '深蹲',
-        sets: 3,
-        reps: '10-12',
-        duration: '',
-        weight: 20,
-        sortOrder: 2,
-        completedSets: [false, false, false]
-      },
-      {
-        id: 3,
-        scheduleId: 1,
-        exerciseId: 3,
-        exerciseName: '平板支撑',
-        sets: 3,
-        reps: '',
-        duration: '30-45秒',
-        weight: 0,
-        sortOrder: 3,
-        completedSets: [false, false, false]
-      }
-    ];
-    error.value = ''; // 不显示错误，使用模拟数据
+    error.value = '加载训练数据失败，请重试';
+    // 不使用模拟数据作为 fallback，让 API 拦截器处理 401 错误
   } finally {
     loading.value = false;
   }

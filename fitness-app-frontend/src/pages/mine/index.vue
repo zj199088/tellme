@@ -167,6 +167,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '../../utils/api';
 
 const router = useRouter();
 
