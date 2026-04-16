@@ -30,6 +30,14 @@
           <div class="template-info">
             <h3 class="template-name">{{ template.name }}</h3>
             <p class="template-description">{{ template.description }}</p>
+            <div v-if="template.createdBy" class="template-creator">
+              <span class="creator-icon">👤</span>
+              <span class="creator-text">创建者: 用户{{ template.createdBy }}</span>
+            </div>
+            <div v-if="template.createdAt" class="template-created-time">
+              <span class="time-icon">🕐</span>
+              <span class="time-text">{{ formatDate(template.createdAt) }}</span>
+            </div>
             <div class="template-footer">
               <div class="template-stats">
                 <div class="stat-item">
@@ -131,7 +139,7 @@ const fetchTemplates = async () => {
   try {
     loading.value = true;
     error.value = '';
-    const response = await api.templates.getList();
+    const response = await api.templates.getUser();
     if (response.code === 200 && response.data) {
       templates.value = response.data;
     } else {
@@ -168,11 +176,26 @@ const getDifficultyIcon = (difficulty: string) => {
 };
 
 const navigateToCustomPlan = () => {
-  alert('自定义计划功能开发中');
+  router.push('/pages/custom/create');
 };
 
 const navigateToAIPlan = () => {
   router.push('/pages/ai/index');
+};
+
+const formatDate = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch {
+    return dateString;
+  }
 };
 </script>
 
@@ -564,6 +587,21 @@ const navigateToAIPlan = () => {
   color: var(--text-secondary);
   margin-bottom: 12.5px;
   line-height: 1.6;
+}
+
+.template-creator,
+.template-created-time {
+  display: flex;
+  align-items: center;
+  gap: 4.0px;
+  font-size: 11.0px;
+  color: var(--text-muted);
+  margin-bottom: 6.0px;
+}
+
+.creator-icon,
+.time-icon {
+  font-size: 12.0px;
 }
 
 .template-footer {

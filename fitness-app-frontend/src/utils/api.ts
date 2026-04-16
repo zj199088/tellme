@@ -200,6 +200,18 @@ export const api = {
       return response.data;
     },
     
+    getUser: async (): Promise<ApiResponse<Template[]>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: mockData.templates
+        };
+      }
+      const response = await apiClient.get<ApiResponse<Template[]>>('/api/templates/user');
+      return response.data;
+    },
+    
     getDetail: async (id: number): Promise<ApiResponse<Template>> => {
       if (isTestEnvironment) {
         const template = mockData.templates.find(t => t.id === id);
