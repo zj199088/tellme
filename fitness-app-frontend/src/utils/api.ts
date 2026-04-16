@@ -312,6 +312,7 @@ export const api = {
       goal: string;
       difficulty: string;
       durationWeeks: number;
+      startDate: string;
     }): Promise<ApiResponse<number>> => {
       if (isTestEnvironment) {
         return {

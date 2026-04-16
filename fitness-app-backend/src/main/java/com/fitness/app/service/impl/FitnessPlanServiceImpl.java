@@ -14,6 +14,7 @@ import com.fitness.app.mapper.WorkoutScheduleMapper;
 import com.fitness.app.service.FitnessPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,7 +36,17 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
     private WorkoutScheduleExerciseMapper workoutScheduleExerciseMapper;
 
     @Override
-    public Integer createPlanFromTemplate(Integer userId, Integer templateId, String name, String goal, String difficulty, Integer durationWeeks) {
+    @Transactional(rollbackFor = Exception.class)
+    public Integer createPlanFromTemplate(Integer userId, Integer templateId, String name, String goal, String difficulty, Integer durationWeeks, String startDate) {
+        LocalDate startDateObj = LocalDate.now();
+        if (startDate != null && !startDate.isEmpty()) {
+            try {
+                startDateObj = LocalDate.parse(startDate);
+            } catch (Exception e) {
+                log.warn("无效的开始日期格式: {}", startDate, e);
+            }
+        }
+        
         FitnessPlan plan = new FitnessPlan();
         plan.setUser_id(userId);
         plan.setTemplate_id(templateId);
@@ -44,8 +55,8 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
         plan.setGoal(goal);
         plan.setDifficulty(difficulty);
         plan.setDuration_weeks(durationWeeks);
-        plan.setStart_date(LocalDate.now());
-        plan.setEnd_date(LocalDate.now().plusWeeks(durationWeeks));
+        plan.setStart_date(startDateObj);
+        plan.setEnd_date(startDateObj.plusWeeks(durationWeeks));
         plan.setStatus("active");
         plan.setIs_shared(0);
         plan.setIs_deleted(0);
@@ -60,6 +71,7 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
         return plan.getId();
     }
     
+    @Transactional(rollbackFor = Exception.class)
     private void generateWorkoutSchedules(Integer planId, Integer templateId, LocalDate startDate, Integer durationWeeks) {
         // 获取模板训练日
         List<TemplateDay> templateDays = templateDayMapper.getTemplateDaysByTemplateId(templateId);

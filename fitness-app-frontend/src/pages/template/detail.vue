@@ -294,7 +294,8 @@ const createPlan = async () => {
       name: planForm.value.name,
       goal: planForm.value.goal,
       difficulty: template.value.difficulty,
-      durationWeeks: planForm.value.duration_weeks
+      durationWeeks: planForm.value.duration_weeks,
+      startDate: planForm.value.start_date
     });
 
     if (response.code === 200) {
