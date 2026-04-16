@@ -15,226 +15,313 @@
           </svg>
         </div>
         <div class="header-icon">✨</div>
-        <h1 class="title neon-glow">创建自定义计划</h1>
+        <h1 class="title neon-glow">定制计划</h1>
       </div>
       <div class="header-bg"></div>
       <div class="scanline"></div>
     </div>
     
     <div class="content">
-      <div class="steps-indicator">
-        <div class="step-item" :class="{ active: currentStep === 1, completed: currentStep > 1 }" @click="goToStep(1)">
-          <div class="step-number">1</div>
-          <div class="step-label">基本信息</div>
+      <!-- 未登录状态：显示模板列表 -->
+      <div v-if="!isLoggedIn" class="templates-section">
+        <div class="templates-header glow-card">
+          <h2 class="section-title">
+            <span class="title-icon">📋</span>
+            选择模板创建计划
+          </h2>
+          <p class="section-desc">登录后可以查看用户分享的锻炼计划</p>
         </div>
-        <div class="step-item" :class="{ active: currentStep === 2, completed: currentStep > 2 }" @click="goToStep(2)">
-          <div class="step-number">2</div>
-          <div class="step-label">选择动作</div>
-        </div>
-        <div class="step-item" :class="{ active: currentStep === 3, completed: currentStep > 3 }" @click="goToStep(3)">
-          <div class="step-number">3</div>
-          <div class="step-label">安排日期</div>
-        </div>
-        <div class="step-item" :class="{ active: currentStep === 4 }" @click="goToStep(4)">
-          <div class="step-number">4</div>
-          <div class="step-label">确认</div>
+        <div class="templates-list">
+          <div v-for="template in templates" :key="template.id" class="template-card glow-card animate-in">
+            <div class="template-header">
+              <h3 class="template-name">{{ template.name }}</h3>
+              <div class="template-difficulty" :class="template.difficulty">
+                {{ getDifficultyText(template.difficulty) }}
+              </div>
+            </div>
+            <p class="template-description">{{ template.description }}</p>
+            <button class="template-button glow-button" @click="useTemplate(template)">
+              <span>使用模板</span>
+              <span class="btn-glow"></span>
+            </button>
+          </div>
         </div>
       </div>
-
-      <div class="step-content">
-        <div v-if="currentStep === 1" class="step-1 animate-in">
-          <div class="form-section glow-card">
+      
+      <!-- 已登录状态：显示模板列表和用户分享的计划 -->
+      <div v-else class="templates-section">
+        <div class="templates-header glow-card">
+          <h2 class="section-title">
+            <span class="title-icon">📋</span>
+            选择模板创建计划
+          </h2>
+        </div>
+        <div class="templates-list">
+          <div v-for="template in templates" :key="template.id" class="template-card glow-card animate-in">
+            <div class="template-header">
+              <h3 class="template-name">{{ template.name }}</h3>
+              <div class="template-difficulty" :class="template.difficulty">
+                {{ getDifficultyText(template.difficulty) }}
+              </div>
+            </div>
+            <p class="template-description">{{ template.description }}</p>
+            <button class="template-button glow-button" @click="useTemplate(template)">
+              <span>使用模板</span>
+              <span class="btn-glow"></span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 用户分享的计划 -->
+        <div class="shared-plans-section" v-if="sharedPlans.length > 0">
+          <div class="shared-plans-header glow-card">
             <h2 class="section-title">
-              <span class="title-icon">📝</span>
-              基本信息
+              <span class="title-icon">👥</span>
+              用户分享的计划
             </h2>
-            <div class="form-item">
-              <label class="form-label">计划名称</label>
-              <input type="text" v-model="planForm.name" class="form-input" placeholder="请输入计划名称" />
-            </div>
-            <div class="form-item">
-              <label class="form-label">健身目标</label>
-              <select v-model="planForm.goal" class="form-select">
-                <option value="">请选择目标</option>
-                <option value="增肌">增肌</option>
-                <option value="减脂">减脂</option>
-                <option value="塑形">塑形</option>
-                <option value="力量">力量提升</option>
-                <option value="耐力">耐力提升</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="form-label">难度</label>
-              <select v-model="planForm.difficulty" class="form-select">
-                <option value="">请选择难度</option>
-                <option value="beginner">新手</option>
-                <option value="intermediate">中级</option>
-                <option value="advanced">高级</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="form-label">训练周期（周）</label>
-              <input type="number" v-model.number="planForm.durationWeeks" class="form-input" min="1" />
-            </div>
-            <div class="form-item">
-              <label class="form-label">开始日期</label>
-              <input type="date" v-model="planForm.startDate" class="form-input" />
+          </div>
+          <div class="shared-plans-list">
+            <div v-for="plan in sharedPlans" :key="plan.id" class="shared-plan-card glow-card animate-in">
+              <div class="shared-plan-header">
+                <h3 class="shared-plan-name">{{ plan.name }}</h3>
+                <div class="shared-plan-author">
+                  分享者: {{ plan.author }}
+                </div>
+              </div>
+              <p class="shared-plan-description">{{ plan.description }}</p>
+              <button class="shared-plan-button glow-button" @click="useSharedPlan(plan)">
+                <span>使用此计划</span>
+                <span class="btn-glow"></span>
+              </button>
             </div>
           </div>
         </div>
+        
+        <!-- 创建自定义计划按钮 -->
+        <div class="create-custom-section">
+          <button class="create-custom-button glow-button" @click="startCreateCustomPlan">
+            <span>创建自定义计划</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 自定义计划创建流程 -->
+      <div v-if="isCreatingCustomPlan" class="custom-plan-creation">
+        <div class="steps-indicator">
+          <div class="step-item" :class="{ active: currentStep === 1, completed: currentStep > 1 }" @click="goToStep(1)">
+            <div class="step-number">1</div>
+            <div class="step-label">基本信息</div>
+          </div>
+          <div class="step-item" :class="{ active: currentStep === 2, completed: currentStep > 2 }" @click="goToStep(2)">
+            <div class="step-number">2</div>
+            <div class="step-label">选择动作</div>
+          </div>
+          <div class="step-item" :class="{ active: currentStep === 3, completed: currentStep > 3 }" @click="goToStep(3)">
+            <div class="step-number">3</div>
+            <div class="step-label">安排日期</div>
+          </div>
+          <div class="step-item" :class="{ active: currentStep === 4 }" @click="goToStep(4)">
+            <div class="step-number">4</div>
+            <div class="step-label">确认</div>
+          </div>
+        </div>
 
-        <div v-if="currentStep === 2" class="step-2 animate-in">
-          <div class="categories-section glow-card">
-            <h2 class="section-title">
-              <span class="title-icon">📋</span>
-              选择动作
-            </h2>
-            <div class="category-list">
-              <div v-for="category in categories" :key="category.id" class="category-item" :class="{ active: selectedCategory === category.id }" @click="selectedCategory = category.id">
-                <div class="category-icon">{{ category.icon }}</div>
-                <div class="category-name">{{ category.name }}</div>
+        <div class="step-content">
+          <div v-if="currentStep === 1" class="step-1 animate-in">
+            <div class="form-section glow-card">
+              <h2 class="section-title">
+                <span class="title-icon">📝</span>
+                基本信息
+              </h2>
+              <div class="form-item">
+                <label class="form-label">计划名称</label>
+                <input type="text" v-model="planForm.name" class="form-input" placeholder="请输入计划名称" />
+              </div>
+              <div class="form-item">
+                <label class="form-label">健身目标</label>
+                <select v-model="planForm.goal" class="form-select">
+                  <option value="">请选择目标</option>
+                  <option value="增肌">增肌</option>
+                  <option value="减脂">减脂</option>
+                  <option value="塑形">塑形</option>
+                  <option value="力量">力量提升</option>
+                  <option value="耐力">耐力提升</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label class="form-label">难度</label>
+                <select v-model="planForm.difficulty" class="form-select">
+                  <option value="">请选择难度</option>
+                  <option value="beginner">新手</option>
+                  <option value="intermediate">中级</option>
+                  <option value="advanced">高级</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label class="form-label">训练周期（周）</label>
+                <input type="number" v-model.number="planForm.durationWeeks" class="form-input" min="1" />
+              </div>
+              <div class="form-item">
+                <label class="form-label">开始日期</label>
+                <input type="date" v-model="planForm.startDate" class="form-input" />
               </div>
             </div>
           </div>
-          <div class="exercises-section glow-card">
-            <div class="exercises-list">
-              <div v-for="exercise in filteredExercises" :key="exercise.id" class="exercise-item" :class="{ selected: isExerciseSelected(exercise.id) }" @click="toggleExercise(exercise)">
-                <div class="exercise-info">
-                  <h3 class="exercise-name">{{ exercise.name }}</h3>
-                  <p class="exercise-desc">{{ exercise.description }}</p>
+
+          <div v-if="currentStep === 2" class="step-2 animate-in">
+            <div class="categories-section glow-card">
+              <h2 class="section-title">
+                <span class="title-icon">📋</span>
+                选择动作
+              </h2>
+              <div class="category-list">
+                <div v-for="category in categories" :key="category.id" class="category-item" :class="{ active: selectedCategory === category.id }" @click="selectedCategory = category.id">
+                  <div class="category-icon">{{ category.icon }}</div>
+                  <div class="category-name">{{ category.name }}</div>
                 </div>
-                <div class="exercise-check">
-                  <svg v-if="isExerciseSelected(exercise.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
+              </div>
+            </div>
+            <div class="exercises-section glow-card">
+              <div class="exercises-list">
+                <div v-for="exercise in filteredExercises" :key="exercise.id" class="exercise-item" :class="{ selected: isExerciseSelected(exercise.id) }" @click="toggleExercise(exercise)">
+                  <div class="exercise-info">
+                    <h3 class="exercise-name">{{ exercise.name }}</h3>
+                    <p class="exercise-desc">{{ exercise.description }}</p>
+                  </div>
+                  <div class="exercise-check">
+                    <svg v-if="isExerciseSelected(exercise.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="selected-exercises-section glow-card" v-if="selectedExercises.length > 0">
+              <h2 class="section-title">
+                <span class="title-icon">✓</span>
+                已选动作 ({{ selectedExercises.length }})
+              </h2>
+              <div class="selected-exercises-list">
+                <div v-for="item in selectedExercises" :key="item.id" class="selected-exercise-item">
+                  <div class="selected-exercise-info">
+                    <h3 class="selected-exercise-name">{{ item.name }}</h3>
+                    <div class="exercise-params">
+                      <div class="param-item">
+                        <label class="param-label">组数</label>
+                        <input type="number" v-model.number="item.sets" class="param-input" min="1" />
+                      </div>
+                      <div class="param-item">
+                        <label class="param-label">次数</label>
+                        <input type="text" v-model="item.reps" class="param-input" />
+                      </div>
+                      <div class="param-item">
+                        <label class="param-label">重量(kg)</label>
+                        <input type="number" v-model.number="item.weight" class="param-input" min="0" />
+                      </div>
+                      <button class="remove-btn" @click="removeExercise(item)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="selected-exercises-section glow-card" v-if="selectedExercises.length > 0">
-            <h2 class="section-title">
-              <span class="title-icon">✓</span>
-              已选动作 ({{ selectedExercises.length }})
-            </h2>
-            <div class="selected-exercises-list">
-              <div v-for="item in selectedExercises" :key="item.id" class="selected-exercise-item">
-                <div class="selected-exercise-info">
-                  <h3 class="selected-exercise-name">{{ item.name }}</h3>
-                  <div class="exercise-params">
-                    <div class="param-item">
-                      <label class="param-label">组数</label>
-                      <input type="number" v-model.number="item.sets" class="param-input" min="1" />
+
+          <div v-if="currentStep === 3" class="step-3 animate-in">
+            <div class="schedule-section glow-card">
+              <h2 class="section-title">
+                <span class="title-icon">📅</span>
+                安排训练日
+              </h2>
+              <p class="section-desc">选择训练日，并为每个训练日安排动作</p>
+              <div class="days-grid">
+                <div v-for="day in weekDays" :key="day.dayOfWeek" class="day-card" :class="{ selected: day.isSelected, 'rest-day': day.isRestDay }" @click="toggleDaySelection(day)">
+                  <div class="day-header">
+                    <h3 class="day-name">{{ day.name }}</h3>
+                    <div class="day-toggle">
+                      <div class="toggle-switch" :class="{ active: !day.isRestDay }" @click.stop="toggleRestDay(day, $event)">
+                        <div class="toggle-handle"></div>
+                      </div>
+                      <span class="toggle-label">{{ day.isRestDay ? '休息' : '训练' }}</span>
                     </div>
-                    <div class="param-item">
-                      <label class="param-label">次数</label>
-                      <input type="text" v-model="item.reps" class="param-input" />
+                  </div>
+                  <div v-if="day.isSelected && !day.isRestDay" class="rest-note">
+                    <input type="text" v-model="day.restNote" class="rest-input" placeholder="休息提示（可选）" />
+                  </div>
+                  <div v-if="day.isSelected && !day.isRestDay" class="day-exercises">
+                    <div v-for="item in day.exercises" :key="item.exerciseId" class="day-exercise-item">
+                      <span class="day-exercise-name">{{ item.exerciseName }}</span>
                     </div>
-                    <div class="param-item">
-                      <label class="param-label">重量(kg)</label>
-                      <input type="number" v-model.number="item.weight" class="param-input" min="0" />
-                    </div>
-                    <button class="remove-btn" @click="removeExercise(item)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
+                    <button class="add-exercise-btn" @click.stop="openDayExerciseModal(day)">
+                      <span class="btn-icon">+</span>
+                      添加动作
                     </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div v-if="currentStep === 3" class="step-3 animate-in">
-          <div class="schedule-section glow-card">
-            <h2 class="section-title">
-              <span class="title-icon">📅</span>
-              安排训练日
-            </h2>
-            <p class="section-desc">选择训练日，并为每个训练日安排动作</p>
-            <div class="days-grid">
-              <div v-for="day in weekDays" :key="day.dayOfWeek" class="day-card" :class="{ selected: day.isSelected, 'rest-day': day.isRestDay }" @click="toggleDaySelection(day)">
-                <div class="day-header">
-                  <h3 class="day-name">{{ day.name }}</h3>
-                  <div class="day-toggle">
-                    <div class="toggle-switch" :class="{ active: !day.isRestDay }" @click.stop="toggleRestDay(day, $event)">
-                      <div class="toggle-handle"></div>
+          <div v-if="currentStep === 4" class="step-4 animate-in">
+            <div class="preview-section glow-card">
+              <h2 class="section-title">
+                <span class="title-icon">👀</span>
+                计划预览
+              </h2>
+              <div class="plan-info">
+                <h3 class="plan-name">{{ planForm.name }}</h3>
+                <div class="plan-meta">
+                  <span class="plan-meta-item">
+                    <span class="meta-icon">🎯</span>
+                    <span class="meta-text">{{ planForm.goal }}</span>
+                  </span>
+                  <span class="plan-meta-item">
+                    <span class="meta-icon">📊</span>
+                    <span class="meta-text">{{ getDifficultyText(planForm.difficulty) }}</span>
+                  </span>
+                  <span class="plan-meta-item">
+                    <span class="meta-icon">⏱</span>
+                    <span class="meta-text">{{ planForm.durationWeeks }} 周</span>
+                  </span>
+                </div>
+              </div>
+              <div class="plan-days-preview">
+                <div v-for="day in selectedDays" :key="day.dayOfWeek" class="day-preview-item">
+                  <div class="day-preview-header">
+                    <h4 class="day-preview-name">{{ day.name }}</h4>
+                    <span v-if="day.isRestDay" class="rest-badge">休息</span>
+                  </div>
+                  <div v-if="day.isRestDay" class="day-preview-rest">{{ day.restNote || '好好休息' }}</div>
+                  <div v-else class="day-preview-exercises">
+                    <div v-for="item in day.exercises" :key="item.exerciseId" class="exercise-preview-item">
+                      <span class="exercise-preview-name">{{ item.exerciseName }}</span>
+                      <span class="exercise-preview-detail">{{ item.sets }}组 × {{ item.reps }}</span>
                     </div>
-                    <span class="toggle-label">{{ day.isRestDay ? '休息' : '训练' }}</span>
-                  </div>
-                </div>
-                <div v-if="day.isSelected && !day.isRestDay" class="rest-note">
-                  <input type="text" v-model="day.restNote" class="rest-input" placeholder="休息提示（可选）" />
-                </div>
-                <div v-if="day.isSelected && !day.isRestDay" class="day-exercises">
-                  <div v-for="item in day.exercises" :key="item.exerciseId" class="day-exercise-item">
-                    <span class="day-exercise-name">{{ item.exerciseName }}</span>
-                  </div>
-                  <button class="add-exercise-btn" @click.stop="openDayExerciseModal(day)">
-                    <span class="btn-icon">+</span>
-                    添加动作
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="currentStep === 4" class="step-4 animate-in">
-          <div class="preview-section glow-card">
-            <h2 class="section-title">
-              <span class="title-icon">👀</span>
-              计划预览
-            </h2>
-            <div class="plan-info">
-              <h3 class="plan-name">{{ planForm.name }}</h3>
-              <div class="plan-meta">
-                <span class="plan-meta-item">
-                  <span class="meta-icon">🎯</span>
-                  <span class="meta-text">{{ planForm.goal }}</span>
-                </span>
-                <span class="plan-meta-item">
-                  <span class="meta-icon">📊</span>
-                  <span class="meta-text">{{ getDifficultyText(planForm.difficulty) }}</span>
-                </span>
-                <span class="plan-meta-item">
-                  <span class="meta-icon">⏱</span>
-                  <span class="meta-text">{{ planForm.durationWeeks }} 周</span>
-                </span>
-              </div>
-            </div>
-            <div class="plan-days-preview">
-              <div v-for="day in selectedDays" :key="day.dayOfWeek" class="day-preview-item">
-                <div class="day-preview-header">
-                  <h4 class="day-preview-name">{{ day.name }}</h4>
-                  <span v-if="day.isRestDay" class="rest-badge">休息</span>
-                </div>
-                <div v-if="day.isRestDay" class="day-preview-rest">{{ day.restNote || '好好休息' }}</div>
-                <div v-else class="day-preview-exercises">
-                  <div v-for="item in day.exercises" :key="item.exerciseId" class="exercise-preview-item">
-                    <span class="exercise-preview-name">{{ item.exerciseName }}</span>
-                    <span class="exercise-preview-detail">{{ item.sets }}组 × {{ item.reps }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="step-navigation">
-        <button v-if="currentStep > 1" class="nav-button prev" @click="prevStep">
-          <span>上一步</span>
-        </button>
-        <button v-if="currentStep < 4" class="nav-button next glow-button" :class="{ disabled: !canGoNext }" @click="nextStep" :disabled="!canGoNext">
-          <span>下一步</span>
-          <span class="btn-glow"></span>
-        </button>
-        <button v-if="currentStep === 4" class="nav-button save glow-button" :class="{ disabled: isSaving }" @click="savePlan" :disabled="isSaving">
-          <span>{{ isSaving ? '保存中...' : '保存计划' }}</span>
-          <span class="btn-glow"></span>
-        </button>
+        <div class="step-navigation">
+          <button v-if="currentStep > 1" class="nav-button prev" @click="prevStep">
+            <span>上一步</span>
+          </button>
+          <button v-if="currentStep < 4" class="nav-button next glow-button" :class="{ disabled: !canGoNext }" @click="nextStep" :disabled="!canGoNext">
+            <span>下一步</span>
+            <span class="btn-glow"></span>
+          </button>
+          <button v-if="currentStep === 4" class="nav-button save glow-button" :class="{ disabled: isSaving }" @click="savePlan" :disabled="isSaving">
+            <span>{{ isSaving ? '保存中...' : '保存计划' }}</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -274,11 +361,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import api, { Category, ExerciseItem } from '../../utils/api';
+import api, { Category, ExerciseItem, Template } from '../../utils/api';
 import toast from '../../utils/toast';
 
 const router = useRouter();
 
+// 登录状态
+const isLoggedIn = ref(localStorage.getItem('token') !== null);
+
+// 模板相关
+const templates = ref<Template[]>([]);
+const sharedPlans = ref<any[]>([]);
+
+// 自定义计划创建
+const isCreatingCustomPlan = ref(false);
 const currentStep = ref(1);
 const isSaving = ref(false);
 const showDayExerciseModal = ref(false);
@@ -291,6 +387,44 @@ const planForm = ref({
   durationWeeks: 4,
   startDate: new Date().toISOString().split('T')[0]
 });
+
+const loadTemplates = async () => {
+  try {
+    const response = await api.templates.getList();
+    if (response.code === 200 && response.data) {
+      templates.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载模板失败:', error);
+  }
+};
+
+const loadSharedPlans = async () => {
+  try {
+    const response = await api.plans.getList();
+    if (response.code === 200 && response.data) {
+      // 过滤出分享的计划
+      sharedPlans.value = response.data.filter((plan: any) => plan.isShared === 1);
+    }
+  } catch (error) {
+    console.error('加载分享计划失败:', error);
+  }
+};
+
+const useTemplate = (template: Template) => {
+  // 使用模板创建计划
+  router.push(`/pages/template/detail?id=${template.id}`);
+};
+
+const useSharedPlan = (plan: any) => {
+  // 使用分享的计划
+  router.push(`/pages/home/index`);
+};
+
+const startCreateCustomPlan = () => {
+  isCreatingCustomPlan.value = true;
+  currentStep.value = 1;
+};
 
 const categories = ref<Category[]>([]);
 const exercises = ref<ExerciseItem[]>([]);
@@ -515,6 +649,10 @@ onMounted(() => {
   });
   loadCategories();
   loadExercises();
+  loadTemplates();
+  if (isLoggedIn.value) {
+    loadSharedPlans();
+  }
 });
 </script>
 
