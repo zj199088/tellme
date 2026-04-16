@@ -6,46 +6,104 @@
     
     <div class="auth-card glass-card animate-in">
       <div class="scan-line"></div>
-      <h1 class="title neon-glow">用户登录</h1>
-      <form @submit.prevent="login">
-        <div class="form-group">
-          <label for="username">用户名</label>
+      <div class="logo-container">
+        <div class="logo-icon">💪</div>
+        <h1 class="title neon-glow">用户登录</h1>
+      </div>
+      <form @submit.prevent="login" class="login-form">
+        <div class="form-group" :class="{ 'has-error': errors.username }">
+          <label for="username" class="form-label">用户名</label>
           <div class="input-wrapper">
-            <input type="text" id="username" v-model="form.username" required class="form-input">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              id="username" 
+              v-model="form.username" 
+              required 
+              class="form-input"
+              placeholder="请输入用户名"
+              @focus="clearError('username')"
+              @keyup.enter="focusPassword"
+            >
             <span class="input-glow"></span>
           </div>
+          <div v-if="errors.username" class="field-error">{{ errors.username }}</div>
         </div>
-        <div class="form-group">
-          <label for="password">密码</label>
+        <div class="form-group" :class="{ 'has-error': errors.password }">
+          <label for="password" class="form-label">密码</label>
           <div class="input-wrapper">
-            <input type="password" id="password" v-model="form.password" required class="form-input">
+            <span class="input-icon">🔒</span>
+            <input 
+              :type="showPassword ? 'text' : 'password'" 
+              id="password" 
+              v-model="form.password" 
+              required 
+              class="form-input"
+              placeholder="请输入密码"
+              @focus="clearError('password')"
+              @keyup.enter="login"
+            >
+            <button 
+              type="button" 
+              class="password-toggle" 
+              @click="togglePasswordVisibility"
+              aria-label="切换密码可见性"
+            >
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
             <span class="input-glow"></span>
           </div>
+          <div v-if="errors.password" class="field-error">{{ errors.password }}</div>
         </div>
-        <button type="submit" class="login-btn neon-button">
-          <span class="btn-text">登录</span>
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" v-model="form.remember">
+            <span class="checkmark"></span>
+            记住我
+          </label>
+          <a href="#" class="forgot-password">忘记密码？</a>
+        </div>
+        <button 
+          type="submit" 
+          class="login-btn neon-button" 
+          :disabled="isLoading"
+        >
+          <span v-if="isLoading" class="loading-spinner"></span>
+          <span class="btn-text">{{ isLoading ? '登录中...' : '登录' }}</span>
           <span class="btn-glow"></span>
         </button>
         <div v-if="error" class="error-message">
           <span class="error-icon">⚠</span>
           {{ error }}
         </div>
+        <div class="auth-footer">
+          <p>还没有账号？ <a href="#" class="register-link">立即注册</a></p>
+        </div>
       </form>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, nextTick } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/utils/api';
 
 const router = useRouter();
 const form = ref({
   username: '',
-  password: ''
+  password: '',
+  remember: false
 });
 const error = ref('');
+const isLoading = ref(false);
+const showPassword = ref(false);
+const errors = ref({
+  username: '',
+  password: ''
+});
+
+const passwordInput = ref<HTMLInputElement | null>(null);
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -65,23 +123,80 @@ const initParticles = () => {
   }
 };
 
+const validateForm = (): boolean => {
+  let isValid = true;
+  
+  if (!form.value.username.trim()) {
+    errors.value.username = '请输入用户名';
+    isValid = false;
+  }
+  
+  if (!form.value.password) {
+    errors.value.password = '请输入密码';
+    isValid = false;
+  } else if (form.value.password.length < 6) {
+    errors.value.password = '密码长度至少6位';
+    isValid = false;
+  }
+  
+  return isValid;
+};
+
+const clearError = (field: string) => {
+  errors.value[field as keyof typeof errors.value] = '';
+  error.value = '';
+};
+
+const focusPassword = () => {
+  passwordInput.value?.focus();
+};
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+  nextTick(() => {
+    passwordInput.value?.focus();
+  });
+};
+
 const login = async () => {
+  if (!validateForm()) return;
+  
   try {
+    isLoading.value = true;
+    error.value = '';
+    
     const response = await api.auth.login(form.value.username, form.value.password);
     if (response.success) {
       localStorage.setItem('token', response.token);
+      if (form.value.remember) {
+        localStorage.setItem('rememberedUser', form.value.username);
+      } else {
+        localStorage.removeItem('rememberedUser');
+      }
       router.push('/pages/home/index');
     } else {
-      error.value = response.message;
+      error.value = response.message || '登录失败，请检查用户名和密码';
     }
   } catch (err) {
+    console.error('登录错误:', err);
     error.value = '登录失败，请检查网络连接';
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const loadRememberedUser = () => {
+  const rememberedUser = localStorage.getItem('rememberedUser');
+  if (rememberedUser) {
+    form.value.username = rememberedUser;
+    form.value.remember = true;
   }
 };
 
 onMounted(() => {
   nextTick(() => {
     initParticles();
+    loadRememberedUser();
   });
 });
 </script>
@@ -124,6 +239,15 @@ onMounted(() => {
   }
   50% {
     transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
@@ -208,11 +332,24 @@ onMounted(() => {
   z-index: 2;
 }
 
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.logo-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
 .title {
   font-size: 28px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 8px;
   position: relative;
   z-index: 5;
   background: var(--gradient-primary);
@@ -226,27 +363,58 @@ onMounted(() => {
   animation: pulse 2s ease-in-out infinite;
 }
 
-.form-group {
-  margin-bottom: 25px;
+.login-form {
+  width: 100%;
 }
 
-.form-group label {
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-group.has-error .form-input {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1);
+}
+
+.form-label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.form-group.has-error .form-label {
+  color: var(--neon-red);
 }
 
 .input-wrapper {
   position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 18px;
+  color: var(--text-muted);
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.form-input:focus + .input-glow + .input-icon,
+.form-group.has-error .input-icon {
+  color: var(--neon-cyan);
 }
 
 .form-input {
   width: 100%;
-  padding: 14px 18px;
+  padding: 14px 18px 14px 48px;
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   font-size: 16px;
@@ -256,10 +424,19 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+.form-input::placeholder {
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
 .form-input:focus {
   outline: none;
   border-color: var(--neon-cyan);
   box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1), 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+.form-input:focus::placeholder {
+  color: var(--text-secondary);
 }
 
 .input-glow {
@@ -272,11 +449,115 @@ onMounted(() => {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 1;
 }
 
 .form-input:focus + .input-glow {
   opacity: 1;
   box-shadow: 0 0 30px var(--neon-cyan);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.2s ease;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  transform: scale(1.1);
+  background: rgba(0, 245, 255, 0.1);
+}
+
+.field-error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--neon-red);
+  text-align: left;
+  animation: fadeInUp 0.3s ease;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-me input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  height: 16px;
+  width: 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.remember-me:hover input ~ .checkmark {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+}
+
+.remember-me input:checked ~ .checkmark {
+  background: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--bg-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.remember-me input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.forgot-password {
+  color: var(--neon-cyan);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
 }
 
 .login-btn {
@@ -289,6 +570,31 @@ onMounted(() => {
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-btn:disabled:hover {
+  background: var(--glass-bg);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .btn-text {
@@ -342,7 +648,7 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-.neon-button:hover {
+.neon-button:hover:not(:disabled) {
   background: var(--neon-cyan);
   color: var(--bg-primary);
   box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
@@ -350,7 +656,7 @@ onMounted(() => {
 }
 
 .error-message {
-  margin-top: 20px;
+  margin-top: 16px;
   padding: 12px 16px;
   background: rgba(255, 77, 79, 0.1);
   border: 1px solid var(--neon-red);
@@ -363,10 +669,30 @@ onMounted(() => {
   justify-content: center;
   gap: 8px;
   box-shadow: 0 0 15px rgba(255, 77, 79, 0.2);
+  animation: fadeInUp 0.3s ease;
 }
 
 .error-icon {
   font-size: 18px;
+}
+
+.auth-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.register-link {
+  color: var(--neon-cyan);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -376,6 +702,20 @@ onMounted(() => {
 
   .title {
     font-size: 24px;
+  }
+
+  .logo-icon {
+    font-size: 36px;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .forgot-password {
+    align-self: flex-end;
   }
 }
 </style>
