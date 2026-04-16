@@ -12,4 +12,6 @@ public interface TemplateService extends IService<Template> {
     Template getTemplateById(Integer id);
     List<TemplateDay> getTemplateDaysByTemplateId(Integer templateId);
     List<TemplateExercise> getTemplateExercisesByTemplateDayId(Integer templateDayId);
+    List<Template> getUserTemplates(Integer userId);
+    List<Template> getUserAndPublicTemplates(Integer userId);
 }

@@ -1,7 +1,9 @@
 package com.fitness.app.controller;
 
 import com.fitness.app.entity.FitnessPlan;
+import com.fitness.app.entity.Template;
 import com.fitness.app.service.FitnessPlanService;
+import com.fitness.app.service.TemplateService;
 import com.fitness.app.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,9 @@ public class PlanController {
 
     @Autowired
     private FitnessPlanService fitnessPlanService;
+    
+    @Autowired
+    private TemplateService templateService;
 
     @PostMapping("/template")
     public Result<?> createPlanFromTemplate(
@@ -48,9 +53,23 @@ public class PlanController {
         try {
             Integer userId = Integer.parseInt(authentication.getName());
             
+            // 创建模板
+            Template template = new Template();
+            template.setName((String) request.get("name"));
+            template.setDescription((String) request.get("goal") + "计划");
+            template.setDifficulty((String) request.get("difficulty"));
+            template.setIsPublic(0); // 默认为私有
+            template.setCreatedBy(userId);
+            template.setIsDeleted(0);
+            template.setCreatedAt(LocalDateTime.now());
+            template.setUpdatedAt(LocalDateTime.now());
+            
+            templateService.save(template);
+            
             // 创建自定义计划
             FitnessPlan plan = new FitnessPlan();
             plan.setUser_id(userId);
+            plan.setTemplate_id(template.getId());
             plan.setName((String) request.get("name"));
             plan.setType("custom");
             plan.setGoal((String) request.get("goal"));
@@ -78,8 +97,31 @@ public class PlanController {
         try {
             Integer userId = Integer.parseInt(authentication.getName());
             
-            // 实现计划分享逻辑
-            // 这里可以创建一个模板并设置为公开
+            // 获取计划
+            FitnessPlan plan = fitnessPlanService.getById(planId);
+            if (plan == null || !plan.getUser_id().equals(userId)) {
+                return Result.error("计划不存在或无权限");
+            }
+            
+            // 获取模板
+            if (plan.getTemplate_id() == null) {
+                return Result.error("计划未关联模板");
+            }
+            
+            Template template = templateService.getById(plan.getTemplate_id());
+            if (template == null) {
+                return Result.error("模板不存在");
+            }
+            
+            // 设置模板为公开
+            template.setIsPublic(1);
+            template.setUpdatedAt(LocalDateTime.now());
+            templateService.updateById(template);
+            
+            // 更新计划的分享状态
+            plan.setIs_shared(1);
+            plan.setUpdated_at(LocalDateTime.now());
+            fitnessPlanService.updateById(plan);
             
             return Result.success("计划分享成功");
         } catch (Exception e) {

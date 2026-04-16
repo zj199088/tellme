@@ -28,6 +28,17 @@ public class TemplateController {
         }
     }
 
+    @GetMapping("/user")
+    public Result<?> getUserTemplates(Authentication authentication) {
+        try {
+            Integer userId = Integer.parseInt(authentication.getName());
+            List<Template> templates = templateService.getUserAndPublicTemplates(userId);
+            return Result.success(templates);
+        } catch (Exception e) {
+            return Result.error("获取用户模板列表失败: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/detail/{id}")
     public Result<?> getTemplateDetail(@PathVariable Integer id) {
         try {

@@ -44,4 +44,14 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     public List<TemplateExercise> getTemplateExercisesByTemplateDayId(Integer templateDayId) {
         return templateExerciseMapper.getTemplateExercisesByTemplateDayId(templateDayId);
     }
+
+    @Override
+    public List<Template> getUserTemplates(Integer userId) {
+        return templateMapper.getUserTemplates(userId);
+    }
+
+    @Override
+    public List<Template> getUserAndPublicTemplates(Integer userId) {
+        return templateMapper.getUserAndPublicTemplates(userId);
+    }
 }
