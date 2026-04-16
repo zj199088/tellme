@@ -97,21 +97,23 @@
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-header">
               <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
-              <div class="record-date">{{ formatDateTime(record.date) }}</div>
             </div>
             <div class="record-details glow-card">
-              <span class="record-exercise">{{ record.exerciseName }}</span>
-              <span class="record-sets" v-if="record.setsCompleted">
-                完成组数: {{ JSON.parse(record.setsCompleted).length }}
-              </span>
-              <span class="record-duration">
-                <span class="duration-icon">⏱</span>
-                {{ Math.round((record.duration || 0) / 60) }}分钟
-              </span>
-              <span class="record-weight" v-if="record.weight && record.weight > 0">
-                <span class="weight-icon">🏋️</span>
-                {{ record.weight }}kg
-              </span>
+              <div class="record-details-left">
+                <span class="record-exercise">{{ record.exerciseName }}</span>
+                <span class="record-sets" v-if="record.setsCompleted">
+                  完成组数: {{ JSON.parse(record.setsCompleted).length }}
+                </span>
+                <span class="record-duration">
+                  <span class="duration-icon">⏱</span>
+                  {{ Math.round((record.duration || 0) / 60) }}分钟
+                </span>
+                <span class="record-weight" v-if="record.weight && record.weight > 0">
+                  <span class="weight-icon">🏋️</span>
+                  {{ record.weight }}kg
+                </span>
+              </div>
+              <div class="record-date">{{ formatDateTime(record.date) }}</div>
             </div>
           </div>
         </div>
@@ -1029,13 +1031,20 @@ onMounted(() => {
 
 .record-details {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 12.0px;
-  flex-wrap: wrap;
   padding: 10.0px 12.0px;
   background: rgba(0, 245, 255, 0.05);
   border-radius: 8.0px;
   border: 1px solid rgba(0, 245, 255, 0.1);
+}
+
+.record-details-left {
+  display: flex;
+  align-items: center;
+  gap: 12.0px;
+  flex-wrap: wrap;
 }
 
 .record-exercise {
@@ -1078,6 +1087,15 @@ onMounted(() => {
 
 .weight-icon {
   font-size: 10.0px;
+}
+
+.record-date {
+  font-size: 10.0px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .no-records {
