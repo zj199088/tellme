@@ -1003,6 +1003,22 @@ const goBack = () => {
   background: rgba(0, 245, 255, 0.05);
 }
 
+/* 下拉框样式 */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f5ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+  padding-right: 48px;
+}
+
+select.input option {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 10px;
+}
+
 .create-button {
   position: relative;
   overflow: hidden;
