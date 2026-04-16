@@ -89,4 +89,31 @@ const router = createRouter({
   routes
 });
 
+// 路由导航守卫，检查登录状态
+router.beforeEach((to, from, next) => {
+  // 需要登录的页面路径
+  const requiresAuth = [
+    '/pages/workout/track',
+    '/pages/custom/create',
+    '/pages/ai/index',
+    '/pages/mine/index',
+    '/pages/mine/settings',
+    '/pages/records/index'
+  ];
+  
+  // 检查当前路径是否需要登录
+  const isAuthRequired = requiresAuth.some(path => to.path.startsWith(path));
+  
+  // 检查是否已登录（有token）
+  const isLoggedIn = localStorage.getItem('token') !== null;
+  
+  if (isAuthRequired && !isLoggedIn) {
+    // 未登录，重定向到登录页面
+    next('/auth/login');
+  } else {
+    // 已登录或不需要登录，继续导航
+    next();
+  }
+});
+
 export default router;
