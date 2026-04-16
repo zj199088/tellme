@@ -96,6 +96,7 @@
 ### 2.1 环境要求
 - JDK 11+
 - Maven 3.6+
+- MySQL 5.7+ 或 8.0+
 - Redis（可选，用于缓存）
 
 ### 2.2 配置文件
@@ -106,14 +107,10 @@ spring:
   application:
     name: fitness-app
   datasource:
-    url: jdbc:h2:mem:fitness_app;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:mysql://localhost:3306/fitness_app?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
   redis:
     host: localhost
     port: 6379
@@ -137,7 +134,18 @@ server:
 ```
 
 ### 2.3 数据库初始化
-后端项目使用 H2 内存数据库，初始化脚本已包含在 `src/main/resources/init.sql` 文件中。
+
+1. **创建数据库**
+   ```bash
+   mysql -u root -p
+   CREATE DATABASE fitness_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+2. **执行初始化脚本**
+   初始化脚本位于 `src/main/resources/init.sql` 文件中，执行以下命令：
+   ```bash
+   mysql -u root -p fitness_app < src/main/resources/init.sql
+   ```
 
 **预置用户**：
 - **管理员用户**：
@@ -164,11 +172,13 @@ server:
 
    服务默认运行在 `http://localhost:8080/api`
 
-3. **访问 H2 数据库控制台**
-   打开浏览器访问 `http://localhost:8080/api/h2-console`
-   -  JDBC URL: `jdbc:h2:mem:fitness_app`
-   -  Username: `sa`
-   -  Password: 空
+3. **访问 MySQL 数据库**
+   使用 MySQL 客户端工具（如 MySQL Workbench、Navicat 等）连接数据库：
+   -  Host: localhost
+   -  Port: 3306
+   -  Database: fitness_app
+   -  Username: root
+   -  Password: 123456
 
 ## 3. 完整部署流程
 
@@ -241,7 +251,7 @@ server:
   **解决方案**：修改 `application.yml` 文件中的 `server.port` 配置
 
 - **问题**：数据库连接失败
-  **解决方案**：检查 H2 数据库配置，确保 `init.sql` 文件存在
+  **解决方案**：检查 MySQL 数据库配置，确保 MySQL 服务正在运行，数据库已创建，初始化脚本已执行
 
 ### 4.3 微信小程序问题
 - **问题**：导入失败
@@ -259,7 +269,7 @@ server:
 
 ### 5.2 后端验证
 1. **API 测试**：访问 `http://localhost:8080/api/plans/user`，检查是否返回数据
-2. **数据库测试**：访问 `http://localhost:8080/api/h2-console`，检查数据库表结构和数据
+2. **数据库测试**：使用 MySQL 客户端工具连接数据库，检查数据库表结构和数据
 3. **用户登录**：使用预置的用户名和密码登录系统，检查是否登录成功
 
 ### 5.3 完整功能验证
@@ -277,15 +287,15 @@ server:
 
 ### 6.2 部署建议
 - **生产环境**：使用 HTTPS 协议
-- **数据库**：使用生产级数据库（如 MySQL、PostgreSQL）
+- **数据库**：使用生产级 MySQL 配置，开启密码验证和权限控制
 - **服务器**：使用防火墙和安全组保护服务器
-- **定期备份**：定期备份数据库和配置文件
+- **定期备份**：定期备份 MySQL 数据库和配置文件
 
 ## 7. 附录
 
 ### 7.1 技术栈
 - **前端**：Vue 3, Vite, Vue Router, Axios
-- **后端**：Spring Boot, MyBatis-Plus, H2, Redis
+- **后端**：Spring Boot, MyBatis-Plus, MySQL, Redis
 - **构建工具**：Maven, npm
 
 ### 7.2 项目结构
