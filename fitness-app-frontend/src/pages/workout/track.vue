@@ -818,14 +818,16 @@ onMounted(() => {
 
 .sets-container {
   display: flex;
-  gap: 8.0px;
+  gap: 12px;
   flex-wrap: wrap;
-  flex: 1;
+  width: 100%;
 }
 
 .set-checkbox {
-  width: 44.0px;
-  height: 44.0px;
+  flex: 1;
+  min-width: 50px;
+  max-width: 80px;
+  height: 50px;
   border: 2px solid var(--border-color);
   border-radius: 10.0px;
   display: flex;
@@ -950,8 +952,9 @@ onMounted(() => {
   }
   
   .set-checkbox {
-    width: 40.0px;
-    height: 40.0px;
+    min-width: 45px;
+    max-width: 70px;
+    height: 45px;
   }
 }
 </style>
