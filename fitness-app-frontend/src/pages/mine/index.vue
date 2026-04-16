@@ -42,104 +42,107 @@
         </div>
       </div>
 
-      <!-- 功能菜单 -->
-      <div class="menu-section animate-in glow-card" style="animation-delay: 0.1s;">
-        <h2 class="section-title">
-          <span class="title-icon">✨</span>
-          <span>我的功能</span>
-          <span class="title-glow"></span>
-        </h2>
-        <div class="menu-grid">
-          <div class="menu-item" @click="navigateToAI">
-            <div class="menu-icon-wrapper">
-              <div class="menu-icon">🤖</div>
+      <!-- 功能卡片行 -->
+      <div class="features-row">
+        <!-- 功能菜单 -->
+        <div class="menu-section animate-in glow-card" style="animation-delay: 0.1s;">
+          <h2 class="section-title">
+            <span class="title-icon">✨</span>
+            <span>我的功能</span>
+            <span class="title-glow"></span>
+          </h2>
+          <div class="menu-grid">
+            <div class="menu-item" @click="navigateToAI">
+              <div class="menu-icon-wrapper">
+                <div class="menu-icon">🤖</div>
+              </div>
+              <div class="menu-text">AI智能定制</div>
+              <div class="menu-arrow">→</div>
             </div>
-            <div class="menu-text">AI智能定制</div>
-            <div class="menu-arrow">→</div>
-          </div>
-          <div class="menu-item" @click="navigateToRecords">
-            <div class="menu-icon-wrapper">
-              <div class="menu-icon">📊</div>
+            <div class="menu-item" @click="navigateToRecords">
+              <div class="menu-icon-wrapper">
+                <div class="menu-icon">📊</div>
+              </div>
+              <div class="menu-text">训练记录</div>
+              <div class="menu-arrow">→</div>
             </div>
-            <div class="menu-text">训练记录</div>
-            <div class="menu-arrow">→</div>
-          </div>
-          <div class="menu-item" @click="navigateToMusic">
-            <div class="menu-icon-wrapper">
-              <div class="menu-icon">🎵</div>
+            <div class="menu-item" @click="navigateToMusic">
+              <div class="menu-icon-wrapper">
+                <div class="menu-icon">🎵</div>
+              </div>
+              <div class="menu-text">音乐播放器</div>
+              <div class="menu-arrow">→</div>
             </div>
-            <div class="menu-text">音乐播放器</div>
-            <div class="menu-arrow">→</div>
-          </div>
-          <div class="menu-item" @click="navigateToSettings">
-            <div class="menu-icon-wrapper">
-              <div class="menu-icon">⚙️</div>
+            <div class="menu-item" @click="navigateToSettings">
+              <div class="menu-icon-wrapper">
+                <div class="menu-icon">⚙️</div>
+              </div>
+              <div class="menu-text">设置</div>
+              <div class="menu-arrow">→</div>
             </div>
-            <div class="menu-text">设置</div>
-            <div class="menu-arrow">→</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 健身统计 -->
-      <div class="stats-section animate-in glow-card" style="animation-delay: 0.2s;">
-        <h2 class="section-title">
-          <span class="title-icon">🔥</span>
-          <span>健身统计</span>
-          <span class="title-glow"></span>
-        </h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon-wrapper">
-              <div class="stat-icon">🔥</div>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">2,543</div>
-              <div class="stat-label">消耗卡路里</div>
-            </div>
-            <div class="stat-glow"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon-wrapper">
-              <div class="stat-icon">⏱️</div>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">36.5h</div>
-              <div class="stat-label">训练时长</div>
-            </div>
-            <div class="stat-glow"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon-wrapper">
-              <div class="stat-icon">🎯</div>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">85%</div>
-              <div class="stat-label">完成率</div>
-            </div>
-            <div class="stat-glow"></div>
           </div>
         </div>
-      </div>
 
-      <!-- 快捷操作 -->
-      <div class="quick-actions animate-in glow-card" style="animation-delay: 0.3s;">
-        <h2 class="section-title">
-          <span class="title-icon">🚀</span>
-          <span>快捷操作</span>
-          <span class="title-glow"></span>
-        </h2>
-        <div class="action-buttons">
-          <button class="quick-btn primary glow-button" @click="navigateToCreatePlan">
-            <span class="btn-icon">➕</span>
-            <span class="btn-text">创建计划</span>
-            <span class="btn-glow"></span>
-          </button>
-          <button class="quick-btn secondary glow-button" @click="navigateToCustomPlan">
-            <span class="btn-icon">✏️</span>
-            <span class="btn-text">自定义计划</span>
-            <span class="btn-glow"></span>
-          </button>
+        <!-- 健身统计 -->
+        <div class="stats-section animate-in glow-card" style="animation-delay: 0.2s;">
+          <h2 class="section-title">
+            <span class="title-icon">🔥</span>
+            <span>健身统计</span>
+            <span class="title-glow"></span>
+          </h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrapper">
+                <div class="stat-icon">🔥</div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">2,543</div>
+                <div class="stat-label">消耗卡路里</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon-wrapper">
+                <div class="stat-icon">⏱️</div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">36.5h</div>
+                <div class="stat-label">训练时长</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon-wrapper">
+                <div class="stat-icon">🎯</div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">85%</div>
+                <div class="stat-label">完成率</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="quick-actions animate-in glow-card" style="animation-delay: 0.3s;">
+          <h2 class="section-title">
+            <span class="title-icon">🚀</span>
+            <span>快捷操作</span>
+            <span class="title-glow"></span>
+          </h2>
+          <div class="action-buttons">
+            <button class="quick-btn primary glow-button" @click="navigateToCreatePlan">
+              <span class="btn-icon">➕</span>
+              <span class="btn-text">创建计划</span>
+              <span class="btn-glow"></span>
+            </button>
+            <button class="quick-btn secondary glow-button" @click="navigateToCustomPlan">
+              <span class="btn-icon">✏️</span>
+              <span class="btn-text">自定义计划</span>
+              <span class="btn-glow"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -416,6 +419,21 @@ const navigateToCustomPlan = () => {
   padding-bottom: 80.0px;
   position: relative;
   z-index: 1;
+}
+
+.features-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10.0px;
+  margin-bottom: 15.0px;
+}
+
+.features-row .menu-section,
+.features-row .stats-section,
+.features-row .quick-actions {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 0;
 }
 
 .user-card,
@@ -893,6 +911,10 @@ const navigateToCustomPlan = () => {
 @media (max-width: 768px) {
   .content {
     padding: 10.0px 7.5px;
+  }
+  
+  .features-row {
+    flex-direction: column;
   }
   
   .user-card,
