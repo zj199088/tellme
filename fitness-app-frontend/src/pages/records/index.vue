@@ -582,8 +582,8 @@ onMounted(() => {
 
 .record-card {
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: 10px;
+  padding: 12px;
   border: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
@@ -605,7 +605,7 @@ onMounted(() => {
 .record-card:hover {
   background: rgba(0, 245, 255, 0.05);
   border-color: rgba(0, 245, 255, 0.3);
-  transform: translateX(4px);
+  transform: translateX(2px);
 }
 
 .record-card:hover::before {
@@ -616,8 +616,8 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(0, 245, 255, 0.1);
 }
 
@@ -626,22 +626,22 @@ onMounted(() => {
 }
 
 .record-plan {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 5px 0;
+  margin: 0 0 3px 0;
 }
 
 .record-date {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text-muted);
   margin: 0;
 }
 
 .record-status {
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 10px;
   font-weight: 600;
 }
 
@@ -660,10 +660,10 @@ onMounted(() => {
 }
 
 .details-title {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -671,49 +671,49 @@ onMounted(() => {
 .exercise-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .exercise-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: 6px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  border-radius: 6px;
   transition: all 0.3s ease;
 }
 
 .exercise-item:hover {
   background: rgba(0, 245, 255, 0.05);
-  transform: translateX(4px);
+  transform: translateX(2px);
 }
 
 .exercise-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .exercise-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-primary);
 }
 
 .exercise-sets {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-muted);
 }
 
 .exercise-status {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   border: 1px solid var(--border-color);
 }
@@ -722,27 +722,27 @@ onMounted(() => {
   background: var(--neon-green);
   color: var(--bg-primary);
   border-color: var(--neon-green);
-  box-shadow: 0 0 10px var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
 }
 
 .record-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 15px;
+  padding-top: 10px;
   border-top: 1px solid rgba(0, 245, 255, 0.1);
 }
 
 .record-duration {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
+  gap: 4px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
 .duration-icon {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .loading,

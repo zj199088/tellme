@@ -973,7 +973,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14.0px 0;
+  padding: 10.0px 0;
   border-bottom: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
@@ -986,29 +986,29 @@ onMounted(() => {
 
 .record-item:hover {
   background: rgba(0, 245, 255, 0.05);
-  border-radius: 8.0px;
-  padding-left: 10.0px;
-  padding-right: 10.0px;
-  margin-left: -10.0px;
-  margin-right: -10.0px;
+  border-radius: 6.0px;
+  padding-left: 8.0px;
+  padding-right: 8.0px;
+  margin-left: -8.0px;
+  margin-right: -8.0px;
 }
 
 .record-date {
-  font-size: 11.0px;
+  font-size: 10.0px;
   color: var(--text-muted);
-  min-width: 60.0px;
+  min-width: 50.0px;
   font-weight: 500;
 }
 
 .record-info {
   flex: 1;
-  margin-left: 10.0px;
+  margin-left: 8.0px;
 }
 
 .record-plan {
-  font-size: 13.0px;
+  font-size: 12.0px;
   font-weight: 600;
-  margin-bottom: 4.0px;
+  margin-bottom: 2.0px;
   display: block;
   color: var(--text-primary);
   transition: color 0.3s ease;
@@ -1019,11 +1019,11 @@ onMounted(() => {
 }
 
 .record-exercises {
-  font-size: 11.0px;
+  font-size: 10.0px;
   color: var(--text-secondary);
-  margin-top: 2.0px;
-  margin-bottom: 2.0px;
-  line-height: 1.4;
+  margin-top: 1.0px;
+  margin-bottom: 1.0px;
+  line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -1032,24 +1032,24 @@ onMounted(() => {
 }
 
 .record-duration {
-  font-size: 10.0px;
+  font-size: 9.0px;
   color: var(--text-muted);
-  margin-top: 2.0px;
-  margin-bottom: 2.0px;
+  margin-top: 1.0px;
+  margin-bottom: 1.0px;
   display: flex;
   align-items: center;
-  gap: 3.0px;
+  gap: 2.0px;
 }
 
 .duration-icon {
-  font-size: 10.0px;
+  font-size: 9.0px;
 }
 
 .record-status {
-  font-size: 10.0px;
+  font-size: 9.0px;
   color: var(--text-muted);
   transition: all 0.3s ease;
-  margin-top: 2.0px;
+  margin-top: 1.0px;
 }
 
 .record-status.completed {
@@ -1058,8 +1058,8 @@ onMounted(() => {
 }
 
 .record-indicator {
-  width: 7.0px;
-  height: 7.0px;
+  width: 6.0px;
+  height: 6.0px;
   border-radius: 50%;
   background: var(--text-muted);
   transition: all 0.3s ease;
@@ -1067,7 +1067,7 @@ onMounted(() => {
 
 .record-indicator.completed {
   background: var(--neon-green);
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
   animation: pulse 2s infinite;
 }
 
