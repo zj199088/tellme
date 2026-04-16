@@ -58,4 +58,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         save(user);
         return user;
     }
+
+    @Override
+    public User registerUser(String username, String password, String nickname) {
+        // 检查用户名是否已存在
+        User existingUser = findByUsername(username);
+        if (existingUser != null) {
+            throw new RuntimeException("用户名已存在");
+        }
+        
+        // 创建新用户
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setNickname(nickname);
+        user.setRole("user");
+        user.setIsDeleted(0);
+        save(user);
+        return user;
+    }
 }

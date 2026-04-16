@@ -118,4 +118,25 @@ public class AuthController {
         response.put("message", "Logout successful");
         return Result.success(response);
     }
+
+    @PostMapping("/register")
+    public Result<Map<String, Object>> register(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        String password = request.get("password");
+        String nickname = request.get("nickname");
+        
+        log.info("用户注册请求: username={}", username);
+        
+        User user = userService.registerUser(username, password, nickname);
+        String token = jwtUtils.generateToken(user.getId(), user.getRole());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("token", token);
+        response.put("role", user.getRole());
+        response.put("message", "注册成功");
+        
+        log.info("用户注册成功: username={}, userId={}", username, user.getId());
+        return Result.success(response);
+    }
 }

@@ -8,4 +8,5 @@ public interface UserService extends IService<User> {
     User findByUsername(String username);
     User createOrUpdateWechatUser(User user);
     User createAdminUser(User user);
+    User registerUser(String username, String password, String nickname);
 }
