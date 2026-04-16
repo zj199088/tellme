@@ -58,13 +58,23 @@
         </div>
 
         <div class="exercises-section" :class="['exercises-section', 'animate-in', 'glow-card']">
-          <h2 class="section-title">
-            <span class="title-icon">💪</span>
-            <span>今日动作</span>
-            <span class="title-glow"></span>
-          </h2>
+          <div class="section-header">
+            <h2 class="section-title">
+              <span class="title-icon">💪</span>
+              <span>今日动作</span>
+              <span class="title-glow"></span>
+            </h2>
+            <button 
+              class="submit-all-btn glow-button" 
+              :class="{ disabled: !hasAnySetCompletedAll || isSubmitting }"
+              @click="submitAll"
+            >
+              <span>{{ isSubmitting ? '提交中...' : (completionPercentage === 100 ? '恭喜您，完成训练' : '提交动作') }}</span>
+              <span class="btn-glow"></span>
+            </button>
+          </div>
           <div class="exercise-list">
-            <div class="exercise-item" v-for="exercise in exercises" :key="exercise.id" :class="{ submitted: submittedExercises.has(exercise.id) }">
+            <div class="exercise-item" v-for="exercise in exercises" :key="exercise.id">
               <div class="exercise-header">
                 <h3 class="exercise-name">{{ exercise.exerciseName }}</h3>
                 <div class="exercise-meta">
@@ -74,38 +84,22 @@
                   <span v-if="exercise.weight" class="weight-info">{{ exercise.weight }} kg</span>
                 </div>
               </div>
-              <div class="sets-and-actions">
-                <div class="sets-container">
-                  <div 
-                    class="set-checkbox" 
-                    v-for="(checked, index) in exercise.completedSets" 
-                    :key="index"
-                    :class="{ checked: checked }"
-                    @click="toggleSet(exercise, index)"
-                  >
-                    <span class="set-number">{{ index + 1 }}</span>
-                    <svg v-if="checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </div>
-                </div>
-                <div class="exercise-actions" v-if="hasAnySetCompleted(exercise)">
-                  <button 
-                    class="complete-exercise-btn glow-button" 
-                    :class="{ disabled: isSubmitting }"
-                    @click="completeExercise(exercise)"
-                  >
-                    <span>{{ isSubmitting ? '提交中...' : '提交动作' }}</span>
-                    <span class="btn-glow"></span>
-                  </button>
+              <div class="sets-container">
+                <div 
+                  class="set-checkbox" 
+                  v-for="(checked, index) in exercise.completedSets" 
+                  :key="index"
+                  :class="{ checked: checked }"
+                  @click="toggleSet(exercise, index)"
+                >
+                  <span class="set-number">{{ index + 1 }}</span>
+                  <svg v-if="checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
-          <button class="complete-button glow-button" :class="{ disabled: !hasAnyExerciseSubmitted || isCompleting }" @click="completeWorkout">
-            <span>{{ isCompleting ? '保存中...' : '完成训练' }}</span>
-            <span class="btn-glow"></span>
-          </button>
         </div>
       </div>
     </div>
@@ -133,7 +127,6 @@ const loading = ref(true);
 const error = ref('');
 const isCompleting = ref(false);
 const isSubmitting = ref(false);
-const submittedExercises = ref<Set<number>>(new Set());
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -200,59 +193,31 @@ const loadWorkoutData = async () => {
   }
 };
 
-const toggleSet = async (exercise: TrackExercise, index: number) => {
+const toggleSet = (exercise: TrackExercise, index: number) => {
   exercise.completedSets[index] = !exercise.completedSets[index];
-  
-  // 每组完成后立即提交
-  try {
-    const record = {
-      planId: planId.value,
-      scheduleId: schedule.value?.id,
-      scheduleExerciseId: exercise.id,
-      exerciseId: exercise.exerciseId,
-      exerciseName: exercise.exerciseName,
-      date: new Date().toISOString().split('T')[0],
-      setsCompleted: JSON.stringify(exercise.completedSets.map(c => c ? 1 : 0)),
-      weight: exercise.weight || 0,
-      duration: 0,
-      notes: ''
-    };
-    
-    await api.workout.createBatch([record]);
-    
-    // 显示提交成功反馈
-    const setElement = document.querySelector(`.set-checkbox:nth-child(${index + 1})`);
-    if (setElement) {
-      setElement.classList.add('submitted');
-      setTimeout(() => {
-        setElement.classList.remove('submitted');
-      }, 1000);
-    }
-  } catch (err) {
-    console.error('提交组记录失败:', err);
-    // 提交失败时恢复原状态
-    exercise.completedSets[index] = !exercise.completedSets[index];
-  }
 };
 
 const hasAnySetCompleted = (exercise: TrackExercise) => {
   return exercise.completedSets.some(completed => completed);
 };
 
-const isExerciseCompleted = (exercise: TrackExercise) => {
-  return exercise.completedSets.every(completed => completed);
-};
-
-const completionPercentage = computed(() => {
-  if (exercises.value.length === 0) return 0;
-  const completedCount = exercises.value.filter(exercise => 
-    isExerciseCompleted(exercise) || submittedExercises.value.has(exercise.id)
-  ).length;
-  return Math.round((completedCount / exercises.value.length) * 100);
+const totalSets = computed(() => {
+  return exercises.value.reduce((sum, exercise) => sum + exercise.sets, 0);
 });
 
-const hasAnyExerciseSubmitted = computed(() => {
-  return submittedExercises.value.size > 0;
+const completedSetsCount = computed(() => {
+  return exercises.value.reduce((sum, exercise) => {
+    return sum + exercise.completedSets.filter(completed => completed).length;
+  }, 0);
+});
+
+const completionPercentage = computed(() => {
+  if (totalSets.value === 0) return 0;
+  return Math.round((completedSetsCount.value / totalSets.value) * 100);
+});
+
+const hasAnySetCompletedAll = computed(() => {
+  return exercises.value.some(exercise => hasAnySetCompleted(exercise));
 });
 
 const allSetsCompleted = computed(() => {
@@ -266,54 +231,17 @@ const goBack = () => {
   router.push('/pages/home/index');
 };
 
-const completeExercise = async (exercise: TrackExercise) => {
-  if (!hasAnySetCompleted(exercise) || isSubmitting.value || submittedExercises.value.has(exercise.id)) return;
+const submitAll = async () => {
+  if (!hasAnySetCompletedAll.value || isSubmitting.value) return;
   
   try {
     isSubmitting.value = true;
     
-    // 创建训练记录（即使没有schedule也能创建）
-    const record = {
-      planId: planId.value,
-      scheduleId: schedule.value?.id,
-      scheduleExerciseId: exercise.id,
-      exerciseId: exercise.exerciseId,
-      exerciseName: exercise.exerciseName,
-      date: new Date().toISOString().split('T')[0],
-      setsCompleted: JSON.stringify(exercise.completedSets.map(c => c ? 1 : 0)),
-      weight: exercise.weight || 0,
-      duration: 0,
-      notes: ''
-    };
+    // 只提交有完成组数的动作
+    const exercisesToSubmit = exercises.value.filter(exercise => hasAnySetCompleted(exercise));
     
-    await api.workout.createRecord(record);
-    
-    // 标记动作已提交
-    submittedExercises.value.add(exercise.id);
-    
-    // 显示提交成功反馈
-    alert('动作已提交！记录已保存');
-  } catch (err) {
-    console.error('提交动作记录失败:', err);
-    alert('提交动作记录失败，请重试');
-  } finally {
-    isSubmitting.value = false;
-  }
-};
-
-const completeWorkout = async () => {
-  if (!hasAnyExerciseSubmitted.value || isCompleting.value) return;
-  
-  try {
-    isCompleting.value = true;
-    
-    // 只提交未提交的动作
-    const unsubmittedExercises = exercises.value.filter(exercise => 
-      !submittedExercises.value.has(exercise.id) && hasAnySetCompleted(exercise)
-    );
-    
-    if (unsubmittedExercises.length > 0) {
-      const records = unsubmittedExercises.map(exercise => ({
+    if (exercisesToSubmit.length > 0) {
+      const records = exercisesToSubmit.map(exercise => ({
         planId: planId.value,
         scheduleId: schedule.value?.id,
         scheduleExerciseId: exercise.id,
@@ -329,13 +257,14 @@ const completeWorkout = async () => {
       await api.workout.createBatch(records);
     }
     
-    alert('训练完成！记录已保存');
+    const message = completionPercentage.value === 100 ? '恭喜您，完成训练！' : '训练记录已保存！';
+    alert(message);
     router.push('/pages/home/index');
   } catch (err) {
     console.error('保存训练记录失败:', err);
     alert('保存训练记录失败，请重试');
   } finally {
-    isCompleting.value = false;
+    isSubmitting.value = false;
   }
 };
 
@@ -817,53 +746,43 @@ onMounted(() => {
   margin-right: -10.0px;
 }
 
-.exercise-item.submitted {
-  background: rgba(0, 255, 136, 0.08);
-  border-radius: 8.0px;
-  padding-left: 10.0px;
-  padding-right: 10.0px;
-  margin-left: -10.0px;
-  margin-right: -10.0px;
-  border: 1px solid rgba(0, 255, 136, 0.3);
-}
-
-.exercise-item.submitted .exercise-name {
-  color: var(--neon-green);
-}
-
-.exercise-actions {
+.section-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12.5px;
 }
 
-.complete-exercise-btn {
-  padding: 8.0px 16.0px;
+.submit-all-btn {
+  padding: 10px 20px;
   position: relative;
   overflow: hidden;
   background: var(--gradient-cyan);
   color: white;
   border: none;
   border-radius: 6.0px;
-  font-size: 12.0px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+  white-space: nowrap;
 }
 
-.complete-exercise-btn.disabled {
+.submit-all-btn.disabled {
   background: var(--bg-tertiary);
   color: var(--text-muted);
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.complete-exercise-btn:not(.disabled):hover {
+.submit-all-btn:not(.disabled):hover {
   transform: translateY(-1.0px) scale(1.02);
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(0, 245, 255, 0.3);
 }
 
-.complete-exercise-btn:active {
+.submit-all-btn:active {
   transform: translateY(0) scale(0.98);
 }
 
@@ -984,39 +903,6 @@ onMounted(() => {
   display: none;
 }
 
-.complete-button {
-  width: 100%;
-  padding: 14.0px;
-  margin-top: 15.0px;
-  position: relative;
-  overflow: hidden;
-  background: var(--gradient-cyan);
-  color: white;
-  border: none;
-  border-radius: 8.0px;
-  font-size: 14.0px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
-}
-
-.complete-button.disabled {
-  background: var(--bg-tertiary);
-  color: var(--text-muted);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.complete-button:not(.disabled):hover {
-  transform: translateY(-2.0px) scale(1.02);
-  box-shadow: 0 0 30px rgba(0, 245, 255, 0.5), 0 0 60px rgba(0, 245, 255, 0.3);
-}
-
-.complete-button:active {
-  transform: translateY(0) scale(0.98);
-}
-
 .btn-glow {
   position: absolute;
   top: 0;
@@ -1027,7 +913,7 @@ onMounted(() => {
   transition: left 0.6s;
 }
 
-.complete-button:not(.disabled):hover .btn-glow {
+.submit-all-btn:not(.disabled):hover .btn-glow {
   left: 100%;
 }
 
@@ -1047,6 +933,16 @@ onMounted(() => {
   
   .section-title {
     font-size: 14.0px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .submit-all-btn {
+    width: 100%;
+    margin-top: 10px;
   }
   
   .exercise-name {
