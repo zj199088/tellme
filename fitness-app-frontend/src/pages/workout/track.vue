@@ -82,6 +82,16 @@
                   </svg>
                 </div>
               </div>
+              <div class="exercise-actions" v-if="isExerciseCompleted(exercise)">
+                <button 
+                  class="complete-exercise-btn glow-button" 
+                  :class="{ disabled: isSubmitting }"
+                  @click="completeExercise(exercise)"
+                >
+                  <span>{{ isSubmitting ? '提交中...' : '完成动作' }}</span>
+                  <span class="btn-glow"></span>
+                </button>
+              </div>
             </div>
           </div>
           <button class="complete-button glow-button" :class="{ disabled: !allSetsCompleted || isCompleting }" @click="completeWorkout">
@@ -114,6 +124,7 @@ const schedule = ref<WorkoutSchedule | null>(null);
 const loading = ref(true);
 const error = ref('');
 const isCompleting = ref(false);
+const isSubmitting = ref(false);
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -215,6 +226,10 @@ const toggleSet = async (exercise: TrackExercise, index: number) => {
   }
 };
 
+const isExerciseCompleted = (exercise: TrackExercise) => {
+  return exercise.completedSets.every(completed => completed);
+};
+
 const allSetsCompleted = computed(() => {
   if (exercises.value.length === 0) return false;
   return exercises.value.every(exercise => 
@@ -224,6 +239,38 @@ const allSetsCompleted = computed(() => {
 
 const goBack = () => {
   router.push('/pages/home/index');
+};
+
+const completeExercise = async (exercise: TrackExercise) => {
+  if (!isExerciseCompleted(exercise) || isSubmitting.value) return;
+  
+  try {
+    isSubmitting.value = true;
+    
+    // 创建训练记录（即使没有schedule也能创建）
+    const record = {
+      planId: planId.value,
+      scheduleId: schedule.value?.id,
+      scheduleExerciseId: exercise.id,
+      exerciseId: exercise.exerciseId,
+      exerciseName: exercise.exerciseName,
+      date: new Date().toISOString().split('T')[0],
+      setsCompleted: JSON.stringify(exercise.completedSets.map(c => c ? 1 : 0)),
+      weight: exercise.weight || 0,
+      duration: 0,
+      notes: ''
+    };
+    
+    await api.workout.createRecord(record);
+    
+    // 显示提交成功反馈
+    alert('动作完成！记录已保存');
+  } catch (err) {
+    console.error('提交动作记录失败:', err);
+    alert('提交动作记录失败，请重试');
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 
 const completeWorkout = async () => {
@@ -704,6 +751,42 @@ onMounted(() => {
   padding-right: 10.0px;
   margin-left: -10.0px;
   margin-right: -10.0px;
+}
+
+.exercise-actions {
+  margin-top: 15.0px;
+  text-align: right;
+}
+
+.complete-exercise-btn {
+  padding: 8.0px 16.0px;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
+  color: white;
+  border: none;
+  border-radius: 6.0px;
+  font-size: 12.0px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+}
+
+.complete-exercise-btn.disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.complete-exercise-btn:not(.disabled):hover {
+  transform: translateY(-1.0px) scale(1.02);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(0, 245, 255, 0.3);
+}
+
+.complete-exercise-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .exercise-header {
