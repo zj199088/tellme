@@ -9,8 +9,8 @@
     
     <div class="header">
       <div class="header-content">
-        <div class="header-icon">💪</div>
-        <h1 class="title neon-glow">健身计划</h1>
+        <div class="header-icon">📋</div>
+        <h1 class="title neon-glow">查看计划</h1>
       </div>
       <div class="header-bg"></div>
       <div class="scanline"></div>
