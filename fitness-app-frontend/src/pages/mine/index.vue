@@ -22,19 +22,15 @@
         <div class="loading-spinner"></div>
         <p>加载中...</p>
       </div>
+      <div v-else-if="networkError" class="error-state animate-in">
+        <div class="error-icon">⚠️</div>
+        <p class="error-text">网络连接失败，无法获取用户信息和健身统计</p>
+        <button class="retry-button glow-button" @click="loadUserData">
+          <span>重试</span>
+          <span class="btn-glow"></span>
+        </button>
+      </div>
       <div v-else>
-        <!-- 网络错误提示 -->
-        <div v-if="networkError" class="error-banner animate-in">
-          <div class="error-banner-content">
-            <div class="error-icon">⚠️</div>
-            <p class="error-text">网络连接失败，显示的是模拟数据</p>
-            <button class="retry-button small glow-button" @click="loadUserData">
-              <span>重试</span>
-              <span class="btn-glow"></span>
-            </button>
-          </div>
-        </div>
-        
         <!-- 用户信息卡片 -->
         <div class="user-card animate-in glow-card">
           <div class="user-card-inner">
@@ -131,7 +127,7 @@
               </div>
               <div class="stat-card">
                 <div class="stat-icon-wrapper">
-                  <div class="stat-icon">🎯</div>
+                  <div class="stat-icon">🎵</div>
                 </div>
                 <div class="stat-content">
                   <div class="stat-number">{{ userStats.completionRate }}%</div>
@@ -234,18 +230,7 @@ const loadUserData = async () => {
   } catch (error) {
     console.error('加载用户数据失败:', error);
     networkError.value = true;
-    // 使用默认的模拟数据作为 fallback
-    userInfo.value = {
-      name: '健身爱好者',
-      completedWorkouts: 12,
-      level: 3,
-      levelProgress: 65
-    };
-    userStats.value = {
-      caloriesBurned: 2543,
-      totalDuration: 36.5,
-      completionRate: 85
-    };
+    // 不使用模拟数据作为 fallback
   } finally {
     loading.value = false;
   }
@@ -349,35 +334,34 @@ const navigateToCustomPlan = () => {
   animation: fadeInUp 0.6s ease forwards;
 }
 
-.error-banner {
+.error-state {
   background: rgba(255, 204, 0, 0.1);
   border: 1px solid var(--neon-yellow, #FFD700);
-  border-radius: 10px;
-  padding: 10px 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
-}
-
-.error-banner-content {
+  border-radius: 15px;
+  padding: 30px 20px;
+  margin: 20px 0;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
+  text-align: center;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
-.error-banner .error-icon {
-  font-size: 18px;
+.error-state .error-icon {
+  font-size: 48px;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.error-banner .error-text {
-  flex: 1;
-  font-size: 14px;
+.error-state .error-text {
+  font-size: 16px;
   color: var(--text-primary);
   margin: 0;
+  line-height: 1.4;
 }
 
-.error-banner .retry-button.small {
-  padding: 5px 10px;
-  font-size: 12px;
+.error-state .retry-button {
+  margin-top: 10px;
 }
 
 .mine-container {
