@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface WorkoutRecordService extends IService<WorkoutRecord> {
-    WorkoutRecord getTodayWorkout(Integer userId, LocalDate date);
+    Map<String, Object> getTodayWorkout(Integer userId, LocalDate date);
     List<WorkoutRecord> getRecentRecords(Integer userId, int limit);
     WorkoutRecord createWorkoutRecord(WorkoutRecord record);
     WorkoutRecord updateWorkoutRecord(WorkoutRecord record);

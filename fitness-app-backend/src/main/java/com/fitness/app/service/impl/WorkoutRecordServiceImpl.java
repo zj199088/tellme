@@ -30,8 +30,25 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     private WorkoutScheduleExerciseMapper workoutScheduleExerciseMapper;
 
     @Override
-    public WorkoutRecord getTodayWorkout(Integer userId, LocalDate date) {
-        return workoutRecordMapper.getByUserIdAndDate(userId, date);
+    public Map<String, Object> getTodayWorkout(Integer userId, LocalDate date) {
+        Map<String, Object> result = new HashMap<>();
+        
+        // 首先尝试获取今日的训练记录
+        WorkoutRecord record = workoutRecordMapper.getByUserIdAndDate(userId, date);
+        
+        // 获取今日的训练安排
+        WorkoutSchedule schedule = workoutScheduleMapper.getByUserIdAndDate(userId, date);
+        result.put("schedule", schedule);
+        
+        // 如果有训练安排，获取训练动作
+        if (schedule != null) {
+            List<WorkoutScheduleExercise> exercises = workoutScheduleExerciseMapper.getByScheduleId(schedule.getId());
+            result.put("exercises", exercises);
+        } else {
+            result.put("exercises", null);
+        }
+        
+        return result;
     }
 
     @Override
