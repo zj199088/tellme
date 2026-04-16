@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/templates")
+@RequestMapping("/templates")
 public class TemplateController {
 
     @Autowired

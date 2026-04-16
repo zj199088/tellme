@@ -39,7 +39,6 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         http
@@ -48,7 +47,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/wechat", "/auth/admin", "/auth/logout").permitAll()
-                        .requestMatchers("/api/templates/list", "/api/categories/list", "/api/exercises/list", "/api/movements/**").permitAll()
+                        .requestMatchers("/templates/list", "/categories/list", "/exercises/list", "/movements/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated()
                 )

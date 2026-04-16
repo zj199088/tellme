@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Base64;
 
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/ai")
 public class AIController {
 
     @Autowired

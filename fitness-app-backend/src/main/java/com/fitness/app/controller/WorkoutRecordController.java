@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/workout")
+@RequestMapping("/workout")
 public class WorkoutRecordController {
 
     @Autowired

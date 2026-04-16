@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/plans")
+@RequestMapping("/plans")
 public class PlanController {
 
     @Autowired
