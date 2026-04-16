@@ -19,9 +19,16 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // 只在需要认证的接口返回401时重定向到登录页面
+    // 对于公共接口，允许继续执行
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/auth/login';
+      // 只有在尝试访问需要认证的接口时才重定向
+      // 公共接口（如获取模板列表）不需要重定向
+      const url = error.config?.url || '';
+      if (!url.includes('/api/templates/list') && !url.includes('/api/categories/list') && !url.includes('/api/exercises/list')) {
+        window.location.href = '/auth/login';
+      }
     }
     return Promise.reject(error);
   }

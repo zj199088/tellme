@@ -16,6 +16,6 @@ public interface TemplateMapper extends BaseMapper<Template> {
     @Select("SELECT * FROM templates WHERE created_by = #{userId} AND is_deleted = 0")
     List<Template> getUserTemplates(Integer userId);
     
-    @Select("SELECT * FROM templates WHERE (created_by = #{userId} OR is_public = 1) AND is_deleted = 0")
+    @Select("SELECT * FROM templates WHERE (created_by = #{userId} OR is_public = 1 OR is_shared = 1) AND is_deleted = 0")
     List<Template> getUserAndPublicTemplates(Integer userId);
 }

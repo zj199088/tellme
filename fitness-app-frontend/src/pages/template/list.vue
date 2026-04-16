@@ -139,15 +139,32 @@ const fetchTemplates = async () => {
   try {
     loading.value = true;
     error.value = '';
+    // 尝试获取用户模板（包含公共模板和用户分享的模板）
     const response = await api.templates.getUser();
     if (response.code === 200 && response.data) {
       templates.value = response.data;
     } else {
-      error.value = '加载模板失败，请重试';
+      // 如果获取用户模板失败（可能未登录），尝试获取公共模板
+      const publicResponse = await api.templates.getList();
+      if (publicResponse.code === 200 && publicResponse.data) {
+        templates.value = publicResponse.data;
+      } else {
+        error.value = '加载模板失败，请重试';
+      }
     }
   } catch (err) {
-    error.value = '加载模板失败，请重试';
-    console.error(err);
+    // 捕获错误后尝试获取公共模板
+    try {
+      const publicResponse = await api.templates.getList();
+      if (publicResponse.code === 200 && publicResponse.data) {
+        templates.value = publicResponse.data;
+      } else {
+        error.value = '加载模板失败，请重试';
+      }
+    } catch (publicErr) {
+      error.value = '加载模板失败，请重试';
+      console.error(publicErr);
+    }
   } finally {
     loading.value = false;
   }
