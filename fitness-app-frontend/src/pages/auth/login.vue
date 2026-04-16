@@ -38,7 +38,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import api from '@/utils/api';
 
 const router = useRouter();
 const form = ref({
@@ -67,12 +67,12 @@ const initParticles = () => {
 
 const login = async () => {
   try {
-    const response = await axios.post('/auth/login', form.value);
-    if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
+    const response = await api.auth.login(form.value.username, form.value.password);
+    if (response.success) {
+      localStorage.setItem('token', response.token);
       router.push('/pages/home/index');
     } else {
-      error.value = response.data.message;
+      error.value = response.message;
     }
   } catch (err) {
     error.value = '登录失败，请检查网络连接';

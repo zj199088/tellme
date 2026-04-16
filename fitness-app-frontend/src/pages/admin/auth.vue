@@ -38,7 +38,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import api from '@/utils/api';
 
 const router = useRouter();
 const form = ref({
@@ -67,13 +67,13 @@ const initParticles = () => {
 
 const login = async () => {
   try {
-    const response = await axios.post('/auth/admin/login', form.value);
-    if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', response.data.role);
+    const response = await api.auth.adminLogin(form.value.username, form.value.password);
+    if (response.success) {
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('role', response.role);
       router.push('/pages/admin/categories');
     } else {
-      error.value = response.data.message;
+      error.value = response.message;
     }
   } catch (err) {
     error.value = '登录失败，请检查网络连接';

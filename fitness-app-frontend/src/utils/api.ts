@@ -2,7 +2,7 @@ import axios from 'axios';
 import { isTestEnvironment, mockData } from './env';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
       // 只有在尝试访问需要认证的接口时才重定向
       // 公共接口（如获取模板列表）不需要重定向
       const url = error.config?.url || '';
-      if (!url.includes('/templates/list') && !url.includes('/categories/list') && !url.includes('/exercises/list')) {
+      if (!url.includes('/api/templates/list') && !url.includes('/api/categories/list') && !url.includes('/api/exercises/list')) {
         window.location.href = '/auth/login';
       }
     }
@@ -159,6 +159,34 @@ export interface ScheduleExercise {
 }
 
 export const api = {
+  // 认证相关API
+  auth: {
+    login: async (username: string, password: string): Promise<{ success: boolean; token?: string; role?: string; message: string }> => {
+      if (isTestEnvironment) {
+        return {
+          success: true,
+          token: 'test-token',
+          role: 'user',
+          message: '登录成功'
+        };
+      }
+      const response = await apiClient.post<{ success: boolean; token?: string; role?: string; message: string }>('/auth/login', { username, password });
+      return response.data;
+    },
+    adminLogin: async (username: string, password: string): Promise<{ success: boolean; token?: string; role?: string; message: string }> => {
+      if (isTestEnvironment) {
+        return {
+          success: true,
+          token: 'test-admin-token',
+          role: 'admin',
+          message: '登录成功'
+        };
+      }
+      const response = await apiClient.post<{ success: boolean; token?: string; role?: string; message: string }>('/auth/admin/login', { username, password });
+      return response.data;
+    }
+  },
+  
   // 分类相关API
   categories: {
     getList: async (): Promise<ApiResponse<Category[]>> => {
@@ -494,6 +522,102 @@ export const api = {
       }
       const response = await apiClient.put<ApiResponse<WorkoutRecord>>(`/api/workout/record/${id}`, record);
       return response.data;
+    }
+  },
+  
+  // 管理员相关API
+  admin: {
+    // 分类管理
+    categories: {
+      getList: async (): Promise<any[]> => {
+        if (isTestEnvironment) {
+          return mockData.categories.map(cat => ({
+            id: cat.id,
+            categoryName: cat.name,
+            description: '',
+            icon: cat.icon,
+            sortOrder: cat.id,
+            parentId: 0
+          }));
+        }
+        const response = await apiClient.get<any[]>('/api/admin/categories');
+        return response.data;
+      },
+      create: async (data: any): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.post('/api/admin/categories', data);
+      },
+      update: async (id: number, data: any): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.put(`/api/admin/categories/${id}`, data);
+      },
+      delete: async (id: number): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.delete(`/api/admin/categories/${id}`);
+      }
+    },
+    
+    // 用户管理
+    users: {
+      getList: async (): Promise<any[]> => {
+        if (isTestEnvironment) {
+          return [
+            { id: 1, username: 'user1', email: 'user1@example.com', role: 'user' },
+            { id: 2, username: 'admin', email: 'admin@example.com', role: 'admin' }
+          ];
+        }
+        const response = await apiClient.get<any[]>('/api/admin/users');
+        return response.data;
+      },
+      setAdmin: async (userId: number): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.post('/api/admin/users/set-admin', { user_id: userId });
+      }
+    },
+    
+    // 动作管理
+    exercises: {
+      getList: async (): Promise<any[]> => {
+        if (isTestEnvironment) {
+          return mockData.exercises.map(ex => ({
+            id: ex.id,
+            categoryId: ex.categoryId,
+            name: ex.name,
+            description: ex.description,
+            defaultSets: ex.defaultSets,
+            defaultReps: ex.defaultReps,
+            defaultDuration: ex.defaultDuration
+          }));
+        }
+        const response = await apiClient.get<any[]>('/api/admin/exercises');
+        return response.data;
+      },
+      create: async (data: any): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.post('/api/admin/exercises', data);
+      },
+      update: async (id: number, data: any): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.put(`/api/admin/exercises/${id}`, data);
+      },
+      delete: async (id: number): Promise<void> => {
+        if (isTestEnvironment) {
+          return;
+        }
+        await apiClient.delete(`/api/admin/exercises/${id}`);
+      }
     }
   }
 };

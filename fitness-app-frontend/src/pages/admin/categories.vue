@@ -77,7 +77,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
-import axios from 'axios';
+import api from '@/utils/api';
 
 const categories = ref([]);
 const showAddForm = ref(false);
@@ -111,12 +111,7 @@ const initParticles = () => {
 
 const getCategories = async () => {
   try {
-    const response = await axios.get('/api/admin/categories', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    categories.value = response.data;
+    categories.value = await api.admin.categories.getList();
   } catch (err) {
     console.error('获取分类失败', err);
   }
@@ -125,17 +120,9 @@ const getCategories = async () => {
 const saveCategory = async () => {
   try {
     if (form.value.id) {
-      await axios.put(`/api/admin/categories/${form.value.id}`, form.value, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await api.admin.categories.update(form.value.id, form.value);
     } else {
-      await axios.post('/api/admin/categories', form.value, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await api.admin.categories.create(form.value);
     }
     await getCategories();
     closeModal();
@@ -152,11 +139,7 @@ const editCategory = (category) => {
 const deleteCategory = async (id) => {
   if (confirm('确定要删除这个分类吗？')) {
     try {
-      await axios.delete(`/api/admin/categories/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await api.admin.categories.delete(id);
       await getCategories();
     } catch (err) {
       console.error('删除分类失败', err);
