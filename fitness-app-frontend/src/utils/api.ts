@@ -355,15 +355,18 @@ export const api = {
       return response.data;
     },
     
-    getRecent: async (limit: number = 10): Promise<ApiResponse<WorkoutRecord[]>> => {
+    getRecent: async (limit: number = 10): Promise<ApiResponse<{records: WorkoutRecord[], total: number}>> => {
       if (isTestEnvironment) {
         return {
           code: 200,
           message: 'success',
-          data: mockData.workoutRecords
+          data: {
+            records: mockData.workoutRecords,
+            total: mockData.workoutRecords.length
+          }
         };
       }
-      const response = await apiClient.get<ApiResponse<WorkoutRecord[]>>(`/api/workout/recent?limit=${limit}`);
+      const response = await apiClient.get<ApiResponse<{records: WorkoutRecord[], total: number}>>(`/api/workout/recent?limit=${limit}`);
       return response.data;
     },
     

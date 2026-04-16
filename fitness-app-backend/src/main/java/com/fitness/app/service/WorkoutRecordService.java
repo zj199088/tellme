@@ -17,4 +17,5 @@ public interface WorkoutRecordService extends IService<WorkoutRecord> {
     WorkoutSchedule getScheduleByPlanAndDate(Integer planId, LocalDate date);
     List<WorkoutScheduleExercise> getScheduleExercises(Integer scheduleId);
     Map<String, Object> getRecordsWithDetails(Integer userId, Integer planId, LocalDate date, int page, int pageSize);
+    int countAllRecords(Integer userId);
 }

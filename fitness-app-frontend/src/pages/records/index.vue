@@ -41,10 +41,13 @@
       </div>
 
       <div class="records-section glow-card animate-in">
-        <h2 class="section-title">
-          <span class="title-icon">📋</span>
-          训练记录
-        </h2>
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="title-icon">📋</span>
+            训练记录
+          </h2>
+          <span class="total-count">共 {{ totalRecords }} 条</span>
+        </div>
         <div class="record-list" v-if="records.length > 0">
           <div class="record-card" v-for="(record, index) in records" :key="record.id" 
                :style="{ animationDelay: `${index * 0.1}s` }">
@@ -113,6 +116,7 @@ const plans = ref<FitnessPlan[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
 const totalPages = ref(1);
+const totalRecords = ref(0);
 const pageSize = ref(10);
 
 const filters = ref({
@@ -168,6 +172,7 @@ const fetchRecords = async () => {
     if (response.code === 200 && response.data) {
       records.value = response.data.records;
       totalPages.value = response.data.totalPages;
+      totalRecords.value = response.data.total;
     }
   } catch (error) {
     console.error('获取训练记录失败:', error);
@@ -553,10 +558,16 @@ onMounted(() => {
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .section-title {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 20px;
   color: var(--text-primary);
   display: flex;
   align-items: center;
@@ -566,6 +577,16 @@ onMounted(() => {
 
 .title-icon {
   font-size: 22px;
+}
+
+.total-count {
+  font-size: 12px;
+  color: var(--neon-cyan);
+  font-weight: 600;
+  background: rgba(0, 245, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 245, 255, 0.2);
 }
 
 .record-list {

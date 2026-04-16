@@ -83,4 +83,9 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
         
         return result;
     }
+    
+    @Override
+    public int countAllRecords(Integer userId) {
+        return workoutRecordMapper.countAllRecords(userId);
+    }
 }

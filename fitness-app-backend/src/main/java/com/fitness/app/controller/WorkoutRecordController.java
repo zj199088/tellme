@@ -47,7 +47,13 @@ public class WorkoutRecordController {
             Integer userId = Integer.parseInt(authentication.getName());
             
             List<WorkoutRecord> records = workoutRecordService.getRecentRecords(userId, limit);
-            return Result.success(records);
+            int total = workoutRecordService.countAllRecords(userId);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("records", records);
+            result.put("total", total);
+            
+            return Result.success(result);
         } catch (Exception e) {
             return Result.error("获取最近训练记录失败: " + e.getMessage());
         }

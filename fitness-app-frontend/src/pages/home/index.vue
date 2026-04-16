@@ -88,10 +88,13 @@
             <span>训练记录</span>
             <span class="title-glow"></span>
           </h2>
-          <button class="more-btn" @click="navigateToMoreRecords">
-            查看更多
-            <span class="arrow">→</span>
-          </button>
+          <div class="header-right">
+            <span class="total-count">共 {{ totalRecords }} 条</span>
+            <button class="more-btn" @click="navigateToMoreRecords">
+              查看更多
+              <span class="arrow">→</span>
+            </button>
+          </div>
         </div>
         <div class="record-list" v-if="recentRecords.length > 0">
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
@@ -228,11 +231,14 @@ const fetchPlans = async () => {
 
 
 
+const totalRecords = ref(0);
+
 const fetchRecentRecords = async () => {
   try {
     const response = await api.workout.getRecent(10);
     if (response.code === 200 && response.data) {
-      recentRecords.value = response.data;
+      recentRecords.value = response.data.records;
+      totalRecords.value = response.data.total;
     }
   } catch (error) {
     console.error('获取训练记录失败:', error);
@@ -947,6 +953,22 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10.0px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12.0px;
+}
+
+.total-count {
+  font-size: 11.0px;
+  color: var(--neon-cyan);
+  font-weight: 600;
+  background: rgba(0, 245, 255, 0.1);
+  padding: 4.0px 10.0px;
+  border-radius: 12.0px;
+  border: 1px solid rgba(0, 245, 255, 0.2);
 }
 
 .more-btn {

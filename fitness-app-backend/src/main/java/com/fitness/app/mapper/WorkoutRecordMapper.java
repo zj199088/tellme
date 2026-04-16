@@ -36,4 +36,7 @@ public interface WorkoutRecordMapper extends BaseMapper<WorkoutRecord> {
             "AND (wr.plan_id = #{planId} OR #{planId} IS NULL) " +
             "AND (wr.date = #{date} OR #{date} IS NULL)")
     int countRecords(Integer userId, Integer planId, LocalDate date);
+    
+    @Select("SELECT COUNT(*) FROM workout_records WHERE user_id = #{userId}")
+    int countAllRecords(Integer userId);
 }
