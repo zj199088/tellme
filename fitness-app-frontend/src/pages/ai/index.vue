@@ -182,7 +182,15 @@
           </div>
           <div class="form-item">
             <label class="form-label">目标</label>
-            <input v-model="planForm.goal" type="text" placeholder="如：增肌、减脂、塑形等" class="form-input" />
+            <select v-model="planForm.goal" class="form-input">
+              <option value="">请选择健身目标</option>
+              <option value="增肌">增肌</option>
+              <option value="减脂">减脂</option>
+              <option value="塑形">塑形</option>
+              <option value="增强耐力">增强耐力</option>
+              <option value="提高力量">提高力量</option>
+              <option value="改善体态">改善体态</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">难度</label>
