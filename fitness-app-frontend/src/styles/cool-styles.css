@@ -1,5 +1,6 @@
 
 :root {
+  /* 默认主题变量 */
   --primary-orange: #FF6B35;
   --secondary-orange: #FF8E53;
   --primary-blue: #4ECDC4;
@@ -10,6 +11,72 @@
   --dark-gray: #333;
   --light-gray: #666;
   --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  
+  /* 科技未来主题 */
+  --neon-cyan: #00f5ff;
+  --neon-purple: #8b5cf6;
+  --neon-pink: #ec4899;
+  --neon-blue: #3b82f6;
+  --gradient-bg: linear-gradient(135deg, #0a0a0f 0%, #15192d 50%, #1e293b 100%);
+  --bg-card: rgba(15, 23, 42, 0.8);
+  --bg-tertiary: rgba(30, 41, 59, 0.6);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0, 245, 255, 0.2);
+  --gradient-neon: linear-gradient(90deg, #00f5ff, #8b5cf6, #ec4899);
+  --gradient-cyan: linear-gradient(90deg, #00f5ff, #3b82f6);
+}
+
+/* 科技未来主题 */
+body.theme-tech-future {
+  --neon-cyan: #00f5ff;
+  --neon-purple: #8b5cf6;
+  --neon-pink: #ec4899;
+  --neon-blue: #3b82f6;
+  --gradient-bg: linear-gradient(135deg, #0a0a0f 0%, #15192d 50%, #1e293b 100%);
+  --bg-card: rgba(15, 23, 42, 0.8);
+  --bg-tertiary: rgba(30, 41, 59, 0.6);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0, 245, 255, 0.2);
+  --gradient-neon: linear-gradient(90deg, #00f5ff, #8b5cf6, #ec4899);
+  --gradient-cyan: linear-gradient(90deg, #00f5ff, #3b82f6);
+}
+
+/* 热情似火主题 */
+body.theme-passionate-fire {
+  --neon-cyan: #ff4757;
+  --neon-purple: #ff6b81;
+  --neon-pink: #ff9f43;
+  --neon-blue: #ff6b81;
+  --gradient-bg: linear-gradient(135deg, #1a0a0a 0%, #3d1a1a 50%, #4a1d1d 100%);
+  --bg-card: rgba(45, 15, 15, 0.8);
+  --bg-tertiary: rgba(60, 20, 20, 0.6);
+  --text-primary: #fef2f2;
+  --text-secondary: #fecaca;
+  --text-muted: #f87171;
+  --border-color: rgba(255, 71, 87, 0.2);
+  --gradient-neon: linear-gradient(90deg, #ff4757, #ff6b81, #ff9f43);
+  --gradient-cyan: linear-gradient(90deg, #ff4757, #ff6b81);
+}
+
+/* 绿野清风主题 */
+body.theme-green-breeze {
+  --neon-cyan: #2ed573;
+  --neon-purple: #7bed9f;
+  --neon-pink: #1e90ff;
+  --neon-blue: #1e90ff;
+  --gradient-bg: linear-gradient(135deg, #0a1a0a 0%, #1a3d1a 50%, #235423 100%);
+  --bg-card: rgba(15, 45, 15, 0.8);
+  --bg-tertiary: rgba(20, 60, 20, 0.6);
+  --text-primary: #f0fdf4;
+  --text-secondary: #bbf7d0;
+  --text-muted: #6ee7b7;
+  --border-color: rgba(46, 213, 115, 0.2);
+  --gradient-neon: linear-gradient(90deg, #2ed573, #7bed9f, #1e90ff);
+  --gradient-cyan: linear-gradient(90deg, #2ed573, #7bed9f);
 }
 
 body {

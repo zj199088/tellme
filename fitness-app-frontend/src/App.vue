@@ -27,7 +27,18 @@
 </template>
 
 <script setup lang="ts">
-// App组件
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  // 从localStorage加载主题
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.body.classList.add(`theme-${savedTheme}`);
+  } else {
+    // 默认使用科技未来主题
+    document.body.classList.add('theme-tech-future');
+  }
+});
 </script>
 
 <style>
