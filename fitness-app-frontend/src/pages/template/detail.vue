@@ -57,22 +57,28 @@
           <div class="days-list">
             <div v-for="(day, index) in templateDays" :key="day.id" 
                  class="day-card animate-in" 
-                 :style="{ animationDelay: `${index * 0.1}s` }">
+                 :class="{ expanded: expandedDayId === day.id }"
+                 :style="{ animationDelay: `${index * 0.1}s` }"
+                 @click="toggleDay(day.id)">
               <div class="day-header">
                 <div class="day-info">
                   <h3 class="day-name">{{ getDayName(day.dayOfWeek) }}</h3>
                   <span v-if="day.isRestDay" class="rest-day-tag">休息日</span>
                   <span v-else class="duration">{{ day.estimatedDuration }}分钟</span>
                 </div>
-                <div class="day-indicator"></div>
+                <div class="expand-icon" :class="{ expanded: expandedDayId === day.id }">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
               </div>
               
-              <div v-if="day.isRestDay" class="rest-note">
+              <div v-if="day.isRestDay && expandedDayId === day.id" class="rest-note">
                 <span class="rest-icon">💤</span>
                 <p>{{ day.restNote || '好好休息，让肌肉恢复' }}</p>
               </div>
               
-              <div v-else class="exercises">
+              <div v-else-if="!day.isRestDay && expandedDayId === day.id" class="exercises">
                 <div v-for="exercise in getExercisesByDayId(day.id)" 
                      :key="exercise.id" 
                      class="exercise-item">
@@ -149,6 +155,7 @@ const templateExercises = ref<any[]>([]);
 const loading = ref(true);
 const error = ref('');
 const isCreating = ref(false);
+const expandedDayId = ref<number | null>(null);
 
 const planForm = ref({
   name: '',
@@ -218,9 +225,22 @@ const fetchTemplateDays = async () => {
           await fetchTemplateExercises(day.id);
         }
       }
+      
+      const sunday = templateDays.value.find((d: any) => d.dayOfWeek === 1);
+      if (sunday) {
+        expandedDayId.value = sunday.id;
+      }
     }
   } catch (err) {
     console.error('加载训练日失败', err);
+  }
+};
+
+const toggleDay = (dayId: number) => {
+  if (expandedDayId.value === dayId) {
+    expandedDayId.value = null;
+  } else {
+    expandedDayId.value = dayId;
   }
 };
 
@@ -759,6 +779,12 @@ const goBack = () => {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+}
+
+.day-card.expanded {
+  border-color: rgba(0, 245, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.15);
 }
 
 .day-card::before {
@@ -776,7 +802,6 @@ const goBack = () => {
 .day-card:hover {
   background: rgba(0, 245, 255, 0.05);
   border-color: rgba(0, 245, 255, 0.3);
-  transform: translateX(4px);
 }
 
 .day-card:hover::before {
@@ -817,13 +842,23 @@ const goBack = () => {
   color: var(--text-muted);
 }
 
-.day-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--neon-cyan);
-  box-shadow: 0 0 12px rgba(0, 245, 255, 0.6);
-  animation: pulse 2s infinite;
+.expand-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neon-cyan);
+  transition: transform 0.3s ease;
+}
+
+.expand-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
 }
 
 .rest-note {
@@ -831,6 +866,18 @@ const goBack = () => {
   align-items: center;
   gap: 12px;
   padding: 12px 0;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .rest-icon {
@@ -845,6 +892,7 @@ const goBack = () => {
 
 .exercises {
   margin-top: 8px;
+  animation: slideDown 0.3s ease;
 }
 
 .exercise-item {
