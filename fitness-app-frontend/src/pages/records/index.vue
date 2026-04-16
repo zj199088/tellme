@@ -51,33 +51,24 @@
             <div class="record-header">
               <div class="record-info">
                 <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
-                <p class="record-date">{{ formatDate(record.date) }}</p>
-              </div>
-              <div class="record-status" :class="record.completed ? 'completed' : 'pending'">
-                {{ record.completed ? '已完成' : '未完成' }}
+                <p class="record-date">{{ formatDateTime(record.date) }}</p>
               </div>
             </div>
             <div class="record-details">
-              <h4 class="details-title">训练内容</h4>
-              <div class="exercise-list">
-                <div class="exercise-item">
-                  <div class="exercise-info">
-                    <span class="exercise-name">{{ record.exerciseName }}</span>
-                    <span class="exercise-sets">
-                      完成组数: {{ record.setsCompleted ? JSON.parse(record.setsCompleted).length : 0 }}
-                    </span>
-                  </div>
-                  <div class="exercise-status" :class="record.completed ? 'completed' : ''">
-                    {{ record.completed ? '✓' : '○' }}
-                  </div>
-                </div>
+              <div class="exercise-details">
+                <span class="exercise-name">{{ record.exerciseName }}</span>
+                <span class="exercise-sets">
+                  完成组数: {{ record.setsCompleted ? JSON.parse(record.setsCompleted).length : 0 }}
+                </span>
+                <span class="record-duration">
+                  <span class="duration-icon">⏱</span>
+                  {{ Math.round((record.duration || 0) / 60) }}分钟
+                </span>
+                <span class="record-weight" v-if="record.weight && record.weight > 0">
+                  <span class="weight-icon">🏋️</span>
+                  {{ record.weight }}kg
+                </span>
               </div>
-            </div>
-            <div class="record-footer">
-              <span class="record-duration">
-                <span class="duration-icon">⏱</span>
-                {{ Math.round((record.duration || 0) / 60) }}分钟
-              </span>
             </div>
           </div>
         </div>
@@ -197,6 +188,11 @@ const changePage = (page: number) => {
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+};
+
+const formatDateTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return `${date.getFullYear()}:${String(date.getMonth() + 1).padStart(2, '0')}:${String(date.getDate()).padStart(2, '0')} - ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 };
 
 const goBack = () => {
@@ -659,90 +655,62 @@ onMounted(() => {
   box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
 }
 
-.details-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.exercise-list {
+.exercise-details {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.exercise-item {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 6px;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   transition: all 0.3s ease;
 }
 
-.exercise-item:hover {
+.exercise-details:hover {
   background: rgba(0, 245, 255, 0.05);
   transform: translateX(2px);
-}
-
-.exercise-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
 .exercise-name {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .exercise-sets {
   font-size: 10px;
   color: var(--text-muted);
-}
-
-.exercise-status {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: bold;
-  border: 1px solid var(--border-color);
-}
-
-.exercise-status.completed {
-  background: var(--neon-green);
-  color: var(--bg-primary);
-  border-color: var(--neon-green);
-  box-shadow: 0 0 8px var(--neon-green);
-}
-
-.record-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 10px;
-  border-top: 1px solid rgba(0, 245, 255, 0.1);
+  white-space: nowrap;
 }
 
 .record-duration {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--text-secondary);
+  gap: 3px;
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .duration-icon {
-  font-size: 14px;
+  font-size: 10px;
+}
+
+.record-weight {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.weight-icon {
+  font-size: 10px;
 }
 
 .loading,

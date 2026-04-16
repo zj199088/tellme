@@ -1,12 +1,17 @@
 // 环境配置 - 强制在开发环境使用模拟数据
 const isTestEnvironment = true;
 
-// 生成过去30天的日期
+// 生成过去30天的日期（包含时间）
 const generatePastDates = (days: number): string[] => {
   const dates: string[] = [];
   for (let i = 0; i < days; i++) {
     const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-    dates.push(date.toISOString().split('T')[0]);
+    // 随机生成时间部分
+    const hours = Math.floor(Math.random() * 12) + 8; // 8-19点
+    const minutes = Math.floor(Math.random() * 60);
+    const seconds = Math.floor(Math.random() * 60);
+    date.setHours(hours, minutes, seconds, 0);
+    dates.push(date.toISOString());
   }
   return dates;
 };

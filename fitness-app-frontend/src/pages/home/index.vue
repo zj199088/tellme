@@ -95,19 +95,21 @@
         </div>
         <div class="record-list" v-if="recentRecords.length > 0">
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
-            <div class="record-date">{{ formatDate(record.date) }}</div>
+            <div class="record-date">{{ formatDateTime(record.date) }}</div>
             <div class="record-info">
               <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
-              <p class="record-exercises" v-if="record.exerciseName">
-                {{ record.exerciseName }}
-              </p>
-              <p class="record-duration" v-if="record.duration">
-                <span class="duration-icon">⏱</span>
-                {{ Math.round((record.duration || 0) / 60) }}分钟
-              </p>
-              <p class="record-status" :class="{ completed: record.completed }">{{ record.completed ? '已完成' : '未完成' }}</p>
+              <div class="record-details">
+                <span class="record-exercise">{{ record.exerciseName }}</span>
+                <span class="record-duration">
+                  <span class="duration-icon">⏱</span>
+                  {{ Math.round((record.duration || 0) / 60) }}分钟
+                </span>
+                <span class="record-weight" v-if="record.weight && record.weight > 0">
+                  <span class="weight-icon">🏋️</span>
+                  {{ record.weight }}kg
+                </span>
+              </div>
             </div>
-            <div class="record-indicator" :class="{ completed: record.completed }"></div>
           </div>
         </div>
         <p class="no-records" v-else>暂无训练记录</p>
@@ -195,6 +197,11 @@ const getStatusText = (status: string): string => {
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
+};
+
+const formatDateTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return `${date.getFullYear()}:${String(date.getMonth() + 1).padStart(2, '0')}:${String(date.getDate()).padStart(2, '0')} - ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 };
 
 const fetchPlans = async () => {
@@ -996,8 +1003,10 @@ onMounted(() => {
 .record-date {
   font-size: 10.0px;
   color: var(--text-muted);
-  min-width: 50.0px;
+  min-width: 160.0px;
   font-weight: 500;
+  line-height: 1.2;
+  text-align: right;
 }
 
 .record-info {
@@ -1018,57 +1027,46 @@ onMounted(() => {
   color: var(--neon-cyan);
 }
 
-.record-exercises {
+.record-details {
+  display: flex;
+  align-items: center;
+  gap: 8.0px;
+  flex-wrap: wrap;
+}
+
+.record-exercise {
   font-size: 10.0px;
   color: var(--text-secondary);
-  margin-top: 1.0px;
-  margin-bottom: 1.0px;
-  line-height: 1.3;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  max-width: 120px;
 }
 
 .record-duration {
   font-size: 9.0px;
   color: var(--text-muted);
-  margin-top: 1.0px;
-  margin-bottom: 1.0px;
   display: flex;
   align-items: center;
   gap: 2.0px;
+  white-space: nowrap;
 }
 
 .duration-icon {
   font-size: 9.0px;
 }
 
-.record-status {
+.record-weight {
   font-size: 9.0px;
   color: var(--text-muted);
-  transition: all 0.3s ease;
-  margin-top: 1.0px;
+  display: flex;
+  align-items: center;
+  gap: 2.0px;
+  white-space: nowrap;
 }
 
-.record-status.completed {
-  color: var(--neon-green);
-  font-weight: 600;
-}
-
-.record-indicator {
-  width: 6.0px;
-  height: 6.0px;
-  border-radius: 50%;
-  background: var(--text-muted);
-  transition: all 0.3s ease;
-}
-
-.record-indicator.completed {
-  background: var(--neon-green);
-  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-  animation: pulse 2s infinite;
+.weight-icon {
+  font-size: 9.0px;
 }
 
 .no-records {
