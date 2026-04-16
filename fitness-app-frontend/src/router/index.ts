@@ -55,6 +55,12 @@ const routes = [
     name: 'RecordsIndex',
     component: () => import('../pages/records/index.vue')
   },
+  // 用户登录路由
+  {
+    path: '/auth/login',
+    name: 'UserLogin',
+    component: () => import('../pages/auth/login.vue')
+  },
   // 管理端路由
   {
     path: '/pages/admin/auth',
