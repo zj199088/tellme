@@ -170,8 +170,8 @@ export const api = {
           message: '登录成功'
         };
       }
-      const response = await apiClient.post<{ success: boolean; token?: string; role?: string; message: string }>('/auth/login', { username, password });
-      return response.data;
+      const response = await apiClient.post<{ code: number; message: string; data: { success: boolean; token?: string; role?: string; message: string } }>('/auth/login', { username, password });
+      return response.data.data;
     },
     adminLogin: async (username: string, password: string): Promise<{ success: boolean; token?: string; role?: string; message: string }> => {
       if (isTestEnvironment) {
@@ -182,8 +182,8 @@ export const api = {
           message: '登录成功'
         };
       }
-      const response = await apiClient.post<{ success: boolean; token?: string; role?: string; message: string }>('/auth/admin/login', { username, password });
-      return response.data;
+      const response = await apiClient.post<{ code: number; message: string; data: { success: boolean; token?: string; role?: string; message: string } }>('/auth/admin/login', { username, password });
+      return response.data.data;
     },
     register: async (username: string, password: string, nickname: string): Promise<{ success: boolean; token?: string; role?: string; message: string }> => {
       if (isTestEnvironment) {
@@ -194,8 +194,8 @@ export const api = {
           message: '注册成功'
         };
       }
-      const response = await apiClient.post<{ success: boolean; token?: string; role?: string; message: string }>('/auth/register', { username, password, nickname });
-      return response.data;
+      const response = await apiClient.post<{ code: number; message: string; data: { success: boolean; token?: string; role?: string; message: string } }>('/auth/register', { username, password, nickname });
+      return response.data.data;
     }
   },
   
