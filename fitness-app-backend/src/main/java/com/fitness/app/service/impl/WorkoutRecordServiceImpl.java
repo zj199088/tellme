@@ -88,4 +88,17 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     public int countAllRecords(Integer userId) {
         return workoutRecordMapper.countAllRecords(userId);
     }
+
+    @Override
+    public List<WorkoutRecord> createWorkoutRecords(List<WorkoutRecord> records, Integer userId) {
+        LocalDateTime now = LocalDateTime.now();
+        for (WorkoutRecord record : records) {
+            record.setUser_id(userId);
+            record.setIs_deleted(0);
+            record.setCreated_at(now);
+            record.setUpdated_at(now);
+        }
+        saveBatch(records);
+        return records;
+    }
 }

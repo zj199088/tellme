@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -127,6 +128,20 @@ public class WorkoutRecordController {
             return Result.success(exercises);
         } catch (Exception e) {
             return Result.error("获取训练日程动作失败: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/batch")
+    public Result<?> createWorkoutRecords(
+            @RequestBody List<WorkoutRecord> records,
+            Authentication authentication) {
+        try {
+            Integer userId = Integer.parseInt(authentication.getName());
+            
+            List<WorkoutRecord> savedRecords = workoutRecordService.createWorkoutRecords(records, userId);
+            return Result.success(savedRecords);
+        } catch (Exception e) {
+            return Result.error("批量创建训练记录失败: " + e.getMessage());
         }
     }
 }

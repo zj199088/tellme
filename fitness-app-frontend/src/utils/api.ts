@@ -444,15 +444,8 @@ export const api = {
           data: null
         };
       }
-      // 由于后端还没有实现批量创建接口，这里逐个创建记录
-      for (const record of records) {
-        await apiClient.post<ApiResponse<WorkoutRecord>>('/api/workout/record', record);
-      }
-      return {
-        code: 200,
-        message: 'success',
-        data: null
-      };
+      const response = await apiClient.post<ApiResponse<void>>('/api/workout/batch', records);
+      return response.data;
     },
     
     updateRecord: async (id: number, record: Partial<WorkoutRecord>): Promise<ApiResponse<WorkoutRecord>> => {
