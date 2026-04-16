@@ -1,5 +1,5 @@
-// 环境配置 - 强制在开发环境使用模拟数据
-const isTestEnvironment = true;
+// 环境配置 - 使用真实API
+const isTestEnvironment = false;
 
 // 生成过去30天的日期（包含时间）
 const generatePastDates = (days: number): string[] => {
