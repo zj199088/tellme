@@ -93,9 +93,7 @@
                   @click="toggleSet(exercise, index)"
                 >
                   <span class="set-number">{{ index + 1 }}</span>
-                  <svg v-if="checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
+                  <span v-if="checked" class="vegetable-emoji">{{ getVegetableEmoji(index) }}</span>
                 </div>
               </div>
             </div>
@@ -191,6 +189,12 @@ const loadWorkoutData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const vegetableEmojis = ['🥬', '🥦', '🍅', '🥕', '🌶️', '🫑', '🥒', '🍆'];
+
+const getVegetableEmoji = (index: number): string => {
+  return vegetableEmojis[index % vegetableEmojis.length];
 };
 
 const toggleSet = (exercise: TrackExercise, index: number) => {
@@ -903,6 +907,20 @@ onMounted(() => {
 
 .set-checkbox.checked .set-number {
   display: none;
+}
+
+.vegetable-emoji {
+  font-size: 20px;
+  animation: bounce 0.3s ease;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
 }
 
 .btn-glow {
