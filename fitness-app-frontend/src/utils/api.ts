@@ -2,7 +2,7 @@ import axios from 'axios';
 import { isTestEnvironment, mockData } from './env';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
       // 只有在尝试访问需要认证的接口时才重定向
       // 公共接口（如获取模板列表）不需要重定向
       const url = error.config?.url || '';
-      if (!url.includes('/api/templates/list') && !url.includes('/api/categories/list') && !url.includes('/api/exercises/list')) {
+      if (!url.includes('/templates/list') && !url.includes('/categories/list') && !url.includes('/exercises/list')) {
         window.location.href = '/auth/login';
       }
     }
