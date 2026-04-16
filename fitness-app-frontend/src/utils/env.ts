@@ -1,5 +1,5 @@
-// 环境配置
-const isTestEnvironment = import.meta.env.MODE === 'development' || import.meta.env.VITE_IS_TEST === 'true';
+// 环境配置 - 强制在开发环境使用模拟数据
+const isTestEnvironment = true;
 
 // 生成过去30天的日期
 const generatePastDates = (days: number): string[] => {
