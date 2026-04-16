@@ -216,17 +216,22 @@ const loadUserData = async () => {
   loading.value = true;
   networkError.value = false;
   try {
-    // 这里可以添加真实的API调用
-    // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // 模拟网络错误
-    throw new Error('Network error');
     // 实际项目中，这里会调用API获取用户数据
-    // const response = await api.user.getProfile();
-    // if (response.code === 200 && response.data) {
-    //   userInfo.value = response.data;
-    //   userStats.value = response.data.stats;
-    // }
+    const response = await api.plans.getList();
+    if (response.code === 200 && response.data) {
+      // 这里只是为了触发认证检查，实际项目中会使用真实的用户数据API
+      userInfo.value = {
+        name: '健身爱好者',
+        completedWorkouts: 12,
+        level: 3,
+        levelProgress: 65
+      };
+      userStats.value = {
+        caloriesBurned: 2543,
+        totalDuration: 36.5,
+        completionRate: 85
+      };
+    }
   } catch (error) {
     console.error('加载用户数据失败:', error);
     networkError.value = true;
