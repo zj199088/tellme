@@ -373,37 +373,37 @@ export const api = {
       planId?: number;
       date?: string;
     } = {}): Promise<ApiResponse<{
-      records: WorkoutSession[];
+      records: WorkoutRecord[];
       totalPages: number;
       total: number;
     }>> => {
       if (isTestEnvironment) {
         const { page = 1, pageSize = 10, planId, date } = params;
-        let filteredSessions = [...mockData.workoutSessions];
+        let filteredRecords = [...mockData.workoutRecords];
         
         if (planId) {
-          filteredSessions = filteredSessions.filter(s => s.planId === planId);
+          filteredRecords = filteredRecords.filter(r => r.planId === planId);
         }
         
         if (date) {
-          filteredSessions = filteredSessions.filter(s => s.date === date);
+          filteredRecords = filteredRecords.filter(r => r.date === date);
         }
         
         const start = (page - 1) * pageSize;
         const end = start + pageSize;
-        const paginatedSessions = filteredSessions.slice(start, end);
+        const paginatedRecords = filteredRecords.slice(start, end);
         
         return {
           code: 200,
           message: 'success',
           data: {
-            records: paginatedSessions,
-            totalPages: Math.ceil(filteredSessions.length / pageSize),
-            total: filteredSessions.length
+            records: paginatedRecords,
+            totalPages: Math.ceil(filteredRecords.length / pageSize),
+            total: filteredRecords.length
           }
         };
       }
-      const response = await apiClient.get<ApiResponse<any>>('/api/workout/sessions', { params });
+      const response = await apiClient.get<ApiResponse<any>>('/api/workout/records', { params });
       return response.data;
     },
     

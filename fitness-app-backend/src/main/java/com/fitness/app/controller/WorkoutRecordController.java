@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/workout")
@@ -49,6 +50,23 @@ public class WorkoutRecordController {
             return Result.success(records);
         } catch (Exception e) {
             return Result.error("获取最近训练记录失败: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/records")
+    public Result<?> getRecords(
+            @RequestParam(required = false) Integer planId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            Authentication authentication) {
+        try {
+            Integer userId = Integer.parseInt(authentication.getName());
+            
+            Map<String, Object> result = workoutRecordService.getRecordsWithDetails(userId, planId, date, page, pageSize);
+            return Result.success(result);
+        } catch (Exception e) {
+            return Result.error("获取训练记录失败: " + e.getMessage());
         }
     }
 

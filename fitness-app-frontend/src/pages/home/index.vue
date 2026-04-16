@@ -97,10 +97,15 @@
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-date">{{ formatDate(record.date) }}</div>
             <div class="record-info">
-              <h3 class="record-plan">{{ record.planName }}</h3>
-              <p class="record-status" :class="{ completed: record.completed }">
-                {{ record.completed ? '已完成' : '未完成' }}
+              <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
+              <p class="record-exercises" v-if="record.exerciseName">
+                {{ record.exerciseName }}
               </p>
+              <p class="record-duration" v-if="record.duration">
+                <span class="duration-icon">⏱</span>
+                {{ Math.round((record.duration || 0) / 60) }}分钟
+              </p>
+              <p class="record-status" :class="{ completed: record.completed }">{{ record.completed ? '已完成' : '未完成' }}</p>
             </div>
             <div class="record-indicator" :class="{ completed: record.completed }"></div>
           </div>
@@ -215,12 +220,7 @@ const fetchRecentRecords = async () => {
   try {
     const response = await api.workout.getRecent(10);
     if (response.code === 200 && response.data) {
-      recentRecords.value = response.data.map((record: any) => {
-        if (record.exercisesJson) {
-          record.exercises = JSON.parse(record.exercisesJson);
-        }
-        return record;
-      });
+      recentRecords.value = response.data;
     }
   } catch (error) {
     console.error('获取训练记录失败:', error);
@@ -1018,10 +1018,38 @@ onMounted(() => {
   color: var(--neon-cyan);
 }
 
+.record-exercises {
+  font-size: 11.0px;
+  color: var(--text-secondary);
+  margin-top: 2.0px;
+  margin-bottom: 2.0px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.record-duration {
+  font-size: 10.0px;
+  color: var(--text-muted);
+  margin-top: 2.0px;
+  margin-bottom: 2.0px;
+  display: flex;
+  align-items: center;
+  gap: 3.0px;
+}
+
+.duration-icon {
+  font-size: 10.0px;
+}
+
 .record-status {
   font-size: 10.0px;
   color: var(--text-muted);
   transition: all 0.3s ease;
+  margin-top: 2.0px;
 }
 
 .record-status.completed {

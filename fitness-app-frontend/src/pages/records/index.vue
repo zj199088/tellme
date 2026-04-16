@@ -50,23 +50,25 @@
                :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-header">
               <div class="record-info">
-                <h3 class="record-plan">{{ record.planName }}</h3>
+                <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
                 <p class="record-date">{{ formatDate(record.date) }}</p>
               </div>
               <div class="record-status" :class="record.completed ? 'completed' : 'pending'">
                 {{ record.completed ? '已完成' : '未完成' }}
               </div>
             </div>
-            <div class="record-details" v-if="record.exercises && record.exercises.length > 0">
+            <div class="record-details">
               <h4 class="details-title">训练内容</h4>
               <div class="exercise-list">
-                <div class="exercise-item" v-for="exercise in record.exercises" :key="exercise.id">
+                <div class="exercise-item">
                   <div class="exercise-info">
-                    <span class="exercise-name">{{ exercise.name }}</span>
-                    <span class="exercise-sets">{{ exercise.sets }}组 × {{ exercise.reps }}</span>
+                    <span class="exercise-name">{{ record.exerciseName }}</span>
+                    <span class="exercise-sets">
+                      完成组数: {{ record.setsCompleted ? JSON.parse(record.setsCompleted).length : 0 }}
+                    </span>
                   </div>
-                  <div class="exercise-status" :class="exercise.completed ? 'completed' : ''">
-                    {{ exercise.completed ? '✓' : '○' }}
+                  <div class="exercise-status" :class="record.completed ? 'completed' : ''">
+                    {{ record.completed ? '✓' : '○' }}
                   </div>
                 </div>
               </div>
@@ -113,11 +115,11 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import api, { WorkoutSession, FitnessPlan } from '../../utils/api';
+import api, { WorkoutRecord, FitnessPlan } from '../../utils/api';
 
 const router = useRouter();
 
-const records = ref<WorkoutSession[]>([]);
+const records = ref<WorkoutRecord[]>([]);
 const plans = ref<FitnessPlan[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);

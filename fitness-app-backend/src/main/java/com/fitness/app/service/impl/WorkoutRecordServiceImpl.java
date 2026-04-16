@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, WorkoutRecord> implements WorkoutRecordService {
@@ -63,5 +65,22 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     @Override
     public List<WorkoutScheduleExercise> getScheduleExercises(Integer scheduleId) {
         return workoutScheduleExerciseMapper.getByScheduleId(scheduleId);
+    }
+
+    @Override
+    public Map<String, Object> getRecordsWithDetails(Integer userId, Integer planId, LocalDate date, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        List<WorkoutRecord> records = workoutRecordMapper.getRecordsWithDetails(userId, planId, date, pageSize, offset);
+        int total = workoutRecordMapper.countRecords(userId, planId, date);
+        int totalPages = (total + pageSize - 1) / pageSize;
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", records);
+        result.put("total", total);
+        result.put("totalPages", totalPages);
+        result.put("currentPage", page);
+        result.put("pageSize", pageSize);
+        
+        return result;
     }
 }
