@@ -219,12 +219,21 @@ const handleSubmit = async () => {
     
     if (response.success) {
       localStorage.setItem('token', response.token);
+      // 缓存用户信息
+      const userInfo = {
+        username: form.value.username,
+        role: response.role,
+        nickname: form.value.nickname || form.value.username
+      };
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      
       if (!isRegisterMode.value && form.value.remember) {
         localStorage.setItem('rememberedUser', form.value.username);
       } else {
         localStorage.removeItem('rememberedUser');
       }
-      router.push('/pages/home/index');
+      // 跳转到定制计划页面
+      router.push('/pages/custom/create');
     } else {
       error.value = response.message || (isRegisterMode.value ? '注册失败' : '登录失败，请检查用户名和密码');
     }
