@@ -343,7 +343,7 @@ const mockData = {
       exerciseName: '平板支撑',
       date: pastDates[0],
       setsCompleted: '[3, 3, 3]',
-      weight: 0,
+      weight: null,
       duration: 540,
       notes: '坚持下来了',
       completed: true

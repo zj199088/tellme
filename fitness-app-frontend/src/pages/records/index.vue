@@ -61,7 +61,7 @@
                   <span class="duration-icon">⏱</span>
                   {{ Math.round((record.duration || 0) / 60) }}分钟
                 </span>
-                <span class="record-weight" v-if="record.weight && record.weight > 0">
+                <span class="record-weight" v-if="record.weight !== null && record.weight !== undefined">
                   <span class="weight-icon">🏋️</span>
                   {{ record.weight }}kg
                 </span>
