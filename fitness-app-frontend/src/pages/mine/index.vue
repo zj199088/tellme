@@ -194,7 +194,7 @@ const navigateToMusic = () => {
 };
 
 const navigateToSettings = () => {
-  alert('设置功能开发中');
+  router.push('/pages/mine/settings');
 };
 
 const navigateToCreatePlan = () => {

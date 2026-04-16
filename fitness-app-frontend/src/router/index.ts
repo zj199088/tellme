@@ -31,6 +31,11 @@ const routes = [
     component: () => import('../pages/mine/index.vue')
   },
   {
+    path: '/pages/mine/settings',
+    name: 'Settings',
+    component: () => import('../pages/mine/settings.vue')
+  },
+  {
     path: '/pages/music/player',
     name: 'MusicPlayer',
     component: () => import('../pages/music/player.vue')
