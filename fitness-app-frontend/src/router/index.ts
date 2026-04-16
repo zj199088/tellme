@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
   {
     path: '/',
-    redirect: '/pages/home/index'
+    redirect: '/pages/custom/create'
   },
   {
     path: '/pages/home/index',
@@ -94,7 +94,7 @@ router.beforeEach((to, from, next) => {
   // 需要登录的页面路径
   const requiresAuth = [
     '/pages/workout/track',
-    '/pages/custom/create',
+    '/pages/home/index',
     '/pages/ai/index',
     '/pages/mine/index',
     '/pages/mine/settings',
