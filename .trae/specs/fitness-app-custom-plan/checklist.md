@@ -1,6 +1,6 @@
 # 健身应用自定义计划功能 - 验证清单
 
-- [x] 检查点1：创建自定义计划时同时在fitness_plans和templates表中创建记录
+- [x] 检查点1：创建自定义计划时同时在fitness_plans、templates、template_days和template_exercises表中创建记录
 - [x] 检查点2：验证template的createdBy字段正确设置为当前用户
 - [x] 检查点3：验证template的isPublic字段默认为0（私有）
 - [x] 检查点4：验证计划与模板的关联关系正确建立
@@ -13,3 +13,4 @@
 - [x] 检查点11：前端创建自定义计划界面正常
 - [x] 检查点12：前端正确传递数据到后端
 - [x] 检查点13：所有功能的用户体验良好
+- [x] 检查点14：动作数据从movement_exercises表获取

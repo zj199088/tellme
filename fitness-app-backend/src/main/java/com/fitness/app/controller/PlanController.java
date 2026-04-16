@@ -2,8 +2,12 @@ package com.fitness.app.controller;
 
 import com.fitness.app.entity.FitnessPlan;
 import com.fitness.app.entity.Template;
+import com.fitness.app.entity.TemplateDay;
+import com.fitness.app.entity.TemplateExercise;
 import com.fitness.app.service.FitnessPlanService;
 import com.fitness.app.service.TemplateService;
+import com.fitness.app.service.TemplateDayService;
+import com.fitness.app.service.TemplateExerciseService;
 import com.fitness.app.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -26,6 +30,12 @@ public class PlanController {
     
     @Autowired
     private TemplateService templateService;
+    
+    @Autowired
+    private TemplateDayService templateDayService;
+    
+    @Autowired
+    private TemplateExerciseService templateExerciseService;
 
     @PostMapping("/template")
     public Result<?> createPlanFromTemplate(
@@ -65,6 +75,45 @@ public class PlanController {
             template.setUpdatedAt(LocalDateTime.now());
             
             templateService.save(template);
+            
+            // 创建模板训练日和动作
+            if (request.containsKey("days")) {
+                List<Map<String, Object>> days = (List<Map<String, Object>>) request.get("days");
+                for (Map<String, Object> dayData : days) {
+                    // 创建模板训练日
+                    TemplateDay templateDay = new TemplateDay();
+                    templateDay.setTemplateId(template.getId());
+                    templateDay.setDayOfWeek((Integer) dayData.get("dayOfWeek"));
+                    templateDay.setIsRestDay((Integer) dayData.get("isRestDay"));
+                    templateDay.setRestNote((String) dayData.get("restNote"));
+                    templateDay.setEstimatedDuration(30); // 默认30分钟
+                    templateDay.setIsDeleted(0);
+                    templateDay.setCreatedAt(LocalDateTime.now());
+                    templateDay.setUpdatedAt(LocalDateTime.now());
+                    
+                    templateDayService.save(templateDay);
+                    
+                    // 创建模板动作
+                    if (dayData.containsKey("exercises")) {
+                        List<Map<String, Object>> exercises = (List<Map<String, Object>>) dayData.get("exercises");
+                        int sortOrder = 1;
+                        for (Map<String, Object> exerciseData : exercises) {
+                            TemplateExercise templateExercise = new TemplateExercise();
+                            templateExercise.setTemplateDayId(templateDay.getId());
+                            templateExercise.setExerciseId((Integer) exerciseData.get("exerciseId"));
+                            templateExercise.setExerciseName((String) exerciseData.get("exerciseName"));
+                            templateExercise.setSets((Integer) exerciseData.get("sets"));
+                            templateExercise.setReps((String) exerciseData.get("reps"));
+                            templateExercise.setSortOrder(sortOrder++);
+                            templateExercise.setIsDeleted(0);
+                            templateExercise.setCreatedAt(LocalDateTime.now());
+                            templateExercise.setUpdatedAt(LocalDateTime.now());
+                            
+                            templateExerciseService.save(templateExercise);
+                        }
+                    }
+                }
+            }
             
             // 创建自定义计划
             FitnessPlan plan = new FitnessPlan();

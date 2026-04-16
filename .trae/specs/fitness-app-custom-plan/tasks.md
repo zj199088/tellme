@@ -1,6 +1,6 @@
 # 健身应用自定义计划功能 - 实现计划
 
-## [x] 任务1：修改后端PlanController创建自定义计划时同时创建模板
+## [x] 任务1：修改后端PlanController创建自定义计划时同时创建模板（包括template_days和template_exercises）
 - **优先级**：P0
 - **依赖**：无
 - **描述**：
