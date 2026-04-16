@@ -218,6 +218,7 @@ import { ref, watch, nextTick, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../utils/api';
 import { mockData } from '../../utils/env';
+import toast from '../../utils/toast';
 
 const router = useRouter();
 
@@ -374,11 +375,11 @@ const generateMockPlan = (): { name: string; goal: string; difficulty: string; d
 
 const generatePlan = async () => {
   if (!selectedGoal.value) {
-    alert('请先选择您的健身目标！');
+    toast.warning('请先选择您的健身目标！');
     return;
   }
   if (selectedDays.value.length === 0) {
-    alert('请选择至少一天的训练日！');
+    toast.warning('请选择至少一天的训练日！');
     return;
   }
   
@@ -409,7 +410,7 @@ const generatePlan = async () => {
     showChat.value = true;
   } catch (error) {
     console.error('生成计划失败:', error);
-    alert('生成计划失败，请稍后重试');
+    toast.error('生成计划失败，请稍后重试');
   } finally {
     loading.value = false;
   }

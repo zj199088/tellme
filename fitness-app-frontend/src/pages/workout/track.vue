@@ -108,6 +108,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api, { ScheduleExercise, WorkoutSchedule } from '../../utils/api';
+import toast from '../../utils/toast';
 
 interface TrackExercise extends ScheduleExercise {
   completedSets: boolean[];
@@ -262,11 +263,11 @@ const submitAll = async () => {
     }
     
     const message = completionPercentage.value === 100 ? '恭喜您，完成训练！' : '训练记录已保存！';
-    alert(message);
+    toast.success(message);
     router.push('/pages/home/index');
   } catch (err) {
     console.error('保存训练记录失败:', err);
-    alert('保存训练记录失败，请重试');
+    toast.error('保存训练记录失败，请重试');
   } finally {
     isSubmitting.value = false;
   }

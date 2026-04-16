@@ -205,7 +205,7 @@ const navigateToCreatePlan = () => {
 };
 
 const navigateToCustomPlan = () => {
-  alert('自定义计划功能开发中');
+  router.push('/pages/custom/create');
 };
 </script>
 

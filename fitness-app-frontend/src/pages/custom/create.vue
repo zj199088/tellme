@@ -275,6 +275,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import api, { Category, ExerciseItem } from '../../utils/api';
+import toast from '../../utils/toast';
 
 const router = useRouter();
 
@@ -491,14 +492,14 @@ const savePlan = async () => {
     const response = await api.plans.createCustom(planData);
     
     if (response.code === 200) {
-      alert('计划创建成功！');
+      toast.success('计划创建成功！');
       router.push('/pages/home/index');
     } else {
-      alert('计划创建失败，请重试');
+      toast.error('计划创建失败，请重试');
     }
   } catch (error) {
     console.error('保存计划失败:', error);
-    alert('保存计划失败，请重试');
+    toast.error('保存计划失败，请重试');
   } finally {
     isSaving.value = false;
   }

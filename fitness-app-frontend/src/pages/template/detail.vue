@@ -144,6 +144,7 @@
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '../../utils/api';
+import toast from '../../utils/toast';
 
 const router = useRouter();
 const route = useRoute();
@@ -275,7 +276,7 @@ const getDifficultyText = (difficulty: string) => {
 
 const createPlan = async () => {
   if (!planForm.value.name || !planForm.value.goal || !planForm.value.duration_weeks || !planForm.value.start_date) {
-    alert('请填写所有必填项');
+    toast.warning('请填写所有必填项');
     return;
   }
 
@@ -290,13 +291,13 @@ const createPlan = async () => {
     });
 
     if (response.code === 200) {
-      alert('计划创建成功');
+      toast.success('计划创建成功');
       router.push('/pages/home/index');
     } else {
-      alert('计划创建失败，请重试');
+      toast.error('计划创建失败，请重试');
     }
   } catch (err) {
-    alert('网络错误，请重试');
+    toast.error('网络错误，请重试');
     console.error(err);
   } finally {
     isCreating.value = false;
