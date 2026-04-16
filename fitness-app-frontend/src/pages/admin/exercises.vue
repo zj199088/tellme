@@ -112,7 +112,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
-import axios from 'axios';
+import api from '@/utils/api';
 
 const exercises = ref([]);
 const categories = ref([]);
@@ -154,12 +154,7 @@ const initParticles = () => {
 
 const getExercises = async () => {
   try {
-    const response = await axios.get('/api/admin/exercises', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    exercises.value = response.data;
+    exercises.value = await api.admin.exercises.getList();
   } catch (err) {
     console.error('获取动作失败', err);
   }
@@ -167,12 +162,7 @@ const getExercises = async () => {
 
 const getCategories = async () => {
   try {
-    const response = await axios.get('/api/admin/categories', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    categories.value = response.data;
+    categories.value = await api.admin.categories.getList();
   } catch (err) {
     console.error('获取分类失败', err);
   }
@@ -184,17 +174,9 @@ const saveExercise = async () => {
     form.value.isBodyweight = form.value.isBodyweight ? 1 : 0;
     
     if (form.value.id) {
-      await axios.put(`/api/admin/exercises/${form.value.id}`, form.value, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await api.admin.exercises.update(form.value.id, form.value);
     } else {
-      await axios.post('/api/admin/exercises', form.value, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await api.admin.exercises.create(form.value);
     }
     await getExercises();
     closeModal();
@@ -215,11 +197,7 @@ const editExercise = (exercise) => {
 const deleteExercise = async (id) => {
   if (confirm('确定要删除这个动作吗？')) {
     try {
-      await axios.delete(`/api/admin/exercises/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await api.admin.exercises.delete(id);
       await getExercises();
     } catch (err) {
       console.error('删除动作失败', err);
