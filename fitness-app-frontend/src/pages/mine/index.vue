@@ -17,131 +17,150 @@
     </div>
     
     <div class="content">
-      <!-- 用户信息卡片 -->
-      <div class="user-card animate-in glow-card">
-        <div class="user-card-inner">
-          <div class="user-avatar">
-            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20user%20avatar%20profile%20picture&image_size=square" alt="用户头像">
-            <div class="avatar-glow"></div>
-          </div>
-          <div class="user-info">
-            <h3 class="user-name">健身爱好者</h3>
-            <p class="user-stats">已完成 <span class="stat-number">12</span> 次训练</p>
-            <div class="user-level">
-              <span class="level-badge">Lv.3</span>
-              <div class="level-progress">
-                <div class="level-fill" style="width: 65%;"></div>
-              </div>
-            </div>
-          </div>
-          <div class="user-actions">
-            <button class="action-btn settings" @click="navigateToSettings">
-              <span class="btn-icon">⚙️</span>
-            </button>
-          </div>
-        </div>
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-state animate-in">
+        <div class="loading-spinner"></div>
+        <p>加载中...</p>
       </div>
-
-      <!-- 功能卡片行 -->
-      <div class="features-row">
-        <!-- 功能菜单 -->
-        <div class="menu-section animate-in glow-card" style="animation-delay: 0.1s;">
-          <h2 class="section-title">
-            <span class="title-icon">✨</span>
-            <span>我的功能</span>
-            <span class="title-glow"></span>
-          </h2>
-          <div class="menu-grid">
-            <div class="menu-item" @click="navigateToAI">
-              <div class="menu-icon-wrapper">
-                <div class="menu-icon">🤖</div>
-              </div>
-              <div class="menu-text">AI智能定制</div>
-              <div class="menu-arrow">→</div>
+      <div v-else>
+        <!-- 网络错误提示 -->
+        <div v-if="networkError" class="error-banner animate-in">
+          <div class="error-banner-content">
+            <div class="error-icon">⚠️</div>
+            <p class="error-text">网络连接失败，显示的是模拟数据</p>
+            <button class="retry-button small glow-button" @click="loadUserData">
+              <span>重试</span>
+              <span class="btn-glow"></span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 用户信息卡片 -->
+        <div class="user-card animate-in glow-card">
+          <div class="user-card-inner">
+            <div class="user-avatar">
+              <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20user%20avatar%20profile%20picture&image_size=square" alt="用户头像">
+              <div class="avatar-glow"></div>
             </div>
-            <div class="menu-item" @click="navigateToRecords">
-              <div class="menu-icon-wrapper">
-                <div class="menu-icon">📊</div>
+            <div class="user-info">
+              <h3 class="user-name">{{ userInfo.name }}</h3>
+              <p class="user-stats">已完成 <span class="stat-number">{{ userInfo.completedWorkouts }}</span> 次训练</p>
+              <div class="user-level">
+                <span class="level-badge">Lv.{{ userInfo.level }}</span>
+                <div class="level-progress">
+                  <div class="level-fill" :style="{ width: userInfo.levelProgress + '%' }"></div>
+                </div>
               </div>
-              <div class="menu-text">训练记录</div>
-              <div class="menu-arrow">→</div>
             </div>
-            <div class="menu-item" @click="navigateToMusic">
-              <div class="menu-icon-wrapper">
-                <div class="menu-icon">🎵</div>
-              </div>
-              <div class="menu-text">音乐播放器</div>
-              <div class="menu-arrow">→</div>
-            </div>
-            <div class="menu-item" @click="navigateToSettings">
-              <div class="menu-icon-wrapper">
-                <div class="menu-icon">⚙️</div>
-              </div>
-              <div class="menu-text">设置</div>
-              <div class="menu-arrow">→</div>
+            <div class="user-actions">
+              <button class="action-btn settings" @click="navigateToSettings">
+                <span class="btn-icon">⚙️</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- 健身统计 -->
-        <div class="stats-section animate-in glow-card" style="animation-delay: 0.2s;">
-          <h2 class="section-title">
-            <span class="title-icon">🔥</span>
-            <span>健身统计</span>
-            <span class="title-glow"></span>
-          </h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">🔥</div>
+        <!-- 功能卡片行 -->
+        <div class="features-row">
+          <!-- 功能菜单 -->
+          <div class="menu-section animate-in glow-card" style="animation-delay: 0.1s;">
+            <h2 class="section-title">
+              <span class="title-icon">✨</span>
+              <span>我的功能</span>
+              <span class="title-glow"></span>
+            </h2>
+            <div class="menu-grid">
+              <div class="menu-item" @click="navigateToAI">
+                <div class="menu-icon-wrapper">
+                  <div class="menu-icon">🤖</div>
+                </div>
+                <div class="menu-text">AI智能定制</div>
+                <div class="menu-arrow">→</div>
               </div>
-              <div class="stat-content">
-                <div class="stat-number">2,543</div>
-                <div class="stat-label">消耗卡路里</div>
+              <div class="menu-item" @click="navigateToRecords">
+                <div class="menu-icon-wrapper">
+                  <div class="menu-icon">📊</div>
+                </div>
+                <div class="menu-text">训练记录</div>
+                <div class="menu-arrow">→</div>
               </div>
-              <div class="stat-glow"></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">⏱️</div>
+              <div class="menu-item" @click="navigateToMusic">
+                <div class="menu-icon-wrapper">
+                  <div class="menu-icon">🎵</div>
+                </div>
+                <div class="menu-text">音乐播放器</div>
+                <div class="menu-arrow">→</div>
               </div>
-              <div class="stat-content">
-                <div class="stat-number">36.5h</div>
-                <div class="stat-label">训练时长</div>
+              <div class="menu-item" @click="navigateToSettings">
+                <div class="menu-icon-wrapper">
+                  <div class="menu-icon">⚙️</div>
+                </div>
+                <div class="menu-text">设置</div>
+                <div class="menu-arrow">→</div>
               </div>
-              <div class="stat-glow"></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">🎯</div>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">85%</div>
-                <div class="stat-label">完成率</div>
-              </div>
-              <div class="stat-glow"></div>
             </div>
           </div>
-        </div>
 
-        <!-- 快捷操作 -->
-        <div class="quick-actions animate-in glow-card" style="animation-delay: 0.3s;">
-          <h2 class="section-title">
-            <span class="title-icon">🚀</span>
-            <span>快捷操作</span>
-            <span class="title-glow"></span>
-          </h2>
-          <div class="action-buttons">
-            <button class="quick-btn primary glow-button" @click="navigateToCreatePlan">
-              <span class="btn-icon">➕</span>
-              <span class="btn-text">创建计划</span>
-              <span class="btn-glow"></span>
-            </button>
-            <button class="quick-btn secondary glow-button" @click="navigateToCustomPlan">
-              <span class="btn-icon">✏️</span>
-              <span class="btn-text">自定义计划</span>
-              <span class="btn-glow"></span>
-            </button>
+          <!-- 健身统计 -->
+          <div class="stats-section animate-in glow-card" style="animation-delay: 0.2s;">
+            <h2 class="section-title">
+              <span class="title-icon">🔥</span>
+              <span>健身统计</span>
+              <span class="title-glow"></span>
+            </h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon-wrapper">
+                  <div class="stat-icon">🔥</div>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-number">{{ userStats.caloriesBurned.toLocaleString() }}</div>
+                  <div class="stat-label">消耗卡路里</div>
+                </div>
+                <div class="stat-glow"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon-wrapper">
+                  <div class="stat-icon">⏱️</div>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-number">{{ userStats.totalDuration.toFixed(1) }}h</div>
+                  <div class="stat-label">训练时长</div>
+                </div>
+                <div class="stat-glow"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon-wrapper">
+                  <div class="stat-icon">🎯</div>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-number">{{ userStats.completionRate }}%</div>
+                  <div class="stat-label">完成率</div>
+                </div>
+                <div class="stat-glow"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 快捷操作 -->
+          <div class="quick-actions animate-in glow-card" style="animation-delay: 0.3s;">
+            <h2 class="section-title">
+              <span class="title-icon">🚀</span>
+              <span>快捷操作</span>
+              <span class="title-glow"></span>
+            </h2>
+            <div class="action-buttons">
+              <button class="quick-btn primary glow-button" @click="navigateToCreatePlan">
+                <span class="btn-icon">➕</span>
+                <span class="btn-text">创建计划</span>
+                <span class="btn-glow"></span>
+              </button>
+              <button class="quick-btn secondary glow-button" @click="navigateToCustomPlan">
+                <span class="btn-icon">✏️</span>
+                <span class="btn-text">自定义计划</span>
+                <span class="btn-glow"></span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -150,10 +169,29 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
+// 状态管理
+const loading = ref(false);
+const networkError = ref(false);
+
+// 用户信息
+const userInfo = ref({
+  name: '健身爱好者',
+  completedWorkouts: 12,
+  level: 3,
+  levelProgress: 65
+});
+
+// 健身统计
+const userStats = ref({
+  caloriesBurned: 2543,
+  totalDuration: 36.5,
+  completionRate: 85
+});
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -178,10 +216,46 @@ const initParticles = () => {
   }
 };
 
+const loadUserData = async () => {
+  loading.value = true;
+  networkError.value = false;
+  try {
+    // 这里可以添加真实的API调用
+    // 模拟网络请求延迟
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // 模拟网络错误
+    throw new Error('Network error');
+    // 实际项目中，这里会调用API获取用户数据
+    // const response = await api.user.getProfile();
+    // if (response.code === 200 && response.data) {
+    //   userInfo.value = response.data;
+    //   userStats.value = response.data.stats;
+    // }
+  } catch (error) {
+    console.error('加载用户数据失败:', error);
+    networkError.value = true;
+    // 使用默认的模拟数据作为 fallback
+    userInfo.value = {
+      name: '健身爱好者',
+      completedWorkouts: 12,
+      level: 3,
+      levelProgress: 65
+    };
+    userStats.value = {
+      caloriesBurned: 2543,
+      totalDuration: 36.5,
+      completionRate: 85
+    };
+  } finally {
+    loading.value = false;
+  }
+};
+
 onMounted(() => {
   nextTick(() => {
     initParticles();
   });
+  loadUserData();
 });
 
 const navigateToAI = () => {
@@ -273,6 +347,37 @@ const navigateToCustomPlan = () => {
 
 .animate-in {
   animation: fadeInUp 0.6s ease forwards;
+}
+
+.error-banner {
+  background: rgba(255, 204, 0, 0.1);
+  border: 1px solid var(--neon-yellow, #FFD700);
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+}
+
+.error-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-banner .error-icon {
+  font-size: 18px;
+}
+
+.error-banner .error-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.error-banner .retry-button.small {
+  padding: 5px 10px;
+  font-size: 12px;
 }
 
 .mine-container {
