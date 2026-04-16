@@ -77,6 +77,9 @@ export interface FitnessPlan {
   isShared: number;
   sharedCode: string;
   lastWorkoutDate: string;
+  currentDay?: number;
+  totalDays?: number;
+  description?: string;
 }
 
 export interface WorkoutRecord {

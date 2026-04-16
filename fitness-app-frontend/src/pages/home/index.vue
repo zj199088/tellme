@@ -216,7 +216,25 @@ const fetchPlans = async () => {
   try {
     const response = await api.plans.getList();
     if (response.code === 200 && response.data) {
-      plans.value = response.data;
+      plans.value = response.data.map((plan: any) => {
+        const totalDays = plan.durationWeeks ? plan.durationWeeks * 7 : 28;
+        let currentDay = 1;
+        
+        if (plan.startDate) {
+          const startDate = new Date(plan.startDate);
+          const today = new Date();
+          const diffTime = Math.abs(today.getTime() - startDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          currentDay = Math.min(Math.max(diffDays, 1), totalDays);
+        }
+        
+        return {
+          ...plan,
+          currentDay: plan.currentDay || currentDay,
+          totalDays: plan.totalDays || totalDays,
+          description: plan.description || `${plan.goal || '健身'}计划`
+        };
+      });
       plans.value.sort((a, b) => {
         if (a.status === 'active' && b.status !== 'active') return -1;
         if (a.status !== 'active' && b.status === 'active') return 1;
@@ -315,7 +333,6 @@ const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
         if (a.status !== 'active' && b.status === 'active') return 1;
         return b.currentDay - a.currentDay;
       });
-      activePlan.value = plans.value.find(p => p.status === 'active') || null;
     }
   } catch (error) {
     console.error('更新计划状态失败:', error);

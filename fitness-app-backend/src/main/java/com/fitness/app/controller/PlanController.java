@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -111,10 +115,47 @@ public class PlanController {
         try {
             Integer userId = Integer.parseInt(authentication.getName());
             
-            // 这里可以添加获取用户计划的逻辑
-            // List<FitnessPlan> plans = fitnessPlanService.getUserPlans(userId);
+            List<FitnessPlan> plans = fitnessPlanService.lambdaQuery()
+                    .eq(FitnessPlan::getUser_id, userId)
+                    .eq(FitnessPlan::getIs_deleted, 0)
+                    .list();
             
-            return Result.success("获取用户计划成功");
+            List<Map<String, Object>> result = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+            
+            for (FitnessPlan plan : plans) {
+                Map<String, Object> planMap = new HashMap<>();
+                planMap.put("id", plan.getId());
+                planMap.put("userId", plan.getUser_id());
+                planMap.put("templateId", plan.getTemplate_id());
+                planMap.put("name", plan.getName());
+                planMap.put("type", plan.getType());
+                planMap.put("goal", plan.getGoal());
+                planMap.put("difficulty", plan.getDifficulty());
+                planMap.put("durationWeeks", plan.getDuration_weeks());
+                planMap.put("startDate", plan.getStart_date() != null ? plan.getStart_date().toString() : null);
+                planMap.put("endDate", plan.getEnd_date() != null ? plan.getEnd_date().toString() : null);
+                planMap.put("status", plan.getStatus());
+                planMap.put("isShared", plan.getIs_shared());
+                planMap.put("sharedCode", plan.getShared_code());
+                planMap.put("lastWorkoutDate", plan.getLast_workout_date() != null ? plan.getLast_workout_date().toString() : null);
+                planMap.put("description", plan.getGoal() != null ? plan.getGoal() + "计划" : "健身计划");
+                
+                int totalDays = plan.getDuration_weeks() != null ? plan.getDuration_weeks() * 7 : 28;
+                int currentDay = 1;
+                
+                if (plan.getStart_date() != null) {
+                    long daysBetween = ChronoUnit.DAYS.between(plan.getStart_date(), today);
+                    currentDay = (int) Math.min(Math.max(daysBetween + 1, 1), totalDays);
+                }
+                
+                planMap.put("currentDay", currentDay);
+                planMap.put("totalDays", totalDays);
+                
+                result.add(planMap);
+            }
+            
+            return Result.success(result);
         } catch (Exception e) {
             return Result.error("获取用户计划失败: " + e.getMessage());
         }
