@@ -24,7 +24,19 @@
           <span>我的计划</span>
           <span class="title-glow"></span>
         </h2>
-        <div class="plan-list" v-if="plans.length > 0">
+        <div v-if="loading" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>加载中...</p>
+        </div>
+        <div v-else-if="networkError" class="error-state">
+          <div class="error-icon">⚠️</div>
+          <p class="error-text">网络连接失败，请检查网络后重试</p>
+          <button class="retry-button glow-button" @click="fetchPlans">
+            <span>重试</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
+        <div class="plan-list" v-else-if="plans.length > 0">
           <div class="plan-card" v-for="(plan, index) in plans" :key="plan.id" :class="['plan-card', 'animate-in', 'glow-card']" :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="plan-card-inner">
               <div class="plan-header">
@@ -96,7 +108,19 @@
             </button>
           </div>
         </div>
-        <div class="record-list" v-if="recentRecords.length > 0">
+        <div v-if="recordsLoading" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>加载中...</p>
+        </div>
+        <div v-else-if="recordsNetworkError" class="error-state">
+          <div class="error-icon">⚠️</div>
+          <p class="error-text">网络连接失败，请检查网络后重试</p>
+          <button class="retry-button glow-button" @click="fetchRecentRecords">
+            <span>重试</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
+        <div class="record-list" v-else-if="recentRecords.length > 0">
           <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="record-header">
               <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
@@ -164,6 +188,10 @@ interface TrainingRecord {
 
 const plans = ref<TrainingPlan[]>([]);
 const recentRecords = ref<TrainingRecord[]>([]);
+const loading = ref(false);
+const networkError = ref(false);
+const recordsLoading = ref(false);
+const recordsNetworkError = ref(false);
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -213,6 +241,8 @@ const formatDateTime = (dateString: string): string => {
 };
 
 const fetchPlans = async () => {
+  loading.value = true;
+  networkError.value = false;
   try {
     const response = await api.plans.getList();
     if (response.code === 200 && response.data) {
@@ -243,7 +273,9 @@ const fetchPlans = async () => {
     }
   } catch (error) {
     console.error('获取计划列表失败:', error);
-    useLocalData();
+    networkError.value = true;
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -252,6 +284,8 @@ const fetchPlans = async () => {
 const totalRecords = ref(0);
 
 const fetchRecentRecords = async () => {
+  recordsLoading.value = true;
+  recordsNetworkError.value = false;
   try {
     const response = await api.workout.getRecent(10);
     if (response.code === 200 && response.data) {
@@ -260,6 +294,9 @@ const fetchRecentRecords = async () => {
     }
   } catch (error) {
     console.error('获取训练记录失败:', error);
+    recordsNetworkError.value = true;
+  } finally {
+    recordsLoading.value = false;
   }
 };
 
@@ -1146,6 +1183,68 @@ onMounted(() => {
   border-radius: 8.0px;
   margin-top: 7.5px;
   border: 1px dashed var(--border-color);
+}
+
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40.0px 20.0px;
+  background: rgba(0, 245, 255, 0.03);
+  border-radius: 12.0px;
+  margin-top: 7.5px;
+  border: 1px dashed var(--border-color);
+  gap: 15.0px;
+}
+
+.loading-spinner {
+  width: 30.0px;
+  height: 30.0px;
+  border: 2.0px solid rgba(0, 245, 255, 0.1);
+  border-top: 2.0px solid var(--neon-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p,
+.error-state p {
+  font-size: 13.0px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.error-icon {
+  font-size: 30.0px;
+}
+
+.error-text {
+  font-size: 12.0px;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.retry-button {
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
+  color: white;
+  border: none;
+  border-radius: 8.0px;
+  padding: 10.0px 24.0px;
+  font-size: 12.0px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
 }
 
 @media (max-width: 768px) {
