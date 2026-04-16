@@ -8,9 +8,9 @@
       <div class="scan-line"></div>
       <div class="logo-container">
         <div class="logo-icon">💪</div>
-        <h1 class="title neon-glow">用户登录</h1>
+        <h1 class="title neon-glow">{{ isRegisterMode ? '用户注册' : '用户登录' }}</h1>
       </div>
-      <form @submit.prevent="login" class="login-form">
+      <form @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group" :class="{ 'has-error': errors.username }">
           <label for="username" class="form-label">用户名</label>
           <div class="input-wrapper">
@@ -23,11 +23,29 @@
               class="form-input"
               placeholder="请输入用户名"
               @focus="clearError('username')"
-              @keyup.enter="focusPassword"
+              @keyup.enter="focusNext"
             >
             <span class="input-glow"></span>
           </div>
           <div v-if="errors.username" class="field-error">{{ errors.username }}</div>
+        </div>
+        <div v-if="isRegisterMode" class="form-group" :class="{ 'has-error': errors.nickname }">
+          <label for="nickname" class="form-label">昵称</label>
+          <div class="input-wrapper">
+            <span class="input-icon">😊</span>
+            <input 
+              type="text" 
+              id="nickname" 
+              v-model="form.nickname" 
+              required 
+              class="form-input"
+              placeholder="请输入昵称"
+              @focus="clearError('nickname')"
+              @keyup.enter="focusPassword"
+            >
+            <span class="input-glow"></span>
+          </div>
+          <div v-if="errors.nickname" class="field-error">{{ errors.nickname }}</div>
         </div>
         <div class="form-group" :class="{ 'has-error': errors.password }">
           <label for="password" class="form-label">密码</label>
@@ -41,7 +59,7 @@
               class="form-input"
               placeholder="请输入密码"
               @focus="clearError('password')"
-              @keyup.enter="login"
+              @keyup.enter="handleSubmit"
             >
             <button 
               type="button" 
@@ -55,7 +73,7 @@
           </div>
           <div v-if="errors.password" class="field-error">{{ errors.password }}</div>
         </div>
-        <div class="form-options">
+        <div v-if="!isRegisterMode" class="form-options">
           <label class="remember-me">
             <input type="checkbox" v-model="form.remember">
             <span class="checkmark"></span>
@@ -69,7 +87,7 @@
           :disabled="isLoading"
         >
           <span v-if="isLoading" class="loading-spinner"></span>
-          <span class="btn-text">{{ isLoading ? '登录中...' : '登录' }}</span>
+          <span class="btn-text">{{ isLoading ? (isRegisterMode ? '注册中...' : '登录中...') : (isRegisterMode ? '注册' : '登录') }}</span>
           <span class="btn-glow"></span>
         </button>
         <div v-if="error" class="error-message">
@@ -77,7 +95,12 @@
           {{ error }}
         </div>
         <div class="auth-footer">
-          <p>还没有账号？ <a href="#" class="register-link">立即注册</a></p>
+          <p>
+            {{ isRegisterMode ? '已有账号？' : '还没有账号？' }}
+            <a href="#" class="register-link" @click.prevent="toggleMode">
+              {{ isRegisterMode ? '立即登录' : '立即注册' }}
+            </a>
+          </p>
         </div>
       </form>
     </div>
@@ -90,9 +113,11 @@ import { useRouter } from 'vue-router';
 import api from '@/utils/api';
 
 const router = useRouter();
+const isRegisterMode = ref(false);
 const form = ref({
   username: '',
   password: '',
+  nickname: '',
   remember: false
 });
 const error = ref('');
@@ -100,7 +125,8 @@ const isLoading = ref(false);
 const showPassword = ref(false);
 const errors = ref({
   username: '',
-  password: ''
+  password: '',
+  nickname: ''
 });
 
 const passwordInput = ref<HTMLInputElement | null>(null);
@@ -131,6 +157,11 @@ const validateForm = (): boolean => {
     isValid = false;
   }
   
+  if (isRegisterMode.value && !form.value.nickname.trim()) {
+    errors.value.nickname = '请输入昵称';
+    isValid = false;
+  }
+  
   if (!form.value.password) {
     errors.value.password = '请输入密码';
     isValid = false;
@@ -140,6 +171,20 @@ const validateForm = (): boolean => {
   }
   
   return isValid;
+};
+
+const toggleMode = () => {
+  isRegisterMode.value = !isRegisterMode.value;
+  error.value = '';
+  errors.value = { username: '', password: '', nickname: '' };
+};
+
+const focusNext = () => {
+  if (isRegisterMode.value) {
+    document.getElementById('nickname')?.focus();
+  } else {
+    focusPassword();
+  }
 };
 
 const clearError = (field: string) => {
@@ -158,28 +203,34 @@ const togglePasswordVisibility = () => {
   });
 };
 
-const login = async () => {
+const handleSubmit = async () => {
   if (!validateForm()) return;
   
   try {
     isLoading.value = true;
     error.value = '';
     
-    const response = await api.auth.login(form.value.username, form.value.password);
+    let response;
+    if (isRegisterMode.value) {
+      response = await api.auth.register(form.value.username, form.value.password, form.value.nickname);
+    } else {
+      response = await api.auth.login(form.value.username, form.value.password);
+    }
+    
     if (response.success) {
       localStorage.setItem('token', response.token);
-      if (form.value.remember) {
+      if (!isRegisterMode.value && form.value.remember) {
         localStorage.setItem('rememberedUser', form.value.username);
       } else {
         localStorage.removeItem('rememberedUser');
       }
       router.push('/pages/home/index');
     } else {
-      error.value = response.message || '登录失败，请检查用户名和密码';
+      error.value = response.message || (isRegisterMode.value ? '注册失败' : '登录失败，请检查用户名和密码');
     }
   } catch (err) {
-    console.error('登录错误:', err);
-    error.value = '登录失败，请检查网络连接';
+    console.error(isRegisterMode.value ? '注册错误:' : '登录错误:', err);
+    error.value = isRegisterMode.value ? '注册失败，请检查网络连接' : '登录失败，请检查网络连接';
   } finally {
     isLoading.value = false;
   }
