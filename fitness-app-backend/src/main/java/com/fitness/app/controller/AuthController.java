@@ -89,6 +89,34 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        String password = request.get("password");
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+
+            User user = userService.findByUsername(username);
+            String token = jwtUtils.generateToken(user.getId(), user.getRole());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("token", token);
+            response.put("role", user.getRole());
+            response.put("message", "登录成功");
+
+            return response;
+        } catch (AuthenticationException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "用户名或密码错误");
+            return response;
+        }
+    }
+
     @PostMapping("/logout")
     public Map<String, Object> logout() {
         Map<String, Object> response = new HashMap<>();
