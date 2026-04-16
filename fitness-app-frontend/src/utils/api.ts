@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
       // 只有在尝试访问需要认证的接口时才重定向
       // 公共接口（如获取模板列表）不需要重定向
       const url = error.config?.url || '';
-      if (!url.includes('/api/templates/list') && !url.includes('/api/categories/list') && !url.includes('/api/exercises/list') && !url.includes('/api/workout/today') && !url.includes('/api/plans/user') && !url.includes('/api/user/profile') && !url.includes('/api/user/stats')) {
+      if (!url.includes('/api/templates/list') && !url.includes('/api/categories/list') && !url.includes('/api/exercises/list')) {
         window.location.href = '/auth/login';
       }
     }
