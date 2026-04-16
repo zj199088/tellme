@@ -2,7 +2,7 @@ import axios from 'axios';
 import { isTestEnvironment, mockData } from './env';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
       // 只有在尝试访问需要认证的接口时才重定向
       // 公共接口（如获取模板列表）不需要重定向
       const url = error.config?.url || '';
-      if (!url.includes('/api/templates/list') && !url.includes('/api/categories/list') && !url.includes('/api/exercises/list')) {
+      if (!url.includes('/templates/list') && !url.includes('/movement/categories') && !url.includes('/movement/exercises')) {
         window.location.href = '/auth/login';
       }
     }
@@ -239,7 +239,7 @@ export const api = {
           data: mockData.templates
         };
       }
-      const response = await apiClient.get<ApiResponse<Template[]>>('/api/templates/list');
+      const response = await apiClient.get<ApiResponse<Template[]>>('/templates/list');
       return response.data;
     },
     
@@ -251,7 +251,7 @@ export const api = {
           data: mockData.templates
         };
       }
-      const response = await apiClient.get<ApiResponse<Template[]>>('/api/templates/user');
+      const response = await apiClient.get<ApiResponse<Template[]>>('/templates/user');
       return response.data;
     },
     
@@ -264,7 +264,7 @@ export const api = {
           data: template || mockData.templates[0]
         };
       }
-      const response = await apiClient.get<ApiResponse<Template>>(`/api/templates/detail/${id}`);
+      const response = await apiClient.get<ApiResponse<Template>>(`/templates/detail/${id}`);
       return response.data;
     },
     
@@ -277,7 +277,7 @@ export const api = {
           data: days
         };
       }
-      const response = await apiClient.get<ApiResponse<TemplateDay[]>>(`/api/templates/${templateId}/days`);
+      const response = await apiClient.get<ApiResponse<TemplateDay[]>>(`/templates/${templateId}/days`);
       return response.data;
     },
     
@@ -290,7 +290,7 @@ export const api = {
           data: exercises
         };
       }
-      const response = await apiClient.get<ApiResponse<Exercise[]>>(`/api/templates/days/${templateDayId}/exercises`);
+      const response = await apiClient.get<ApiResponse<Exercise[]>>(`/templates/days/${templateDayId}/exercises`);
       return response.data;
     },
     
@@ -308,7 +308,7 @@ export const api = {
           data: 999
         };
       }
-      const response = await apiClient.post<ApiResponse<number>>('/api/plans/template', data);
+      const response = await apiClient.post<ApiResponse<number>>('/plans/template', data);
       return response.data;
     }
   },
@@ -323,7 +323,7 @@ export const api = {
           data: mockData.plans
         };
       }
-      const response = await apiClient.get<ApiResponse<FitnessPlan[]>>('/api/plans/user');
+      const response = await apiClient.get<ApiResponse<FitnessPlan[]>>('/plans/user');
       return response.data;
     },
     
@@ -335,7 +335,7 @@ export const api = {
           data: null
         };
       }
-      const response = await apiClient.put<ApiResponse<void>>(`/api/plans/status/${planId}?status=${status}`);
+      const response = await apiClient.put<ApiResponse<void>>(`/plans/status/${planId}?status=${status}`);
       return response.data;
     },
     
@@ -347,7 +347,7 @@ export const api = {
           data: 999
         };
       }
-      const response = await apiClient.post<ApiResponse<number>>('/api/plans/custom', data);
+      const response = await apiClient.post<ApiResponse<number>>('/plans/custom', data);
       return response.data;
     }
   },
@@ -363,7 +363,7 @@ export const api = {
           data: schedules
         };
       }
-      const response = await apiClient.get<ApiResponse<WorkoutSchedule[]>>(`/api/workout-schedules/plan/${planId}`);
+      const response = await apiClient.get<ApiResponse<WorkoutSchedule[]>>(`/workout-schedules/plan/${planId}`);
       return response.data;
     },
     
@@ -376,7 +376,7 @@ export const api = {
           data: exercises
         };
       }
-      const response = await apiClient.get<ApiResponse<ScheduleExercise[]>>(`/api/workout-schedules/${scheduleId}/exercises`);
+      const response = await apiClient.get<ApiResponse<ScheduleExercise[]>>(`/workout-schedules/${scheduleId}/exercises`);
       return response.data;
     },
     
@@ -388,7 +388,7 @@ export const api = {
           data: 999
         };
       }
-      const response = await apiClient.post<ApiResponse<number>>('/api/workout-schedules', data);
+      const response = await apiClient.post<ApiResponse<number>>('/workout-schedules', data);
       return response.data;
     }
   },
@@ -409,7 +409,7 @@ export const api = {
         };
       }
       const params = { planId, date };
-      const response = await apiClient.get<ApiResponse<any>>('/api/workout/today', { params });
+      const response = await apiClient.get<ApiResponse<any>>('/workout/today', { params });
       return response.data;
     },
     
@@ -424,7 +424,7 @@ export const api = {
           }
         };
       }
-      const response = await apiClient.get<ApiResponse<{records: WorkoutRecord[], total: number}>>(`/api/workout/recent?limit=${limit}`);
+      const response = await apiClient.get<ApiResponse<{records: WorkoutRecord[], total: number}>>(`/workout/recent?limit=${limit}`);
       return response.data;
     },
     
@@ -464,7 +464,7 @@ export const api = {
           }
         };
       }
-      const response = await apiClient.get<ApiResponse<any>>('/api/workout/records', { params });
+      const response = await apiClient.get<ApiResponse<any>>('/workout/records', { params });
       return response.data;
     },
     
@@ -490,7 +490,7 @@ export const api = {
           }
         };
       }
-      const response = await apiClient.post<ApiResponse<WorkoutRecord>>('/api/workout/record', record);
+      const response = await apiClient.post<ApiResponse<WorkoutRecord>>('/workout/record', record);
       return response.data;
     },
     
@@ -502,7 +502,7 @@ export const api = {
           data: null
         };
       }
-      const response = await apiClient.post<ApiResponse<void>>('/api/workout/batch', records);
+      const response = await apiClient.post<ApiResponse<void>>('/workout/batch', records);
       return response.data;
     },
     
@@ -528,7 +528,7 @@ export const api = {
           }
         };
       }
-      const response = await apiClient.put<ApiResponse<WorkoutRecord>>(`/api/workout/record/${id}`, record);
+      const response = await apiClient.put<ApiResponse<WorkoutRecord>>(`/workout/record/${id}`, record);
       return response.data;
     }
   },
@@ -548,26 +548,26 @@ export const api = {
             parentId: 0
           }));
         }
-        const response = await apiClient.get<any[]>('/api/admin/categories');
+        const response = await apiClient.get<any[]>('/admin/categories');
         return response.data;
       },
       create: async (data: any): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.post('/api/admin/categories', data);
+        await apiClient.post('/admin/categories', data);
       },
       update: async (id: number, data: any): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.put(`/api/admin/categories/${id}`, data);
+        await apiClient.put(`/admin/categories/${id}`, data);
       },
       delete: async (id: number): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.delete(`/api/admin/categories/${id}`);
+        await apiClient.delete(`/admin/categories/${id}`);
       }
     },
     
@@ -580,14 +580,14 @@ export const api = {
             { id: 2, username: 'admin', email: 'admin@example.com', role: 'admin' }
           ];
         }
-        const response = await apiClient.get<any[]>('/api/admin/users');
+        const response = await apiClient.get<any[]>('/admin/users');
         return response.data;
       },
       setAdmin: async (userId: number): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.post('/api/admin/users/set-admin', { user_id: userId });
+        await apiClient.post('/admin/users/set-admin', { user_id: userId });
       }
     },
     
@@ -605,26 +605,26 @@ export const api = {
             defaultDuration: ex.defaultDuration
           }));
         }
-        const response = await apiClient.get<any[]>('/api/admin/exercises');
+        const response = await apiClient.get<any[]>('/admin/exercises');
         return response.data;
       },
       create: async (data: any): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.post('/api/admin/exercises', data);
+        await apiClient.post('/admin/exercises', data);
       },
       update: async (id: number, data: any): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.put(`/api/admin/exercises/${id}`, data);
+        await apiClient.put(`/admin/exercises/${id}`, data);
       },
       delete: async (id: number): Promise<void> => {
         if (isTestEnvironment) {
           return;
         }
-        await apiClient.delete(`/api/admin/exercises/${id}`);
+        await apiClient.delete(`/admin/exercises/${id}`);
       }
     }
   }
