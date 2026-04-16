@@ -68,29 +68,31 @@
                   <span v-if="exercise.weight" class="weight-info">{{ exercise.weight }} kg</span>
                 </div>
               </div>
-              <div class="sets-container">
-                <div 
-                  class="set-checkbox" 
-                  v-for="(checked, index) in exercise.completedSets" 
-                  :key="index"
-                  :class="{ checked: checked }"
-                  @click="toggleSet(exercise, index)"
-                >
-                  <span class="set-number">{{ index + 1 }}</span>
-                  <svg v-if="checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
+              <div class="sets-and-actions">
+                <div class="sets-container">
+                  <div 
+                    class="set-checkbox" 
+                    v-for="(checked, index) in exercise.completedSets" 
+                    :key="index"
+                    :class="{ checked: checked }"
+                    @click="toggleSet(exercise, index)"
+                  >
+                    <span class="set-number">{{ index + 1 }}</span>
+                    <svg v-if="checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <div class="exercise-actions" v-if="isExerciseCompleted(exercise)">
-                <button 
-                  class="complete-exercise-btn glow-button" 
-                  :class="{ disabled: isSubmitting }"
-                  @click="completeExercise(exercise)"
-                >
-                  <span>{{ isSubmitting ? '提交中...' : '完成动作' }}</span>
-                  <span class="btn-glow"></span>
-                </button>
+                <div class="exercise-actions" v-if="isExerciseCompleted(exercise)">
+                  <button 
+                    class="complete-exercise-btn glow-button" 
+                    :class="{ disabled: isSubmitting }"
+                    @click="completeExercise(exercise)"
+                  >
+                    <span>{{ isSubmitting ? '提交中...' : '完成动作' }}</span>
+                    <span class="btn-glow"></span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -619,7 +621,7 @@ onMounted(() => {
 
 .content {
   padding: 15.0px 10.0px;
-  padding-bottom: 80.0px;
+  padding-bottom: 120.0px;
   position: relative;
   z-index: 1;
 }
@@ -754,8 +756,8 @@ onMounted(() => {
 }
 
 .exercise-actions {
-  margin-top: 15.0px;
-  text-align: right;
+  display: flex;
+  align-items: center;
 }
 
 .complete-exercise-btn {
@@ -812,10 +814,18 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 
+.sets-and-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .sets-container {
   display: flex;
   gap: 8.0px;
   flex-wrap: wrap;
+  flex: 1;
 }
 
 .set-checkbox {
