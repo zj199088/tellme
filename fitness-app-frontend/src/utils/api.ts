@@ -199,6 +199,70 @@ export const api = {
     }
   },
   
+  // 用户相关API
+  user: {
+    getInfo: async (): Promise<ApiResponse<{
+      id: number;
+      nickname: string;
+      avatarUrl: string;
+      gender: number;
+      country: string;
+      province: string;
+      city: string;
+      fitnessGoals: string;
+      fitnessLevel: string;
+      height: number;
+      weight: number;
+    }>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: {
+            id: 1,
+            nickname: '健身爱好者',
+            avatarUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20user%20avatar%20profile%20picture&image_size=square',
+            gender: 1,
+            country: '中国',
+            province: '北京',
+            city: '北京',
+            fitnessGoals: '增肌',
+            fitnessLevel: '中级',
+            height: 1.75,
+            weight: 70
+          }
+        };
+      }
+      const response = await apiClient.get<ApiResponse<any>>('/user/info');
+      return response.data;
+    },
+    getStats: async (): Promise<ApiResponse<{
+      completedWorkouts: number;
+      caloriesBurned: number;
+      totalDuration: number;
+      completionRate: number;
+      level: number;
+      levelProgress: number;
+    }>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: {
+            completedWorkouts: 12,
+            caloriesBurned: 2543,
+            totalDuration: 36.5,
+            completionRate: 85,
+            level: 3,
+            levelProgress: 65
+          }
+        };
+      }
+      const response = await apiClient.get<ApiResponse<any>>('/user/stats');
+      return response.data;
+    }
+  },
+  
   // 分类相关API
   categories: {
     getList: async (): Promise<ApiResponse<Category[]>> => {

@@ -217,20 +217,26 @@ const loadUserData = async () => {
   loading.value = true;
   networkError.value = false;
   try {
-    // 实际项目中，这里会调用API获取用户数据
-    const response = await api.plans.getList();
-    if (response.code === 200 && response.data) {
-      // 这里只是为了触发认证检查，实际项目中会使用真实的用户数据API
+    // 调用API获取用户信息和健身统计数据
+    const [userInfoResponse, userStatsResponse] = await Promise.all([
+      api.user.getInfo(),
+      api.user.getStats()
+    ]);
+
+    if (userInfoResponse.code === 200 && userInfoResponse.data) {
       userInfo.value = {
-        name: '健身爱好者',
-        completedWorkouts: 12,
-        level: 3,
-        levelProgress: 65
+        name: userInfoResponse.data.nickname,
+        completedWorkouts: userStatsResponse.data.completedWorkouts,
+        level: userStatsResponse.data.level,
+        levelProgress: userStatsResponse.data.levelProgress
       };
+    }
+
+    if (userStatsResponse.code === 200 && userStatsResponse.data) {
       userStats.value = {
-        caloriesBurned: 2543,
-        totalDuration: 36.5,
-        completionRate: 85
+        caloriesBurned: userStatsResponse.data.caloriesBurned,
+        totalDuration: userStatsResponse.data.totalDuration,
+        completionRate: userStatsResponse.data.completionRate
       };
     }
   } catch (error) {
