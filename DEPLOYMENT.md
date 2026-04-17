@@ -9,7 +9,34 @@
 
 ### 1.2 环境配置
 
-#### 1.2.1 开发环境配置
+#### 1.2.1 应用模式配置
+应用支持两种运行模式，通过环境变量配置：
+
+1. **创建环境变量文件**
+   复制 `.env.example` 文件为 `.env`：
+   ```bash
+   cd fitness-app-frontend
+   cp .env.example .env
+   ```
+
+2. **配置应用模式**
+   编辑 `.env` 文件，设置运行模式：
+   ```env
+   # 应用模式配置
+   # 可选值: web | miniprogram
+   # - web: 标准网页模式（默认），保持现有功能不变
+   # - miniprogram: 小程序模式，用于适配微信小程序、支付宝小程序等运行环境
+   VITE_APP_MODE=web
+
+   # API 服务地址
+   VITE_API_URL=http://localhost:8080
+   ```
+
+3. **模式说明**
+   - **web 模式**：显示账号密码登录界面，支持用户注册
+   - **miniprogram 模式**：显示微信授权登录按钮，集成微信登录流程
+
+#### 1.2.2 开发环境配置
 1. **安装依赖**
    ```bash
    cd fitness-app-frontend
@@ -17,14 +44,9 @@
    ```
 
 2. **配置 API 地址**
-   编辑 `src/utils/api.ts` 文件，修改 API 基础地址：
-   ```typescript
-   const apiClient = axios.create({
-     baseURL: 'http://localhost:8080/api', // 开发环境 API 地址
-     headers: {
-       'Content-Type': 'application/json'
-     }
-   });
+   编辑 `.env` 文件，修改 API 基础地址：
+   ```env
+   VITE_API_URL=http://localhost:8080
    ```
 
 3. **启动开发服务器**
@@ -33,16 +55,12 @@
    ```
    开发服务器默认运行在 `http://localhost:5173`
 
-#### 1.2.2 测试环境配置
-1. **配置 API 地址**
-   编辑 `src/utils/api.ts` 文件，修改 API 基础地址为测试环境地址：
-   ```typescript
-   const apiClient = axios.create({
-     baseURL: 'http://test-server:8080/api', // 测试环境 API 地址
-     headers: {
-       'Content-Type': 'application/json'
-     }
-   });
+#### 1.2.3 测试环境配置
+1. **配置 API 地址和应用模式**
+   编辑 `.env` 文件，修改 API 基础地址和应用模式：
+   ```env
+   VITE_APP_MODE=web
+   VITE_API_URL=http://test-server:8080
    ```
 
 2. **构建测试版本**
@@ -131,7 +149,34 @@ server:
   port: 8080
   servlet:
     context-path: /api
+
+# 微信开放平台配置
+wechat:
+  appId: your_wechat_app_id          # 微信小程序 AppID
+  appSecret: your_wechat_app_secret  # 微信小程序 AppSecret
+  apiUrl: https://api.weixin.qq.com/sns/jscode2session
 ```
+
+#### 2.2.1 微信开放平台配置
+1. **获取微信小程序 AppID 和 AppSecret**
+   - 访问 [微信公众平台](https://mp.weixin.qq.com/)
+   - 注册/登录账号
+   - 创建小程序或使用已有小程序
+   - 在「开发」→「开发管理」→「开发设置」中获取 AppID 和 AppSecret
+
+2. **配置微信参数**
+   编辑 `application.yml` 文件，填入获取到的 AppID 和 AppSecret：
+   ```yaml
+   wechat:
+     appId: wx1234567890abcdef        # 替换为实际的 AppID
+     appSecret: abcdef1234567890abcdef1234567890  # 替换为实际的 AppSecret
+     apiUrl: https://api.weixin.qq.com/sns/jscode2session
+   ```
+
+3. **微信登录流程说明**
+   - 前端：调用 `wx.login()` 获取 code
+   - 后端：使用 code 调用微信接口 `https://api.weixin.qq.com/sns/jscode2session` 获取 openId 和 session_key
+   - 后端：使用 openId 创建或更新用户，生成 JWT token 返回给前端
 
 ### 2.3 数据库初始化
 
@@ -271,12 +316,21 @@ server:
 1. **API 测试**：访问 `http://localhost:8080/api/plans/user`，检查是否返回数据
 2. **数据库测试**：使用 MySQL 客户端工具连接数据库，检查数据库表结构和数据
 3. **用户登录**：使用预置的用户名和密码登录系统，检查是否登录成功
+4. **微信登录接口测试**：
+   - 测试微信登录接口 `/api/auth/wechat`
+   - 验证微信接口调用是否正常
+   - 验证错误处理是否完善
 
 ### 5.3 完整功能验证
 1. **创建计划**：尝试创建一个健身计划
 2. **跟踪训练**：尝试开始训练并记录
 3. **AI 智能定制**：尝试使用 AI 生成健身计划
 4. **个人中心**：查看个人信息和统计数据
+5. **微信登录验证**：
+   - 在 web 模式下测试账号密码登录
+   - 在 miniprogram 模式下测试微信授权登录
+   - 验证登录状态持久化
+   - 验证错误提示是否友好
 
 ## 6. 安全注意事项
 
@@ -284,6 +338,11 @@ server:
 - **JWT 密钥**：在生产环境中使用强密钥，并定期更换
 - **数据库密码**：不要在配置文件中明文存储密码
 - **API 密钥**：保护好第三方服务的 API 密钥
+- **微信 AppSecret**：
+  - 严格保护微信 AppSecret，不要提交到版本控制系统
+  - 生产环境使用环境变量或密钥管理服务存储
+  - 定期更换 AppSecret 以提高安全性
+  - 不要在前端代码中暴露 AppSecret
 
 ### 6.2 部署建议
 - **生产环境**：使用 HTTPS 协议
