@@ -200,6 +200,7 @@ CREATE TABLE workout_schedules (
   plan_id INT NOT NULL COMMENT '计划ID',
   week_num INT NOT NULL COMMENT '第几周',
   day_of_week INT NOT NULL COMMENT '周几 1-7',
+  date DATE NOT NULL COMMENT '训练日期',
   is_rest_day TINYINT DEFAULT 0 COMMENT '是否休息日',
   rest_note VARCHAR(200) COMMENT '休息日备注',
   estimated_duration INT COMMENT '预计时长(分钟)',
@@ -214,6 +215,8 @@ CREATE TABLE workout_schedules (
   INDEX idx_plan_day (plan_id, day_of_week),
   INDEX idx_plan_week_day (plan_id, week_num, day_of_week),
   INDEX idx_plan_template_day (plan_id, template_day_id),
+  INDEX idx_date (date),
+  INDEX idx_plan_date (plan_id, date),
   INDEX idx_is_deleted (is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='训练日程表';
 
@@ -635,11 +638,12 @@ BEGIN
   SET p_plan_id = LAST_INSERT_ID();
   
   -- 创建训练日程
-  INSERT INTO workout_schedules (plan_id, week_num, day_of_week, is_rest_day, rest_note, estimated_duration, template_day_id)
+  INSERT INTO workout_schedules (plan_id, week_num, day_of_week, date, is_rest_day, rest_note, estimated_duration, template_day_id)
   SELECT 
     p_plan_id,
     w.week_num,
     td.day_of_week,
+    DATE_ADD(p_start_date, INTERVAL (w.week_num - 1) WEEK + (td.day_of_week - 1) DAY) as date,
     td.is_rest_day,
     td.rest_note,
     td.estimated_duration,
