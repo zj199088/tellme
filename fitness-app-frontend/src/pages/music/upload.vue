@@ -19,7 +19,7 @@
           </div>
           <p class="upload-text">点击或拖拽音乐文件到此处上传</p>
           <p class="hint-text">支持 MP3、WAV、FLAC 等音频格式</p>
-          <p class="hint-text">文件大小限制：10MB</p>
+          <p class="hint-text">文件大小限制：{{ maxFileSize }}MB</p>
         </div>
     </div>
     
@@ -96,8 +96,9 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { musicApi } from '../../utils/musicApi';
+import api from '../../utils/api';
 
 const emit = defineEmits(['file-uploaded']);
 
@@ -108,12 +109,29 @@ const isUploading = ref(false);
 const uploadProgress = ref(0);
 const message = ref('');
 const messageType = ref('');
+const maxFileSize = ref(10); // 默认10MB
 
 const formData = reactive({
   name: '',
   artist: '',
   album: '',
   genre: ''
+});
+
+// 加载配置
+const loadConfig = async () => {
+  try {
+    const response = await api.config.getAppConfig();
+    if (response.code === 200 && response.data) {
+      maxFileSize.value = response.data.max_file_size_mb || 10;
+    }
+  } catch (error) {
+    console.error('加载配置失败:', error);
+  }
+};
+
+onMounted(() => {
+  loadConfig();
 });
 
 const handleFileChange = (e) => {
