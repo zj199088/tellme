@@ -321,6 +321,18 @@ public class PlanController {
             planMap.put("lastWorkoutDate", plan.getLastWorkoutDate() != null ? plan.getLastWorkoutDate().toString() : null);
             planMap.put("description", plan.getGoal() != null ? plan.getGoal() + "计划" : "健身计划");
             
+            // 获取模板图片
+            if (plan.getTemplateId() != null) {
+                try {
+                    Template template = templateService.getById(plan.getTemplateId());
+                    if (template != null) {
+                        planMap.put("image", template.getImage());
+                    }
+                } catch (Exception e) {
+                    log.warn("获取模板图片失败: planId={}, templateId={}", plan.getId(), plan.getTemplateId(), e);
+                }
+            }
+            
             int totalDays = plan.getDurationWeeks() != null ? plan.getDurationWeeks() * 7 : 28;
             int currentDay = 1;
             
