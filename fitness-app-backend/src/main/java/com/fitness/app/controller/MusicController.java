@@ -38,10 +38,10 @@ public class MusicController {
     @PostMapping("/upload")
     public Result<MusicTrack> uploadMusic(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("name") String name,
-            @RequestParam("artist") String artist,
-            @RequestParam("album") String album,
-            @RequestParam("genre") String genre
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "artist", required = false) String artist,
+            @RequestParam(value = "album", required = false) String album,
+            @RequestParam(value = "genre", required = false) String genre
     ) throws IOException {
         // 获取当前用户ID
         Integer userId = getCurrentUserId();
@@ -60,6 +60,34 @@ public class MusicController {
             if (currentCount >= maxMusicUploads) {
                 throw new BusinessException("音乐上传数量已达到上限，最大允许" + maxMusicUploads + "首");
             }
+        }
+        
+        // 设置默认值
+        if (name == null || name.trim().isEmpty()) {
+            // 使用文件名作为默认名称（去除扩展名）
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null) {
+                int lastDotIndex = originalFilename.lastIndexOf('.');
+                if (lastDotIndex > 0) {
+                    name = originalFilename.substring(0, lastDotIndex);
+                } else {
+                    name = originalFilename;
+                }
+            } else {
+                name = "未知音乐";
+            }
+        }
+        
+        if (artist == null) {
+            artist = "";
+        }
+        
+        if (album == null) {
+            album = "";
+        }
+        
+        if (genre == null) {
+            genre = "";
         }
         
         MusicTrack track = musicTrackService.uploadMusic(file, name, artist, album, genre, userId);
