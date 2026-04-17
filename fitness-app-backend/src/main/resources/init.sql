@@ -299,6 +299,7 @@ CREATE TABLE ai_conversations (
 -- 14. 音乐表
 CREATE TABLE music_tracks (
   id INT PRIMARY KEY AUTO_INCREMENT COMMENT '音乐ID',
+  user_id INT COMMENT '用户ID，null表示默认音乐',
   name VARCHAR(100) NOT NULL COMMENT '音乐名称',
   artist VARCHAR(100) COMMENT '艺术家',
   album VARCHAR(100) COMMENT '专辑',
@@ -311,7 +312,8 @@ CREATE TABLE music_tracks (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted TINYINT DEFAULT 0 COMMENT '逻辑删除 0否 1是',
-  INDEX idx_is_deleted (is_deleted)
+  INDEX idx_is_deleted (is_deleted),
+  INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='音乐表';
 
 
@@ -728,6 +730,7 @@ INSERT INTO app_configs (config_key, config_value, config_type, description) VAL
 ('version', '1.0.0', 'string', '应用版本'),
 ('maintenance_mode', 'false', 'boolean', '是否维护模式'),
 ('max_workout_records_per_user', '1000', 'number', '每个用户最大锻炼记录数'),
+('max_music_uploads_per_user', '10', 'number', '每个用户最大上传音乐数量'),
 ('default_plan_duration', '8', 'number', '默认计划周期(周)'),
 ('ai_enabled', 'true', 'boolean', '是否启用AI功能'),
 ('music_enabled', 'true', 'boolean', '是否启用音乐功能'),
