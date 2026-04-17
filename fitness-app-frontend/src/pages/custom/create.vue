@@ -47,9 +47,7 @@
                 基本信息
               </h2>
               <div class="form-item">
-                <label class="form-label">
-                  <span style="color: var(--neon-pink);">*</span> 计划封面
-                </label>
+                <label class="form-label">计划封面</label>
                 <div class="image-upload">
                   <div class="image-preview" @click="triggerFileInput">
                     <img v-if="planForm.image" :src="planForm.image" alt="计划封面" />
@@ -63,11 +61,15 @@
                 </div>
               </div>
               <div class="form-item">
-                <label class="form-label">计划名称</label>
+                <label class="form-label">
+                  <span style="color: var(--neon-pink);">*</span> 计划名称
+                </label>
                 <input type="text" v-model="planForm.name" class="form-input" placeholder="请输入计划名称" />
               </div>
               <div class="form-item">
-                <label class="form-label">健身目标</label>
+                <label class="form-label">
+                  <span style="color: var(--neon-pink);">*</span> 健身目标
+                </label>
                 <select v-model="planForm.goal" class="form-select">
                   <option value="">请选择目标</option>
                   <option value="增肌">增肌</option>
@@ -78,7 +80,9 @@
                 </select>
               </div>
               <div class="form-item">
-                <label class="form-label">难度</label>
+                <label class="form-label">
+                  <span style="color: var(--neon-pink);">*</span> 难度
+                </label>
                 <select v-model="planForm.difficulty" class="form-select">
                   <option value="">请选择难度</option>
                   <option value="beginner">新手</option>
@@ -87,7 +91,9 @@
                 </select>
               </div>
               <div class="form-item">
-                <label class="form-label">训练周期（周）</label>
+                <label class="form-label">
+                  <span style="color: var(--neon-pink);">*</span> 训练周期（周）
+                </label>
                 <input type="number" v-model.number="planForm.durationWeeks" class="form-input" min="1" />
               </div>
               <div class="form-item">
@@ -614,7 +620,7 @@ const selectedDays = computed(() => {
 
 const canGoNext = computed(() => {
   if (currentStep.value === 1) {
-    return planForm.value.name && planForm.value.goal && planForm.value.difficulty && planForm.value.durationWeeks > 0 && planForm.value.image;
+    return planForm.value.name && planForm.value.goal && planForm.value.difficulty && planForm.value.durationWeeks > 0;
   }
   if (currentStep.value === 2) {
     return selectedDays.value.some(day => !day.isRestDay && day.exercises.length > 0);
