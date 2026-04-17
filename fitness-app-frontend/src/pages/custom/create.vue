@@ -47,7 +47,9 @@
                 基本信息
               </h2>
               <div class="form-item">
-                <label class="form-label">计划封面</label>
+                <label class="form-label">
+                  <span style="color: var(--neon-pink);">*</span> 计划封面
+                </label>
                 <div class="image-upload">
                   <div class="image-preview" @click="triggerFileInput">
                     <img v-if="planForm.image" :src="planForm.image" alt="计划封面" />
@@ -604,7 +606,7 @@ const selectedDays = computed(() => {
 
 const canGoNext = computed(() => {
   if (currentStep.value === 1) {
-    return planForm.value.name && planForm.value.goal && planForm.value.difficulty && planForm.value.durationWeeks > 0;
+    return planForm.value.name && planForm.value.goal && planForm.value.difficulty && planForm.value.durationWeeks > 0 && planForm.value.image;
   }
   if (currentStep.value === 2) {
     return selectedDays.value.some(day => !day.isRestDay && day.exercises.length > 0);
