@@ -1667,7 +1667,7 @@ const formatDate = (dateString: string) => {
   justify-content: center;
   gap: 8px;
   color: var(--text-primary);
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease;
 }
 
