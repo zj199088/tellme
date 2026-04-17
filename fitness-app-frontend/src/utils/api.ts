@@ -210,7 +210,7 @@ export const api = {
       const response = await apiClient.post<{ code: number; message: string; data: { success: boolean; token?: string; role?: string; message: string } }>('/auth/register', { username, password, nickname });
       return response.data.data;
     },
-    wechatLogin: async (openId?: string, nickname?: string, avatarUrl?: string, gender?: number, country?: string, province?: string, city?: string): Promise<{ success: boolean; token?: string; role?: string; username?: string; nickname?: string; message: string }> => {
+    wechatLogin: async (params: { code?: string; openId?: string; nickname?: string; avatarUrl?: string; gender?: number; country?: string; province?: string; city?: string }): Promise<{ success: boolean; token?: string; role?: string; username?: string; nickname?: string; message: string }> => {
       if (isTestEnvironment) {
         return {
           success: true,
@@ -221,7 +221,7 @@ export const api = {
           message: '微信登录成功'
         };
       }
-      const response = await apiClient.post<{ code: number; message: string; data: { success: boolean; token?: string; role?: string; username?: string; nickname?: string; message: string } }>('/auth/wechat', { openId, nickname, avatarUrl, gender, country, province, city });
+      const response = await apiClient.post<{ code: number; message: string; data: { success: boolean; token?: string; role?: string; username?: string; nickname?: string; message: string } }>('/auth/wechat', params);
       return response.data.data;
     }
   },

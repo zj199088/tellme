@@ -31,11 +31,38 @@ public class AuthController {
     @Resource
     private AuthenticationManager authenticationManager;
 
+    @Resource
+    private WechatApiUtils wechatApiUtils;
+
     @PostMapping("/wechat")
     public Result<Map<String, Object>> wechatLogin(@RequestBody Map<String, Object> request) {
-        log.info("微信登录请求: openId={}", request.get("openId"));
+        log.info("微信登录请求: code={}, openId={}", request.get("code"), request.get("openId"));
         
         String openId = (String) request.get("openId");
+        
+        // 如果提供了code，则通过code获取openId
+        if (request.containsKey("code")) {
+            String code = (String) request.get("code");
+            try {
+                openId = wechatApiUtils.getOpenIdByCode(code);
+                log.info("通过code获取openId成功: openId={}", openId);
+            } catch (Exception e) {
+                log.error("通过code获取openId失败: {}", e.getMessage());
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "微信登录失败: " + e.getMessage());
+                return Result.error(400, "微信登录失败", errorResponse);
+            }
+        }
+        
+        if (openId == null || openId.isEmpty()) {
+            log.error("openId不能为空");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "openId不能为空");
+            return Result.error(400, "openId不能为空", errorResponse);
+        }
+        
         String nickname = (String) request.get("nickname");
         String avatarUrl = (String) request.get("avatarUrl");
         Integer gender = (Integer) request.get("gender");
@@ -56,11 +83,13 @@ public class AuthController {
         String token = jwtUtils.generateToken(user.getId(), user.getRole());
 
         Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
         response.put("open_id", user.getOpenId());
         response.put("nickname", user.getNickname());
         response.put("avatar_url", user.getAvatarUrl());
         response.put("token", token);
         response.put("role", user.getRole());
+        response.put("message", "登录成功");
 
         log.info("微信登录成功: userId={}", user.getId());
         return Result.success(response);

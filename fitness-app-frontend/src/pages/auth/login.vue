@@ -268,12 +268,47 @@ const handleWechatLogin = async () => {
     isLoading.value = true;
     error.value = '';
     
-    const response = await api.auth.wechatLogin();
+    // 调用微信登录API获取code
+    let code;
+    if (typeof wx !== 'undefined' && wx.login) {
+      // 微信小程序环境
+      const loginResult = await new Promise((resolve, reject) => {
+        wx.login({
+          success: resolve,
+          fail: reject
+        });
+      });
+      code = loginResult.code;
+    } else if (typeof WeixinJSBridge !== 'undefined') {
+      // 微信浏览器环境
+      code = await new Promise((resolve, reject) => {
+        WeixinJSBridge.invoke('login', {}, (res) => {
+          if (res.code) {
+            resolve(res.code);
+          } else {
+            reject(new Error('获取微信code失败'));
+          }
+        });
+      });
+    } else {
+      // 其他环境，使用模拟code（仅用于测试）
+      code = 'test_code_' + Date.now();
+      console.warn('非微信环境，使用模拟code');
+    }
+    
+    if (!code) {
+      throw new Error('获取微信code失败');
+    }
+    
+    // 调用后端微信登录接口
+    const response = await api.auth.wechatLogin({
+      code: code
+    });
     
     if (response.success) {
       localStorage.setItem('token', response.token);
       const userInfo = {
-        username: response.username,
+        username: response.nickname || '微信用户',
         role: response.role,
         nickname: response.nickname
       };
@@ -284,7 +319,7 @@ const handleWechatLogin = async () => {
     }
   } catch (err) {
     console.error('微信登录错误:', err);
-    error.value = '微信登录失败，请检查网络连接';
+    error.value = '微信登录失败: ' + (err.message || '请检查网络连接');
   } finally {
     isLoading.value = false;
   }
