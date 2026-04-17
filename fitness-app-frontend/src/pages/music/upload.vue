@@ -96,6 +96,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
+import { musicApi } from '../../utils/musicApi';
 
 const emit = defineEmits(['file-uploaded']);
 
@@ -138,35 +139,29 @@ const uploadFile = async () => {
     return;
   }
   
-  if (!formData.name) {
-    showMessage('请输入音乐名称', 'error');
-    return;
-  }
-  
   isUploading.value = true;
   uploadProgress.value = 0;
   
   try {
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      uploadProgress.value = i;
+    // 创建FormData对象
+    const formDataToSend = new FormData();
+    formDataToSend.append('file', selectedFile.value);
+    formDataToSend.append('name', formData.name || selectedFile.value.name.replace(/\.[^/.]+$/, ''));
+    formDataToSend.append('artist', formData.artist || '');
+    formDataToSend.append('album', formData.album || '');
+    formDataToSend.append('genre', formData.genre || '');
+    
+    // 调用音乐上传API
+    const response = await musicApi.uploadMusic(formDataToSend);
+    
+    if (response.success) {
+      const musicInfo = response.track;
+      emit('file-uploaded', musicInfo);
+      showMessage('音乐上传成功', 'success');
+      resetForm();
+    } else {
+      showMessage('上传失败: ' + (response.message || '未知错误'), 'error');
     }
-    
-    const musicInfo = {
-      id: Date.now(),
-      name: formData.name,
-      artist: formData.artist,
-      album: formData.album,
-      duration: 180,
-      file_url: `https://example.com/music/${Date.now()}.mp3`,
-      cover_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover&image_size=square_hd',
-      genre: formData.genre
-    };
-    
-    emit('file-uploaded', musicInfo);
-    showMessage('音乐上传成功', 'success');
-    
-    resetForm();
   } catch (error) {
     showMessage('上传失败，请重试', 'error');
     console.error('上传失败:', error);
