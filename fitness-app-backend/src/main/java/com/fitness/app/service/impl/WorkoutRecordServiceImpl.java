@@ -74,9 +74,13 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
 
     @Override
     public WorkoutSchedule getScheduleByPlanAndDate(Integer planId, LocalDate date) {
-        // 这里需要实现根据计划ID和日期获取训练日程的逻辑
-        // 可以通过查询workout_schedules表实现
-        return null;
+        // 根据计划ID和日期获取训练安排
+        return workoutScheduleMapper.selectOne(
+            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<WorkoutSchedule>()
+                .eq("plan_id", planId)
+                .eq("date", date)
+                .eq("is_deleted", 0)
+        );
     }
 
     @Override

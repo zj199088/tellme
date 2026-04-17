@@ -91,6 +91,7 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
                 schedule.setPlanId(planId);
                 schedule.setWeekNum(week + 1);
                 schedule.setDayOfWeek(templateDay.getDayOfWeek());
+                schedule.setDate(scheduleDate);
                 schedule.setIsRestDay(templateDay.getIsRestDay());
                 schedule.setEstimatedDuration(templateDay.getEstimatedDuration());
                 schedule.setTemplateDayId(templateDay.getId());

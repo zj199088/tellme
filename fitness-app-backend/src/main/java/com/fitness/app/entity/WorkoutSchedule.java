@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -30,6 +31,11 @@ public class WorkoutSchedule {
      * 星期几 1:周日 2:周一 3:周二 4:周三 5:周四 6:周五 7:周六
      */
     private Integer dayOfWeek;
+    
+    /**
+     * 训练日期
+     */
+    private LocalDate date;
     
     /**
      * 是否休息日 0:训练日 1:休息日
