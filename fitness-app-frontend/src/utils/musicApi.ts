@@ -73,7 +73,18 @@ export const musicApi = {
       const response = await api.get('/music/tracks');
       // 后端返回的结构是 { code, message, data }，其中 data 是音乐列表
       if (response.data && response.data.data) {
-        return { tracks: response.data.data };
+        // 处理音乐列表，转换字段名并去除fileUrl中的反引号
+        const tracks = response.data.data.map((track: any) => ({
+          id: track.id,
+          name: track.name,
+          artist: track.artist,
+          album: track.album,
+          duration: track.duration || 180,
+          file_url: track.fileUrl ? track.fileUrl.replace(/[`]/g, '') : '',
+          cover_url: track.coverUrl || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover&image_size=square_hd',
+          genre: track.genre
+        }));
+        return { tracks };
       }
       return mockMusicData;
     } catch (error) {
@@ -120,7 +131,7 @@ export const musicApi = {
             artist: response.data.data.artist,
             album: response.data.data.album,
             duration: response.data.data.duration || 180,
-            file_url: response.data.data.fileUrl,
+            file_url: response.data.data.fileUrl ? response.data.data.fileUrl.replace(/[`]/g, '') : '',
             cover_url: response.data.data.coverUrl || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover&image_size=square_hd',
             genre: response.data.data.genre
           }
