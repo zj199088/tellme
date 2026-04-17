@@ -492,9 +492,9 @@ INSERT INTO movement_exercises (exercise_name, en_name, category_id, difficulty_
 
 -- 插入健身模板数据
 INSERT INTO templates (name, description, image, difficulty, is_public, created_by) VALUES
-('基础健身计划（新手）', '适合健身新手，包含基础动作和循序渐进的训练计划，每周训练5天，休息2天', 'https://example.com/images/beginner-template.jpg', 'beginner', 1, NULL),
-('增肌计划（中级）', '针对有一定基础的训练者，以增肌为目标的训练计划，每周训练6天', 'https://example.com/images/muscle-template.jpg', 'intermediate', 1, NULL),
-('减脂计划（新手）', '以减脂为目标的综合性训练计划，结合有氧和力量训练', 'https://example.com/images/fat-loss-template.jpg', 'beginner', 1, NULL);
+('基础健身计划（新手）', '适合健身新手，包含基础动作和循序渐进的训练计划，每周训练5天，休息2天', 'https://tellme-1422282454.cos.ap-chengdu.myqcloud.com/image/ex-1-1.png', 'beginner', 1, NULL),
+('增肌计划（中级）', '针对有一定基础的训练者，以增肌为目标的训练计划，每周训练6天', 'https://tellme-1422282454.cos.ap-chengdu.myqcloud.com/image/ex-2-1.png', 'intermediate', 1, NULL),
+('减脂计划（新手）', '以减脂为目标的综合性训练计划，结合有氧和力量训练', 'https://tellme-1422282454.cos.ap-chengdu.myqcloud.com/image/ex-3-1.png', 'beginner', 1, NULL);
 
 -- 插入模板训练日数据
 -- 基础健身计划（模板ID=1）
