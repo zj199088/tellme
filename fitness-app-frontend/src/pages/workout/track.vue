@@ -165,15 +165,32 @@ const loadWorkoutData = async () => {
     const id = route.query.planId ? parseInt(route.query.planId as string) : 1;
     planId.value = id;
     
-    const todayResponse = await api.workout.getToday(id);
+    const todayResponse = await api.workout.getToday();
     if (todayResponse.code === 200 && todayResponse.data) {
       schedule.value = todayResponse.data.schedule;
+      const record = todayResponse.data.record;
       
       if (todayResponse.data.exercises) {
-        exercises.value = todayResponse.data.exercises.map(ex => ({
-          ...ex,
-          completedSets: new Array(ex.sets).fill(false)
-        }));
+        exercises.value = todayResponse.data.exercises.map(ex => {
+          let completedSets = new Array(ex.sets).fill(false);
+          
+          // 如果有训练记录，根据 setsCompleted 字段设置勾选状态
+          if (record && record.setsCompleted) {
+            try {
+              const setsCompletedArray = JSON.parse(record.setsCompleted);
+              if (Array.isArray(setsCompletedArray)) {
+                completedSets = setsCompletedArray.map((completed: number) => completed === 1);
+              }
+            } catch (e) {
+              console.error('解析 setsCompleted 失败:', e);
+            }
+          }
+          
+          return {
+            ...ex,
+            completedSets
+          };
+        });
       }
       
       const plansResponse = await api.plans.getList();

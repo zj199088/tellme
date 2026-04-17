@@ -408,7 +408,8 @@ export const api = {
   
   // 训练记录相关API
   workout: {
-    getToday: async (planId?: number, date?: string): Promise<ApiResponse<{
+    getToday: async (date?: string): Promise<ApiResponse<{
+      record: any | null;
       schedule: WorkoutSchedule | null;
       exercises: ScheduleExercise[];
     }>> => {
@@ -418,10 +419,14 @@ export const api = {
         return {
           code: 200,
           message: 'success',
-          data: { schedule, exercises }
+          data: { 
+            record: null, 
+            schedule, 
+            exercises 
+          }
         };
       }
-      const params = { planId, date };
+      const params = date ? { date } : {};
       const response = await apiClient.get<ApiResponse<any>>('/workout/today', { params });
       return response.data;
     },
