@@ -180,13 +180,11 @@ public class PlanController {
         Integer durationWeeks = (Integer) request.get("durationWeeks");
         
         for (int weekNum = 1; weekNum <= durationWeeks; weekNum++) {
-            for (int i = 0; i < createdTemplateDays.size(); i++) {
-                TemplateDay templateDay = createdTemplateDays.get(i);
-                
+            for (TemplateDay templateDay : createdTemplateDays) {
                 // 计算当前训练日程的日期
-                // 第1周的第i个训练日 = 开始日期 + i天
-                // 第n周的第i个训练日 = 开始日期 + (n-1)*7天 + i天
-                LocalDate scheduleDate = startDate.plusWeeks(weekNum - 1).plusDays(i);
+                // 第1周的训练日 = 开始日期 + (dayOfWeek - 1)天
+                // 第n周的训练日 = 开始日期 + (n-1)*7天 + (dayOfWeek - 1)天
+                LocalDate scheduleDate = startDate.plusWeeks(weekNum - 1).plusDays(templateDay.getDayOfWeek() - 1);
                 
                 // 创建训练日程
                 WorkoutSchedule workoutSchedule = new WorkoutSchedule();
