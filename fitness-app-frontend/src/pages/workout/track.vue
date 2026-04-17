@@ -287,14 +287,16 @@ const submitAll = async () => {
       }));
       
       await api.workout.createBatch(records);
+      
+      const message = completionPercentage.value === 100 ? '恭喜您，完成训练！' : '训练记录已保存！';
+      toast.success(message);
+      router.push('/pages/home/index');
+    } else {
+      toast.info('没有完成的动作需要提交');
     }
-    
-    const message = completionPercentage.value === 100 ? '恭喜您，完成训练！' : '训练记录已保存！';
-    toast.success(message);
-    router.push('/pages/home/index');
   } catch (err) {
     console.error('保存训练记录失败:', err);
-    toast.error('保存训练记录失败，请重试');
+    // 错误消息已经由API拦截器显示，这里不需要重复显示
   } finally {
     isSubmitting.value = false;
   }
