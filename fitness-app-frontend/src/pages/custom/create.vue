@@ -125,17 +125,17 @@
                   <div v-if="day.isSelected && day.isRestDay" class="rest-note">
                     <input type="text" v-model="day.restNote" class="rest-input" placeholder="休息提示（可选）" @click.stop />
                   </div>
-                  <div v-if="day.isSelected && !day.isRestDay" class="day-exercises">
+                  <div v-if="day.isSelected && !day.isRestDay" class="day-exercises" @click.stop>
                     <div v-for="item in day.exercises" :key="item.exerciseId" class="day-exercise-item">
                       <span class="day-exercise-name">{{ item.exerciseName }}</span>
                       <div class="day-exercise-params">
                         <div class="param-input-group">
-                          <input type="number" v-model.number="item.sets" min="1" class="param-small-input" />
+                          <input type="number" v-model.number="item.sets" min="1" class="param-small-input" @click.stop />
                           <span class="param-label">组</span>
                         </div>
                         <span class="param-separator">×</span>
                         <div class="param-input-group">
-                          <input type="number" v-model.number="item.reps" min="1" class="param-small-input" />
+                          <input type="number" v-model.number="item.reps" min="1" class="param-small-input" @click.stop />
                           <span class="param-label">次</span>
                         </div>
                         <button class="remove-day-exercise-btn" @click.stop="removeDayExercise(day, item)">
