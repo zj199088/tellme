@@ -26,36 +26,6 @@ public class FileController {
         return Result.success(url);
     }
 
-    @PostMapping("/upload/music")
-    public Result<String> uploadMusic(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadMusic(file);
-        return Result.success(url);
-    }
-
-    @PostMapping("/upload/image")
-    public Result<String> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadImage(file);
-        return Result.success(url);
-    }
-
-    @PostMapping("/upload/video")
-    public Result<String> uploadVideo(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadVideo(file);
-        return Result.success(url);
-    }
-
-    @PostMapping("/upload/files")
-    public Result<String> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadDocument(file);
-        return Result.success(url);
-    }
-
-    @PostMapping("/upload/other")
-    public Result<String> uploadOther(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadOther(file);
-        return Result.success(url);
-    }
-
     @GetMapping("/download")
     public void downloadFile(@RequestParam("key") String key, HttpServletResponse response) throws IOException {
         cosService.downloadFile(key, response);

@@ -687,7 +687,7 @@ const handleImageUpload = async (event: Event) => {
     
     try {
       isUploading.value = true;
-      const response = await api.file.uploadImage(file);
+      const response = await api.file.upload(file);
       if (response.code === 200 && response.data) {
         planForm.value.image = response.data;
       } else {
