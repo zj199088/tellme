@@ -362,6 +362,13 @@
           <div class="modal-categories">
             <div class="category-tabs">
               <div 
+                class="category-tab" 
+                :class="{ active: selectedModalCategory === null }" 
+                @click="selectedModalCategory = null"
+              >
+                全部
+              </div>
+              <div 
                 v-for="category in categories" 
                 :key="category.id" 
                 class="category-tab" 
