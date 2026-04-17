@@ -1,20 +1,20 @@
 package com.fitness.app.dto;
 
 public class CreatePlanResponse {
-    private Long plan_id;
+    private Long planId;
     private boolean success;
 
-    public CreatePlanResponse(Long plan_id, boolean success) {
-        this.plan_id = plan_id;
+    public CreatePlanResponse(Long planId, boolean success) {
+        this.planId = planId;
         this.success = success;
     }
 
-    public Long getPlan_id() {
-        return plan_id;
+    public Long getPlanId() {
+        return planId;
     }
 
-    public void setPlan_id(Long plan_id) {
-        this.plan_id = plan_id;
+    public void setPlanId(Long planId) {
+        this.planId = planId;
     }
 
     public boolean isSuccess() {

@@ -58,16 +58,16 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
 
     @Override
     public WorkoutRecord createWorkoutRecord(WorkoutRecord record) {
-        record.setIs_deleted(0);
-        record.setCreated_at(LocalDateTime.now());
-        record.setUpdated_at(LocalDateTime.now());
+        record.setIsDeleted(0);
+        record.setCreatedAt(LocalDateTime.now());
+        record.setUpdatedAt(LocalDateTime.now());
         save(record);
         return record;
     }
 
     @Override
     public WorkoutRecord updateWorkoutRecord(WorkoutRecord record) {
-        record.setUpdated_at(LocalDateTime.now());
+        record.setUpdatedAt(LocalDateTime.now());
         updateById(record);
         return record;
     }
@@ -110,10 +110,10 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     public List<WorkoutRecord> createWorkoutRecords(List<WorkoutRecord> records, Integer userId) {
         LocalDateTime now = LocalDateTime.now();
         for (WorkoutRecord record : records) {
-            record.setUser_id(userId);
-            record.setIs_deleted(0);
-            record.setCreated_at(now);
-            record.setUpdated_at(now);
+            record.setUserId(userId);
+            record.setIsDeleted(0);
+            record.setCreatedAt(now);
+            record.setUpdatedAt(now);
         }
         saveBatch(records);
         return records;

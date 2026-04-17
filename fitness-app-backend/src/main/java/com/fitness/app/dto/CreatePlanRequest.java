@@ -1,17 +1,17 @@
 package com.fitness.app.dto;
 
 public class CreatePlanRequest {
-    private Long template_id;
+    private Long templateId;
     private String name;
     private String description;
-    private int duration_weeks;
+    private int durationWeeks;
 
-    public Long getTemplate_id() {
-        return template_id;
+    public Long getTemplateId() {
+        return templateId;
     }
 
-    public void setTemplate_id(Long template_id) {
-        this.template_id = template_id;
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
     }
 
     public String getName() {
@@ -30,11 +30,11 @@ public class CreatePlanRequest {
         this.description = description;
     }
 
-    public int getDuration_weeks() {
-        return duration_weeks;
+    public int getDurationWeeks() {
+        return durationWeeks;
     }
 
-    public void setDuration_weeks(int duration_weeks) {
-        this.duration_weeks = duration_weeks;
+    public void setDurationWeeks(int durationWeeks) {
+        this.durationWeeks = durationWeeks;
     }
 }

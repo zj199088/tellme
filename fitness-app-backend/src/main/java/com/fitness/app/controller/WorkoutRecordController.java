@@ -84,7 +84,7 @@ public class WorkoutRecordController {
         try {
             Integer userId = Integer.parseInt(authentication.getName());
             
-            record.setUser_id(userId);
+            record.setUserId(userId);
             WorkoutRecord savedRecord = workoutRecordService.createWorkoutRecord(record);
             return Result.success(savedRecord);
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class WorkoutRecordController {
             Integer userId = Integer.parseInt(authentication.getName());
             
             record.setId(id);
-            record.setUser_id(userId);
+            record.setUserId(userId);
             WorkoutRecord updatedRecord = workoutRecordService.updateWorkoutRecord(record);
             return Result.success(updatedRecord);
         } catch (Exception e) {
