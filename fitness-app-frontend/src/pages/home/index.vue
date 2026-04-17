@@ -795,12 +795,12 @@ onMounted(() => {
 }
 
 .plan-card {
-  margin-bottom: 12.5px;
+  margin-bottom: 10.0px;
   padding: 0;
 }
 
 .plan-card-inner {
-  padding: 17.5px;
+  padding: 14.0px;
 }
 
 .plan-image {
@@ -822,19 +822,19 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10.0px;
-  gap: 10.0px;
+  margin-bottom: 8.0px;
+  gap: 8.0px;
 }
 
 .plan-title-group {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 5.0px;
+  gap: 4.0px;
 }
 
 .plan-name {
-  font-size: 15.0px;
+  font-size: 14.0px;
   font-weight: 700;
   color: var(--text-primary);
   transition: color 0.3s ease;
@@ -932,12 +932,12 @@ onMounted(() => {
 .plan-description {
   font-size: 12.0px;
   color: var(--text-secondary);
-  margin-bottom: 12.5px;
-  line-height: 1.6;
+  margin-bottom: 10.0px;
+  line-height: 1.5;
 }
 
 .progress-container {
-  margin-top: 12.5px;
+  margin-top: 10.0px;
 }
 
 .progress-bar {
@@ -1169,12 +1169,12 @@ onMounted(() => {
 .record-item {
   display: flex;
   flex-direction: column;
-  padding: 12.0px 0;
+  padding: 10.0px 0;
   border-bottom: 1px solid rgba(0, 245, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  gap: 8.0px;
+  gap: 6.0px;
 }
 
 .record-item:last-child {
@@ -1218,8 +1218,8 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12.0px;
-  padding: 10.0px 12.0px;
+  gap: 8.0px;
+  padding: 8.0px 10.0px;
   background: rgba(0, 245, 255, 0.05);
   border-radius: 8.0px;
   border: 1px solid rgba(0, 245, 255, 0.1);
@@ -1228,7 +1228,7 @@ onMounted(() => {
 .record-details-left {
   display: flex;
   align-items: center;
-  gap: 12.0px;
+  gap: 8.0px;
   flex-wrap: wrap;
 }
 
@@ -1365,11 +1365,11 @@ onMounted(() => {
   .today-section,
   .records-section,
   .plans-section {
-    padding: 15.0px;
+    padding: 12.0px;
   }
   
   .plan-card-inner {
-    padding: 14.0px;
+    padding: 12.0px;
   }
   
   .title {
@@ -1382,6 +1382,30 @@ onMounted(() => {
   
   .plan-name {
     font-size: 13.0px;
+  }
+  
+  .plan-description {
+    font-size: 11.0px;
+    margin-bottom: 8.0px;
+  }
+  
+  .record-item {
+    padding: 8.0px 0;
+    gap: 5.0px;
+  }
+  
+  .record-details {
+    padding: 6.0px 8.0px;
+    gap: 6.0px;
+  }
+  
+  .record-details-left {
+    gap: 6.0px;
+  }
+  
+  .record-exercise {
+    font-size: 10.0px;
+    max-width: 120px;
   }
   
   .exercise-name {

@@ -443,7 +443,7 @@ const formatDate = (dateString: string) => {
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border-radius: 15.0px;
-  margin-bottom: 15.0px;
+  margin-bottom: 10.0px;
   box-shadow: 0 4.0px 20.0px rgba(0, 0, 0, 0.4);
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
@@ -499,7 +499,7 @@ const formatDate = (dateString: string) => {
 
 .template-image {
   width: 100%;
-  height: 180.0px;
+  height: 120.0px;
   overflow: hidden;
   position: relative;
 }
@@ -584,13 +584,13 @@ const formatDate = (dateString: string) => {
 }
 
 .template-info {
-  padding: 15.0px;
+  padding: 12.0px;
 }
 
 .template-name {
-  font-size: 16.0px;
+  font-size: 15.0px;
   font-weight: 700;
-  margin-bottom: 6.0px;
+  margin-bottom: 4.0px;
   color: var(--text-primary);
   transition: color 0.3s ease;
 }
@@ -602,8 +602,8 @@ const formatDate = (dateString: string) => {
 .template-description {
   font-size: 12.0px;
   color: var(--text-secondary);
-  margin-bottom: 12.5px;
-  line-height: 1.6;
+  margin-bottom: 8.0px;
+  line-height: 1.5;
 }
 
 .template-creator,
@@ -613,7 +613,7 @@ const formatDate = (dateString: string) => {
   gap: 4.0px;
   font-size: 11.0px;
   color: var(--text-muted);
-  margin-bottom: 6.0px;
+  margin-bottom: 4.0px;
 }
 
 .creator-icon,
@@ -909,15 +909,15 @@ const formatDate = (dateString: string) => {
   }
   
   .template-card {
-    margin-bottom: 12.5px;
+    margin-bottom: 8.0px;
   }
   
   .template-image {
-    height: 160.0px;
+    height: 100.0px;
   }
   
   .template-info {
-    padding: 12.5px;
+    padding: 10.0px;
   }
   
   .title {
@@ -926,6 +926,17 @@ const formatDate = (dateString: string) => {
   
   .template-name {
     font-size: 14.0px;
+  }
+  
+  .template-description {
+    font-size: 11.0px;
+    margin-bottom: 6.0px;
+  }
+  
+  .template-creator,
+  .template-created-time {
+    font-size: 10.0px;
+    margin-bottom: 3.0px;
   }
   
   .bottom-actions {
