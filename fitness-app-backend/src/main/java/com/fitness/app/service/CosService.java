@@ -62,6 +62,8 @@ public class CosService {
         metadata.setContentType(file.getContentType());
 
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata);
+        // 设置文件访问权限为公共读
+        putObjectRequest.setCannedAcl(com.qcloud.cos.model.CannedAccessControlList.PublicRead);
         PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);
 
         return accessDomain + "/" + key;
