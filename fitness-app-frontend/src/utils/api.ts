@@ -617,6 +617,23 @@ export const api = {
   
   // 文件上传相关API
   file: {
+    upload: async (file: File): Promise<ApiResponse<string>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20background&image_size=landscape_16_9'
+        };
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<ApiResponse<string>>('/file/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    },
     uploadImage: async (file: File): Promise<ApiResponse<string>> => {
       if (isTestEnvironment) {
         return {
@@ -645,6 +662,57 @@ export const api = {
       const formData = new FormData();
       formData.append('file', file);
       const response = await apiClient.post<ApiResponse<string>>('/file/upload/music', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    },
+    uploadVideo: async (file: File): Promise<ApiResponse<string>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: 'https://example.com/video.mp4'
+        };
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<ApiResponse<string>>('/file/upload/video', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    },
+    uploadDocument: async (file: File): Promise<ApiResponse<string>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: 'https://example.com/document.pdf'
+        };
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<ApiResponse<string>>('/file/upload/files', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    },
+    uploadOther: async (file: File): Promise<ApiResponse<string>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: 'https://example.com/other.file'
+        };
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<ApiResponse<string>>('/file/upload/other', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

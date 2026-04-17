@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +27,26 @@ public class CosService {
 
     @Value("${cos.access-domain}")
     private String accessDomain;
+
+    // 图片文件扩展名
+    private static final List<String> IMAGE_EXTENSIONS = Arrays.asList(
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg", ".ico"
+    );
+
+    // 视频文件扩展名
+    private static final List<String> VIDEO_EXTENSIONS = Arrays.asList(
+        ".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".webm"
+    );
+
+    // 音乐文件扩展名
+    private static final List<String> MUSIC_EXTENSIONS = Arrays.asList(
+        ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a"
+    );
+
+    // 文档文件扩展名
+    private static final List<String> DOCUMENT_EXTENSIONS = Arrays.asList(
+        ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf"
+    );
 
     public CosService(COSClient cosClient) {
         this.cosClient = cosClient;
@@ -43,6 +65,52 @@ public class CosService {
         PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);
 
         return accessDomain + "/" + key;
+    }
+
+    public String uploadFileByType(MultipartFile file) throws IOException {
+        String folder = determineFolder(file);
+        return uploadFile(file, folder);
+    }
+
+    public String uploadImage(MultipartFile file) throws IOException {
+        return uploadFile(file, "image");
+    }
+
+    public String uploadVideo(MultipartFile file) throws IOException {
+        return uploadFile(file, "video");
+    }
+
+    public String uploadMusic(MultipartFile file) throws IOException {
+        return uploadFile(file, "music");
+    }
+
+    public String uploadDocument(MultipartFile file) throws IOException {
+        return uploadFile(file, "files");
+    }
+
+    public String uploadOther(MultipartFile file) throws IOException {
+        return uploadFile(file, "other");
+    }
+
+    private String determineFolder(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            return "other";
+        }
+
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+
+        if (IMAGE_EXTENSIONS.contains(fileExtension)) {
+            return "image";
+        } else if (VIDEO_EXTENSIONS.contains(fileExtension)) {
+            return "video";
+        } else if (MUSIC_EXTENSIONS.contains(fileExtension)) {
+            return "music";
+        } else if (DOCUMENT_EXTENSIONS.contains(fileExtension)) {
+            return "files";
+        } else {
+            return "other";
+        }
     }
 
     public void downloadFile(String key, HttpServletResponse response) throws IOException {

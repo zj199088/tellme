@@ -1,9 +1,9 @@
 package com.fitness.app.controller;
 
+import com.fitness.app.common.Result;
 import com.fitness.app.service.CosService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,16 +20,40 @@ public class FileController {
         this.cosService = cosService;
     }
 
+    @PostMapping("/upload")
+    public Result<String> upload(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadFileByType(file);
+        return Result.success(url);
+    }
+
     @PostMapping("/upload/music")
-    public ResponseEntity<String> uploadMusic(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadFile(file, "music");
-        return ResponseEntity.ok(url);
+    public Result<String> uploadMusic(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadMusic(file);
+        return Result.success(url);
     }
 
     @PostMapping("/upload/image")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = cosService.uploadFile(file, "image");
-        return ResponseEntity.ok(url);
+    public Result<String> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadImage(file);
+        return Result.success(url);
+    }
+
+    @PostMapping("/upload/video")
+    public Result<String> uploadVideo(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadVideo(file);
+        return Result.success(url);
+    }
+
+    @PostMapping("/upload/files")
+    public Result<String> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadDocument(file);
+        return Result.success(url);
+    }
+
+    @PostMapping("/upload/other")
+    public Result<String> uploadOther(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadOther(file);
+        return Result.success(url);
     }
 
     @GetMapping("/download")
