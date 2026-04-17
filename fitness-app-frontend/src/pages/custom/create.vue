@@ -116,13 +116,21 @@
                     </div>
                   </div>
                   <div v-if="day.isSelected && day.isRestDay" class="rest-note">
-                    <input type="text" v-model="day.restNote" class="rest-input" placeholder="休息提示（可选）" />
+                    <input type="text" v-model="day.restNote" class="rest-input" placeholder="休息提示（可选）" @click.stop />
                   </div>
                   <div v-if="day.isSelected && !day.isRestDay" class="day-exercises">
                     <div v-for="item in day.exercises" :key="item.exerciseId" class="day-exercise-item">
                       <span class="day-exercise-name">{{ item.exerciseName }}</span>
                       <div class="day-exercise-params">
-                        <span>{{ item.sets }}组 × {{ item.reps }}</span>
+                        <div class="param-input-group">
+                          <input type="number" v-model.number="item.sets" min="1" class="param-small-input" />
+                          <span class="param-label">组</span>
+                        </div>
+                        <span class="param-separator">×</span>
+                        <div class="param-input-group">
+                          <input type="number" v-model.number="item.reps" min="1" class="param-small-input" />
+                          <span class="param-label">次</span>
+                        </div>
                         <button class="remove-day-exercise-btn" @click.stop="removeDayExercise(day, item)">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1969,6 +1977,39 @@ const formatDate = (dateString: string) => {
 .remove-day-exercise-btn svg {
   width: 14px;
   height: 14px;
+}
+
+.param-input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.param-small-input {
+  width: 40px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.param-small-input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+}
+
+.param-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.param-separator {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .add-exercise-btn {
