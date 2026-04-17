@@ -403,7 +403,7 @@ INSERT INTO movement_exercises (exercise_name, en_name, category_id, difficulty_
 ('猫牛式', 'Cat-Cow', 16, 'beginner', '脊柱', '瑜伽垫', '脊柱灵活性训练，缓解背部不适', 180.00, 1, 1),
 ('战士一式', 'Warrior I', 16, 'beginner', '腿部、核心', '瑜伽垫', '增强腿部力量和平衡感', 220.00, 1, 1),
 ('树式', 'Tree Pose', 16, 'intermediate', '平衡、核心', '瑜伽垫', '提高平衡能力和专注力', 200.00, 1, 1),
-('婴儿式', 'Child\\'s Pose', 16, 'beginner', '背部、臀部', '瑜伽垫', '放松恢复体式', 150.00, 1, 1),
+('婴儿式', 'Child''s Pose', 16, 'beginner', '背部、臀部', '瑜伽垫', '放松恢复体式', 150.00, 1, 1),
 
 -- 普拉提动作
 ('百次拍击', 'The Hundred', 17, 'intermediate', '核心、呼吸', '瑜伽垫', '经典普拉提动作，增强核心力量', 300.00, 1, 1),
@@ -455,7 +455,7 @@ INSERT INTO movement_exercises (exercise_name, en_name, category_id, difficulty_
 ('活动性训练', 'Mobility Training', 3, 'beginner', '关节活动度', '自重', '提高各关节活动范围', 170.00, 1, 1),
 
 -- 功能性训练顶级分类示例动作
-('农民行走', 'Farmer\\'s Walk', 4, 'beginner', '核心、握力、腿部', '哑铃或壶铃', '经典功能性训练，增强核心和握力', 350.00, 1, 0),
+('农民行走', 'Farmer''s Walk', 4, 'beginner', '核心、握力、腿部', '哑铃或壶铃', '经典功能性训练，增强核心和握力', 350.00, 1, 0),
 ('土耳其起立', 'Turkish Get-up', 4, 'advanced', '全身、核心、平衡', '壶铃或哑铃', '复杂功能性动作，提高全身协调', 400.00, 1, 0),
 ('沙袋训练', 'Sandbag Training', 4, 'intermediate', '全身、核心', '沙袋', '不稳定负重的功能性训练', 420.00, 1, 0),
 ('战绳', 'Battle Ropes', 4, 'intermediate', '上肢、核心、心肺', '战绳', '高强度功能性和心肺训练', 480.00, 1, 0),
