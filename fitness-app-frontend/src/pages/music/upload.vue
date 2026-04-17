@@ -14,12 +14,13 @@
         class="file-input"
       >
       <div class="upload-hint">
-        <div class="upload-icon-wrapper">
-          <span class="icon">📁</span>
+          <div class="upload-icon-wrapper">
+            <span class="icon">📁</span>
+          </div>
+          <p class="upload-text">点击或拖拽音乐文件到此处上传</p>
+          <p class="hint-text">支持 MP3、WAV、FLAC 等音频格式</p>
+          <p class="hint-text">文件大小限制：10MB</p>
         </div>
-        <p class="upload-text">点击或拖拽音乐文件到此处上传</p>
-        <p class="hint-text">支持 MP3、WAV、FLAC 等音频格式</p>
-      </div>
     </div>
     
     <div class="upload-form" v-if="selectedFile">
@@ -108,6 +109,9 @@ const uploadProgress = ref(0);
 const message = ref('');
 const messageType = ref('');
 
+// 最大文件大小限制（10MB）
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 const formData = reactive({
   name: '',
   artist: '',
@@ -118,6 +122,10 @@ const formData = reactive({
 const handleFileChange = (e) => {
   const file = e.target.files[0];
   if (file) {
+    if (file.size > MAX_FILE_SIZE) {
+      showMessage('文件大小超过限制，最大允许10MB', 'error');
+      return;
+    }
     selectedFile.value = file;
     formData.name = file.name.replace(/\.[^/.]+$/, '');
   }
@@ -128,6 +136,10 @@ const handleDrop = (e) => {
   isDragOver.value = false;
   const file = e.dataTransfer.files[0];
   if (file && file.type.startsWith('audio/')) {
+    if (file.size > MAX_FILE_SIZE) {
+      showMessage('文件大小超过限制，最大允许10MB', 'error');
+      return;
+    }
     selectedFile.value = file;
     formData.name = file.name.replace(/\.[^/.]+$/, '');
   }
