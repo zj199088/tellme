@@ -33,20 +33,26 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     public Map<String, Object> getTodayWorkout(Integer userId, LocalDate date) {
         Map<String, Object> result = new HashMap<>();
         
-        // 首先尝试获取今日的训练记录
-        WorkoutRecord record = workoutRecordMapper.getByUserIdAndDate(userId, date);
-        result.put("record", record);
-        
         // 获取今日的训练安排
         WorkoutSchedule schedule = workoutScheduleMapper.getByUserIdAndDate(userId, date);
         result.put("schedule", schedule);
         
-        // 如果有训练安排，获取训练动作
+        // 如果有训练安排，获取训练动作和对应的训练记录
         if (schedule != null) {
             List<WorkoutScheduleExercise> exercises = workoutScheduleExerciseMapper.getByScheduleId(schedule.getId());
             result.put("exercises", exercises);
+            
+            // 获取今日的所有训练记录
+            List<WorkoutRecord> records = workoutRecordMapper.selectList(
+                new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<WorkoutRecord>()
+                    .eq("user_id", userId)
+                    .eq("date", date)
+                    .eq("is_deleted", 0)
+            );
+            result.put("records", records);
         } else {
             result.put("exercises", null);
+            result.put("records", null);
         }
         
         return result;

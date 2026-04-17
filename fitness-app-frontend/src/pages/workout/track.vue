@@ -168,16 +168,19 @@ const loadWorkoutData = async () => {
     const todayResponse = await api.workout.getToday();
     if (todayResponse.code === 200 && todayResponse.data) {
       schedule.value = todayResponse.data.schedule;
-      const record = todayResponse.data.record;
+      const records = todayResponse.data.records || [];
       
       if (todayResponse.data.exercises) {
         exercises.value = todayResponse.data.exercises.map(ex => {
           let completedSets = new Array(ex.sets).fill(false);
           
+          // 查找当前动作对应的训练记录
+          const exerciseRecord = records.find((record: any) => record.scheduleExerciseId === ex.id);
+          
           // 如果有训练记录，根据 setsCompleted 字段设置勾选状态
-          if (record && record.setsCompleted) {
+          if (exerciseRecord && exerciseRecord.setsCompleted) {
             try {
-              const setsCompletedArray = JSON.parse(record.setsCompleted);
+              const setsCompletedArray = JSON.parse(exerciseRecord.setsCompleted);
               if (Array.isArray(setsCompletedArray)) {
                 completedSets = setsCompletedArray.map((completed: number) => completed === 1);
               }
