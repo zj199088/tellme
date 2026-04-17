@@ -51,6 +51,20 @@
                 基本信息
               </h2>
               <div class="form-item">
+                <label class="form-label">计划封面</label>
+                <div class="image-upload">
+                  <div class="image-preview" @click="triggerFileInput">
+                    <img v-if="planForm.image" :src="planForm.image" alt="计划封面" />
+                    <div v-else class="upload-placeholder">
+                      <span class="upload-icon">📷</span>
+                      <span class="upload-text">点击上传封面图片</span>
+                    </div>
+                  </div>
+                  <input type="file" ref="fileInput" class="file-input" accept="image/*" @change="handleImageUpload" />
+                  <div v-if="isUploading" class="uploading">上传中...</div>
+                </div>
+              </div>
+              <div class="form-item">
                 <label class="form-label">计划名称</label>
                 <input type="text" v-model="planForm.name" class="form-input" placeholder="请输入计划名称" />
               </div>
@@ -431,8 +445,13 @@ const planForm = ref({
   goal: '',
   difficulty: '',
   durationWeeks: 4,
-  startDate: new Date().toISOString().split('T')[0]
+  startDate: new Date().toISOString().split('T')[0],
+  image: ''
 });
+
+// 图片上传相关
+const isUploading = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
 // 分类和动作数据
 const categories = ref<Category[]>([]);
@@ -650,6 +669,40 @@ const nextStep = () => {
 const goToStep = (step: number) => {
   if (step <= currentStep.value) {
     currentStep.value = step;
+  }
+};
+
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+const handleImageUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0];
+    if (file.size > 5 * 1024 * 1024) {
+      alert('图片大小不能超过5MB');
+      return;
+    }
+    
+    try {
+      isUploading.value = true;
+      const response = await api.file.uploadImage(file);
+      if (response.code === 200 && response.data) {
+        planForm.value.image = response.data;
+      } else {
+        alert('图片上传失败，请重试');
+      }
+    } catch (error) {
+      console.error('图片上传失败:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      isUploading.value = false;
+      // 重置文件输入，以便可以再次选择同一个文件
+      if (fileInput.value) {
+        fileInput.value.value = '';
+      }
+    }
   }
 };
 
@@ -1576,6 +1629,77 @@ const formatDate = (dateString: string) => {
   outline: none;
   border-color: var(--neon-cyan);
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+/* 图片上传样式 */
+.image-upload {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.image-preview {
+  width: 100%;
+  height: 180px;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.image-preview:hover {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 245, 255, 0.05);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.upload-icon {
+  font-size: 32px;
+}
+
+.upload-text {
+  font-size: 14px;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.uploading {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--neon-cyan);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
 }
 
 .category-list {

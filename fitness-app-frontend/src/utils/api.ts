@@ -615,6 +615,44 @@ export const api = {
     }
   },
   
+  // 文件上传相关API
+  file: {
+    uploadImage: async (file: File): Promise<ApiResponse<string>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20background&image_size=landscape_16_9'
+        };
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<ApiResponse<string>>('/file/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    },
+    uploadMusic: async (file: File): Promise<ApiResponse<string>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: 'https://example.com/music.mp3'
+        };
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<ApiResponse<string>>('/file/upload/music', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    }
+  },
+  
   // 管理员相关API
   admin: {
     // 分类管理
