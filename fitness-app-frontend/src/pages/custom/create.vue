@@ -50,9 +50,9 @@
                 <label class="form-label">计划封面</label>
                 <div class="image-upload">
                   <div class="image-preview" @click="triggerFileInput">
-                    <img v-if="planForm.image" :src="planForm.image" alt="计划封面" />
+                    <img v-if="planForm.image && !planForm.image.includes('The image is generating')" :src="planForm.image" alt="计划封面" />
                     <img v-else src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20cover%20neon%20cyberpunk%20style&image_size=landscape_16_9" alt="计划封面" class="default-cover" />
-                    <div v-if="!planForm.image" class="upload-overlay">
+                    <div v-if="!planForm.image || planForm.image.includes('The image is generating')" class="upload-overlay">
                       <span class="upload-icon">📷</span>
                       <span class="upload-text">点击上传封面图片</span>
                     </div>
