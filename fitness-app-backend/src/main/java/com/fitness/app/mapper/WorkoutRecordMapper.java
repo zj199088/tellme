@@ -12,7 +12,7 @@ public interface WorkoutRecordMapper extends BaseMapper<WorkoutRecord> {
     @Select("SELECT * FROM workout_records WHERE user_id = #{userId} AND date = #{date}")
     WorkoutRecord getByUserIdAndDate(Integer userId, LocalDate date);
     
-    @Select("SELECT wr.*, fp.name as plan_name, we.name as exercise_name " +
+    @Select("SELECT wr.*, fp.name as plan_name, we.exercise_name " +
             "FROM workout_records wr " +
             "LEFT JOIN fitness_plans fp ON wr.plan_id = fp.id " +
             "LEFT JOIN workout_schedule_exercises we ON wr.schedule_exercise_id = we.id " +
@@ -20,7 +20,7 @@ public interface WorkoutRecordMapper extends BaseMapper<WorkoutRecord> {
             "ORDER BY wr.date DESC LIMIT #{limit}")
     List<WorkoutRecord> getRecentRecords(Integer userId, int limit);
     
-    @Select("SELECT wr.*, fp.name as plan_name, we.name as exercise_name " +
+    @Select("SELECT wr.*, fp.name as plan_name, we.exercise_name " +
             "FROM workout_records wr " +
             "LEFT JOIN fitness_plans fp ON wr.plan_id = fp.id " +
             "LEFT JOIN workout_schedule_exercises we ON wr.schedule_exercise_id = we.id " +
