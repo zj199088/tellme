@@ -31,14 +31,10 @@
           </div>
           <div class="step-item" :class="{ active: currentStep === 2, completed: currentStep > 2 }" @click="goToStep(2)">
             <div class="step-number">2</div>
-            <div class="step-label">选择动作</div>
-          </div>
-          <div class="step-item" :class="{ active: currentStep === 3, completed: currentStep > 3 }" @click="goToStep(3)">
-            <div class="step-number">3</div>
             <div class="step-label">安排日期</div>
           </div>
-          <div class="step-item" :class="{ active: currentStep === 4 }" @click="goToStep(4)">
-            <div class="step-number">4</div>
+          <div class="step-item" :class="{ active: currentStep === 3 }" @click="goToStep(3)">
+            <div class="step-number">3</div>
             <div class="step-label">确认</div>
           </div>
         </div>
@@ -100,69 +96,6 @@
           </div>
 
           <div v-if="currentStep === 2" class="step-2 animate-in">
-            <div class="categories-section glow-card">
-              <h2 class="section-title">
-                <span class="title-icon">📋</span>
-                选择动作
-              </h2>
-              <div class="category-list">
-                <div v-for="category in categories" :key="category.id" class="category-item" :class="{ active: selectedCategory === category.id }" @click="selectedCategory = category.id">
-                  <div class="category-icon">{{ category.icon }}</div>
-                  <div class="category-name">{{ category.name }}</div>
-                </div>
-              </div>
-            </div>
-            <div class="exercises-section glow-card">
-              <div class="exercises-list">
-                <div v-for="exercise in filteredExercises" :key="exercise.id" class="exercise-item" :class="{ selected: isExerciseSelected(exercise.id) }" @click="toggleExercise(exercise)">
-                  <div class="exercise-info">
-                    <h3 class="exercise-name">{{ exercise.name }}</h3>
-                    <p class="exercise-desc">{{ exercise.description }}</p>
-                  </div>
-                  <div class="exercise-check">
-                    <svg v-if="isExerciseSelected(exercise.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="selected-exercises-section glow-card" v-if="selectedExercises.length > 0">
-              <h2 class="section-title">
-                <span class="title-icon">✓</span>
-                已选动作 ({{ selectedExercises.length }})
-              </h2>
-              <div class="selected-exercises-list">
-                <div v-for="item in selectedExercises" :key="item.id" class="selected-exercise-item">
-                  <div class="selected-exercise-info">
-                    <h3 class="selected-exercise-name">{{ item.name }}</h3>
-                    <div class="exercise-params">
-                      <div class="param-item">
-                        <label class="param-label">组数</label>
-                        <input type="number" v-model.number="item.sets" class="param-input" min="1" />
-                      </div>
-                      <div class="param-item">
-                        <label class="param-label">次数</label>
-                        <input type="text" v-model="item.reps" class="param-input" />
-                      </div>
-                      <div class="param-item">
-                        <label class="param-label">重量(kg)</label>
-                        <input type="number" v-model.number="item.weight" class="param-input" min="0" />
-                      </div>
-                      <button class="remove-btn" @click="removeExercise(item)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="currentStep === 3" class="step-3 animate-in">
             <div class="schedule-section glow-card">
               <h2 class="section-title">
                 <span class="title-icon">📅</span>
@@ -180,12 +113,21 @@
                       <span class="toggle-label">{{ day.isRestDay ? '休息' : '训练' }}</span>
                     </div>
                   </div>
-                  <div v-if="day.isSelected && !day.isRestDay" class="rest-note">
+                  <div v-if="day.isSelected && day.isRestDay" class="rest-note">
                     <input type="text" v-model="day.restNote" class="rest-input" placeholder="休息提示（可选）" />
                   </div>
                   <div v-if="day.isSelected && !day.isRestDay" class="day-exercises">
                     <div v-for="item in day.exercises" :key="item.exerciseId" class="day-exercise-item">
                       <span class="day-exercise-name">{{ item.exerciseName }}</span>
+                      <div class="day-exercise-params">
+                        <span>{{ item.sets }}组 × {{ item.reps }}</span>
+                        <button class="remove-day-exercise-btn" @click.stop="removeDayExercise(day, item)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <button class="add-exercise-btn" @click.stop="openDayExerciseModal(day)">
                       <span class="btn-icon">+</span>
@@ -197,7 +139,7 @@
             </div>
           </div>
 
-          <div v-if="currentStep === 4" class="step-4 animate-in">
+          <div v-if="currentStep === 3" class="step-3 animate-in">
             <div class="preview-section glow-card">
               <h2 class="section-title">
                 <span class="title-icon">👀</span>
@@ -394,11 +336,38 @@
           <button class="modal-close" @click="closeDayExerciseModal">×</button>
         </div>
         <div class="modal-body">
+          <!-- 搜索框 -->
+          <div class="modal-search">
+            <input type="text" v-model="exerciseSearch" placeholder="搜索动作" class="search-input" />
+          </div>
+          
+          <!-- 分类选择 -->
+          <div class="modal-categories">
+            <div class="category-tabs">
+              <div 
+                v-for="category in categories" 
+                :key="category.id" 
+                class="category-tab" 
+                :class="{ active: selectedModalCategory === category.id }" 
+                @click="selectedModalCategory = category.id"
+              >
+                {{ category.name }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- 动作列表 -->
           <div class="modal-exercise-list">
-            <div v-for="exercise in selectedExercises" :key="exercise.id" class="modal-exercise-item" :class="{ selected: isExerciseInDay(exercise.id) }" @click="toggleExerciseInDay(exercise)">
+            <div 
+              v-for="exercise in filteredModalExercises" 
+              :key="exercise.id" 
+              class="modal-exercise-item" 
+              :class="{ selected: isExerciseInDay(exercise.id) }" 
+              @click="toggleExerciseInDay(exercise)"
+            >
               <div class="modal-exercise-info">
                 <h3 class="modal-exercise-name">{{ exercise.name }}</h3>
-                <p class="modal-exercise-detail">{{ exercise.sets }}组 × {{ exercise.reps }}</p>
+                <p class="modal-exercise-detail">{{ exercise.description }}</p>
               </div>
               <div class="modal-exercise-check">
                 <svg v-if="isExerciseInDay(exercise.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -456,8 +425,8 @@ const fileInput = ref<HTMLInputElement | null>(null);
 // 分类和动作数据
 const categories = ref<Category[]>([]);
 const exercises = ref<ExerciseItem[]>([]);
-const selectedCategory = ref<number | null>(null);
-const selectedExercises = ref<any[]>([]);
+const exerciseSearch = ref('');
+const selectedModalCategory = ref<number | null>(null);
 
 // 周训练计划
 const weekDays = ref([
@@ -557,38 +526,30 @@ const loadExercises = async () => {
   }
 };
 
-const filteredExercises = computed(() => {
-  if (!selectedCategory.value) return exercises.value;
-  return exercises.value.filter(e => e.categoryId === selectedCategory.value);
+// 过滤模态框中的动作列表
+const filteredModalExercises = computed(() => {
+  let filtered = exercises.value;
+  
+  // 按分类过滤
+  if (selectedModalCategory.value) {
+    filtered = filtered.filter(e => e.categoryId === selectedModalCategory.value);
+  }
+  
+  // 按搜索词过滤
+  if (exerciseSearch.value) {
+    const searchTerm = exerciseSearch.value.toLowerCase();
+    filtered = filtered.filter(e => 
+      e.name.toLowerCase().includes(searchTerm) ||
+      e.description.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  return filtered;
 });
 
-const isExerciseSelected = (exerciseId: number) => {
-  return selectedExercises.value.some(e => e.id === exerciseId);
-};
-
-const toggleExercise = (exercise: ExerciseItem) => {
-  const index = selectedExercises.value.findIndex(e => e.id === exercise.id);
-  if (index !== -1) {
-    selectedExercises.value.splice(index, 1);
-  } else {
-    selectedExercises.value.push({
-      ...exercise,
-      sets: exercise.defaultSets,
-      reps: exercise.defaultReps || exercise.defaultDuration,
-      weight: 0
-    });
-  }
-};
-
-const removeExercise = (exercise: any) => {
-  const index = selectedExercises.value.findIndex(e => e.id === exercise.id);
-  if (index !== -1) {
-    selectedExercises.value.splice(index, 1);
-    
-    weekDays.value.forEach(day => {
-      day.exercises = day.exercises.filter((e: any) => e.exerciseId !== exercise.id);
-    });
-  }
+// 移除训练日中的动作
+const removeDayExercise = (day: any, exercise: any) => {
+  day.exercises = day.exercises.filter((e: any) => e.exerciseId !== exercise.exerciseId);
 };
 
 const toggleDaySelection = (day: any) => {
@@ -625,9 +586,9 @@ const toggleExerciseInDay = (exercise: any) => {
     currentEditingDay.value.exercises.push({
       exerciseId: exercise.id,
       exerciseName: exercise.name,
-      sets: exercise.sets,
-      reps: exercise.reps,
-      weight: exercise.weight,
+      sets: exercise.defaultSets || 3,
+      reps: exercise.defaultReps || exercise.defaultDuration || '12',
+      weight: 0,
       sortOrder: currentEditingDay.value.exercises.length + 1
     });
   }
@@ -646,9 +607,6 @@ const canGoNext = computed(() => {
     return planForm.value.name && planForm.value.goal && planForm.value.difficulty && planForm.value.durationWeeks > 0;
   }
   if (currentStep.value === 2) {
-    return selectedExercises.value.length > 0;
-  }
-  if (currentStep.value === 3) {
     return selectedDays.value.some(day => !day.isRestDay && day.exercises.length > 0);
   }
   return true;
@@ -661,13 +619,13 @@ const prevStep = () => {
 };
 
 const nextStep = () => {
-  if (currentStep.value < 4 && canGoNext.value) {
+  if (currentStep.value < 3 && canGoNext.value) {
     currentStep.value++;
   }
 };
 
 const goToStep = (step: number) => {
-  if (step <= currentStep.value) {
+  if (step <= currentStep.value && step <= 3) {
     currentStep.value = step;
   }
 };
@@ -1978,6 +1936,37 @@ const formatDate = (dateString: string) => {
   border-radius: 16px;
   font-size: 13px;
   color: var(--neon-cyan);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.day-exercise-params {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remove-day-exercise-btn {
+  background: none;
+  border: none;
+  color: var(--neon-pink);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.remove-day-exercise-btn:hover {
+  color: var(--neon-pink);
+  transform: scale(1.1);
+}
+
+.remove-day-exercise-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .add-exercise-btn {
@@ -2209,6 +2198,63 @@ const formatDate = (dateString: string) => {
 
 .modal-body {
   padding: 20px;
+}
+
+.modal-search {
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+.modal-categories {
+  margin-bottom: 16px;
+}
+
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.category-tab {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.category-tab:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+.category-tab.active {
+  background: var(--gradient-cyan);
+  border-color: var(--neon-cyan);
+  color: white;
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
 }
 
 .modal-footer {
