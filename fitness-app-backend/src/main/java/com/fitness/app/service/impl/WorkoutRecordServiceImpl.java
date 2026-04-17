@@ -35,6 +35,7 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
         
         // 首先尝试获取今日的训练记录
         WorkoutRecord record = workoutRecordMapper.getByUserIdAndDate(userId, date);
+        result.put("record", record);
         
         // 获取今日的训练安排
         WorkoutSchedule schedule = workoutScheduleMapper.getByUserIdAndDate(userId, date);
@@ -58,6 +59,13 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
 
     @Override
     public WorkoutRecord createWorkoutRecord(WorkoutRecord record) {
+        // 如果设置了 scheduleId，从训练安排中获取 planId
+        if (record.getScheduleId() != null) {
+            WorkoutSchedule schedule = workoutScheduleMapper.selectById(record.getScheduleId());
+            if (schedule != null) {
+                record.setPlanId(schedule.getPlanId());
+            }
+        }
         record.setIsDeleted(0);
         record.setCreatedAt(LocalDateTime.now());
         record.setUpdatedAt(LocalDateTime.now());
@@ -114,6 +122,13 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     public List<WorkoutRecord> createWorkoutRecords(List<WorkoutRecord> records, Integer userId) {
         LocalDateTime now = LocalDateTime.now();
         for (WorkoutRecord record : records) {
+            // 如果设置了 scheduleId，从训练安排中获取 planId
+            if (record.getScheduleId() != null) {
+                WorkoutSchedule schedule = workoutScheduleMapper.selectById(record.getScheduleId());
+                if (schedule != null) {
+                    record.setPlanId(schedule.getPlanId());
+                }
+            }
             record.setUserId(userId);
             record.setIsDeleted(0);
             record.setCreatedAt(now);
