@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class WorkoutScheduleServiceImpl extends ServiceImpl&lt;WorkoutScheduleMapper, WorkoutSchedule&gt; implements WorkoutScheduleService {
+public class WorkoutScheduleServiceImpl extends ServiceImpl<WorkoutScheduleMapper, WorkoutSchedule> implements WorkoutScheduleService {
 
     @Override
-    public List&lt;WorkoutSchedule&gt; getSchedulesByPlanId(Integer planId) {
+    public List<WorkoutSchedule> getSchedulesByPlanId(Integer planId) {
         return this.lambdaQuery()
                 .eq(WorkoutSchedule::getPlanId, planId)
                 .eq(WorkoutSchedule::getIsDeleted, 0)
