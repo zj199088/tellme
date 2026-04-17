@@ -10,6 +10,6 @@ import java.time.LocalDate;
 
 @Mapper
 public interface WorkoutScheduleMapper extends BaseMapper<WorkoutSchedule> {
-    @Select("SELECT ws.* FROM workout_schedules ws JOIN fitness_plans fp ON ws.plan_id = fp.id WHERE fp.user_id = #{userId} AND ws.date = #{date} AND ws.is_deleted = 0 AND fp.is_deleted = 0")
+    @Select("SELECT ws.* FROM workout_schedules ws JOIN fitness_plans fp ON ws.plan_id = fp.id WHERE fp.user_id = #{userId} AND ws.date = #{date} AND ws.is_deleted = 0 AND fp.is_deleted = 0 LIMIT 1")
     WorkoutSchedule getByUserIdAndDate(@Param("userId") Integer userId, @Param("date") LocalDate date);
 }
