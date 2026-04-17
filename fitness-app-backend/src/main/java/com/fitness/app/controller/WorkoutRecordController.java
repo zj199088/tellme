@@ -26,38 +26,30 @@ public class WorkoutRecordController {
     public Result<?> getTodayWorkout(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            
-            if (date == null) {
-                date = LocalDate.now();
-            }
-            
-            WorkoutRecord record = workoutRecordService.getTodayWorkout(userId, date);
-            return Result.success(record);
-        } catch (Exception e) {
-            return Result.error("获取今日训练失败: " + e.getMessage());
+        Integer userId = Integer.parseInt(authentication.getName());
+        
+        if (date == null) {
+            date = LocalDate.now();
         }
+        
+        Map<String, Object> result = workoutRecordService.getTodayWorkout(userId, date);
+        return Result.success(result);
     }
 
     @GetMapping("/recent")
     public Result<?> getRecentRecords(
             @RequestParam(defaultValue = "10") int limit,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            
-            List<WorkoutRecord> records = workoutRecordService.getRecentRecords(userId, limit);
-            int total = workoutRecordService.countAllRecords(userId);
-            
-            Map<String, Object> result = new HashMap<>();
-            result.put("records", records);
-            result.put("total", total);
-            
-            return Result.success(result);
-        } catch (Exception e) {
-            return Result.error("获取最近训练记录失败: " + e.getMessage());
-        }
+        Integer userId = Integer.parseInt(authentication.getName());
+        
+        List<WorkoutRecord> records = workoutRecordService.getRecentRecords(userId, limit);
+        int total = workoutRecordService.countAllRecords(userId);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", records);
+        result.put("total", total);
+        
+        return Result.success(result);
     }
 
     @GetMapping("/records")
@@ -67,29 +59,21 @@ public class WorkoutRecordController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            
-            Map<String, Object> result = workoutRecordService.getRecordsWithDetails(userId, planId, date, page, pageSize);
-            return Result.success(result);
-        } catch (Exception e) {
-            return Result.error("获取训练记录失败: " + e.getMessage());
-        }
+        Integer userId = Integer.parseInt(authentication.getName());
+        
+        Map<String, Object> result = workoutRecordService.getRecordsWithDetails(userId, planId, date, page, pageSize);
+        return Result.success(result);
     }
 
     @PostMapping("/record")
     public Result<?> createWorkoutRecord(
             @RequestBody WorkoutRecord record,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            
-            record.setUserId(userId);
-            WorkoutRecord savedRecord = workoutRecordService.createWorkoutRecord(record);
-            return Result.success(savedRecord);
-        } catch (Exception e) {
-            return Result.error("创建训练记录失败: " + e.getMessage());
-        }
+        Integer userId = Integer.parseInt(authentication.getName());
+        
+        record.setUserId(userId);
+        WorkoutRecord savedRecord = workoutRecordService.createWorkoutRecord(record);
+        return Result.success(savedRecord);
     }
 
     @PutMapping("/record/{id}")
@@ -97,51 +81,35 @@ public class WorkoutRecordController {
             @PathVariable Integer id,
             @RequestBody WorkoutRecord record,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            
-            record.setId(id);
-            record.setUserId(userId);
-            WorkoutRecord updatedRecord = workoutRecordService.updateWorkoutRecord(record);
-            return Result.success(updatedRecord);
-        } catch (Exception e) {
-            return Result.error("更新训练记录失败: " + e.getMessage());
-        }
+        Integer userId = Integer.parseInt(authentication.getName());
+        
+        record.setId(id);
+        record.setUserId(userId);
+        WorkoutRecord updatedRecord = workoutRecordService.updateWorkoutRecord(record);
+        return Result.success(updatedRecord);
     }
 
     @GetMapping("/schedule")
     public Result<?> getScheduleByPlanAndDate(
             @RequestParam Integer planId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        try {
-            WorkoutSchedule schedule = workoutRecordService.getScheduleByPlanAndDate(planId, date);
-            return Result.success(schedule);
-        } catch (Exception e) {
-            return Result.error("获取训练日程失败: " + e.getMessage());
-        }
+        WorkoutSchedule schedule = workoutRecordService.getScheduleByPlanAndDate(planId, date);
+        return Result.success(schedule);
     }
 
     @GetMapping("/schedule/{scheduleId}/exercises")
     public Result<?> getScheduleExercises(@PathVariable Integer scheduleId) {
-        try {
-            List<WorkoutScheduleExercise> exercises = workoutRecordService.getScheduleExercises(scheduleId);
-            return Result.success(exercises);
-        } catch (Exception e) {
-            return Result.error("获取训练日程动作失败: " + e.getMessage());
-        }
+        List<WorkoutScheduleExercise> exercises = workoutRecordService.getScheduleExercises(scheduleId);
+        return Result.success(exercises);
     }
 
     @PostMapping("/batch")
     public Result<?> createWorkoutRecords(
             @RequestBody List<WorkoutRecord> records,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            
-            List<WorkoutRecord> savedRecords = workoutRecordService.createWorkoutRecords(records, userId);
-            return Result.success(savedRecords);
-        } catch (Exception e) {
-            return Result.error("批量创建训练记录失败: " + e.getMessage());
-        }
+        Integer userId = Integer.parseInt(authentication.getName());
+        
+        List<WorkoutRecord> savedRecords = workoutRecordService.createWorkoutRecords(records, userId);
+        return Result.success(savedRecords);
     }
 }

@@ -73,7 +73,6 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
         return plan.getId();
     }
     
-    @Transactional(rollbackFor = Exception.class)
     private void generateWorkoutSchedules(Integer planId, Integer templateId, LocalDate startDate, Integer durationWeeks) {
         // 获取模板训练日
         List<TemplateDay> templateDays = templateDayMapper.getTemplateDaysByTemplateId(templateId);
@@ -90,10 +89,11 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
                 // 创建训练安排
                 WorkoutSchedule schedule = new WorkoutSchedule();
                 schedule.setPlanId(planId);
+                schedule.setWeekNum(week + 1);
                 schedule.setDayOfWeek(templateDay.getDayOfWeek());
                 schedule.setIsRestDay(templateDay.getIsRestDay());
                 schedule.setEstimatedDuration(templateDay.getEstimatedDuration());
-                schedule.setDate(scheduleDate);
+                schedule.setTemplateDayId(templateDay.getId());
                 schedule.setIsDeleted(0);
                 schedule.setCreatedAt(LocalDateTime.now());
                 schedule.setUpdatedAt(LocalDateTime.now());
