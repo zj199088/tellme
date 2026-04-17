@@ -51,7 +51,8 @@
                 <div class="image-upload">
                   <div class="image-preview" @click="triggerFileInput">
                     <img v-if="planForm.image" :src="planForm.image" alt="计划封面" />
-                    <div v-else class="upload-placeholder">
+                    <img v-else src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20cover%20neon%20cyberpunk%20style&image_size=landscape_16_9" alt="计划封面" class="default-cover" />
+                    <div v-if="!planForm.image" class="upload-overlay">
                       <span class="upload-icon">📷</span>
                       <span class="upload-text">点击上传封面图片</span>
                     </div>
@@ -1623,11 +1624,11 @@ const formatDate = (dateString: string) => {
   overflow: hidden;
   transition: all 0.3s ease;
   background: rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
 .image-preview:hover {
   border-color: var(--neon-cyan);
-  background: rgba(0, 245, 255, 0.05);
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
 }
 
@@ -1635,6 +1636,36 @@ const formatDate = (dateString: string) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.default-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-preview:hover .upload-overlay {
+  opacity: 1;
 }
 
 .upload-placeholder {
