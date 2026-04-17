@@ -102,7 +102,7 @@ import api from '../../utils/api';
 
 const router = useRouter();
 const templates = ref<any[]>([]);
-const loading = ref(true);
+const loading = ref(false);
 const error = ref('');
 
 const initParticles = () => {

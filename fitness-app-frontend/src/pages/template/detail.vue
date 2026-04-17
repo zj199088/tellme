@@ -160,7 +160,7 @@ const templateId = computed(() => parseInt(route.query.id as string) || 0);
 const template = ref<any>(null);
 const templateDays = ref<any[]>([]);
 const templateExercises = ref<any[]>([]);
-const loading = ref(true);
+const loading = ref(false);
 const error = ref('');
 const isCreating = ref(false);
 const expandedDayId = ref<number | null>(null);

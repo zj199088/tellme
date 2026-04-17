@@ -113,7 +113,7 @@ const router = useRouter();
 
 const records = ref<WorkoutRecord[]>([]);
 const plans = ref<FitnessPlan[]>([]);
-const loading = ref(true);
+const loading = ref(false);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalRecords = ref(0);
