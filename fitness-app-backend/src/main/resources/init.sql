@@ -431,7 +431,35 @@ INSERT INTO movement_exercises (exercise_name, en_name, category_id, difficulty_
 ('交叉步', 'Carioca', 20, 'beginner', '敏捷、协调性', '自重', '侧向移动的敏捷训练', 380.00, 1, 1),
 ('变向跑', 'Shuttle Run', 20, 'intermediate', '敏捷、速度', '锥形标志', '快速变向的敏捷训练', 450.00, 1, 0),
 ('绳梯步法', 'Footwork Drill', 20, 'beginner', '敏捷、脚步', '绳梯', '多种脚步组合训练', 420.00, 1, 0),
-('跳栏', 'Hurdle Hop', 20, 'intermediate', '敏捷、腿部', '小栏架', '提高腿部协调性和敏捷性', 480.00, 1, 0);
+('跳栏', 'Hurdle Hop', 20, 'intermediate', '敏捷、腿部', '小栏架', '提高腿部协调性和敏捷性', 480.00, 1, 0),
+
+-- 力量训练顶级分类示例动作
+('全身力量循环', 'Full Body Strength Circuit', 1, 'intermediate', '全身肌群', '哑铃、杠铃', '综合力量训练，锻炼全身主要肌群', 450.00, 1, 0),
+('硬拉', 'Deadlift', 1, 'intermediate', '下背、臀部、腿部', '杠铃', '经典力量动作，提高整体力量', 550.00, 1, 0),
+('保加利亚分腿蹲', 'Bulgarian Split Squat', 1, 'intermediate', '腿部、臀部', '哑铃、长凳', '单腿力量训练，提高平衡和力量', 420.00, 1, 0),
+('俯身划船', 'Bent Over Row', 1, 'intermediate', '背部、手臂', '哑铃或杠铃', '增加背部厚度和力量', 400.00, 1, 0),
+('肩上推举', 'Overhead Press', 1, 'intermediate', '肩部、手臂', '哑铃或杠铃', '增强肩部和上肢力量', 380.00, 1, 0),
+
+-- 有氧运动顶级分类示例动作
+('HIIT训练', 'HIIT Training', 2, 'intermediate', '心肺、全身', '自重或器械', '高强度间歇训练，高效燃脂', 600.00, 1, 0),
+('椭圆机', 'Elliptical Trainer', 2, 'beginner', '心肺、腿部', '椭圆机', '低冲击的有氧训练', 400.00, 1, 0),
+('登山跑', 'Mountain Climbers', 2, 'intermediate', '心肺、核心', '自重或瑜伽垫', '高强度心肺和核心训练', 550.00, 1, 1),
+('划船机', 'Rowing Machine', 2, 'intermediate', '心肺、全身', '划船机', '全身有氧和力量结合训练', 500.00, 1, 0),
+('爬楼梯', 'Stair Climbing', 2, 'beginner', '心肺、腿部', '楼梯或爬楼机', '简单有效的有氧训练', 450.00, 1, 1),
+
+-- 柔韧性训练顶级分类示例动作
+('全身动态拉伸', 'Full Body Dynamic Stretch', 3, 'beginner', '全身肌肉', '自重', '运动前的动态拉伸准备', 180.00, 1, 1),
+('泡沫轴放松', 'Foam Rolling', 3, 'beginner', '肌肉筋膜', '泡沫轴', '使用泡沫轴放松肌肉筋膜', 150.00, 1, 0),
+('PNF拉伸', 'PNF Stretching', 3, 'intermediate', '目标肌肉', '搭档或毛巾', '本体感受神经肌肉促进拉伸', 200.00, 1, 0),
+('静态拉伸组合', 'Static Stretch Combo', 3, 'beginner', '全身肌肉', '自重或瑜伽垫', '运动后的静态拉伸放松', 160.00, 1, 1),
+('活动性训练', 'Mobility Training', 3, 'beginner', '关节活动度', '自重', '提高各关节活动范围', 170.00, 1, 1),
+
+-- 功能性训练顶级分类示例动作
+('农民行走', 'Farmer\\'s Walk', 4, 'beginner', '核心、握力、腿部', '哑铃或壶铃', '经典功能性训练，增强核心和握力', 350.00, 1, 0),
+('土耳其起立', 'Turkish Get-up', 4, 'advanced', '全身、核心、平衡', '壶铃或哑铃', '复杂功能性动作，提高全身协调', 400.00, 1, 0),
+('沙袋训练', 'Sandbag Training', 4, 'intermediate', '全身、核心', '沙袋', '不稳定负重的功能性训练', 420.00, 1, 0),
+('战绳', 'Battle Ropes', 4, 'intermediate', '上肢、核心、心肺', '战绳', '高强度功能性和心肺训练', 480.00, 1, 0),
+('雪橇推动', 'Sled Push', 4, 'intermediate', '腿部、臀部、核心', '雪橇', '下肢驱动的功能性力量训练', 500.00, 1, 0);
 
 -- 插入健身模板数据
 INSERT INTO templates (name, description, image, difficulty, is_public, created_by) VALUES
