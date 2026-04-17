@@ -31,11 +31,23 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     private WorkoutScheduleExerciseMapper workoutScheduleExerciseMapper;
 
     @Override
-    public Map<String, Object> getTodayWorkout(Integer userId, LocalDate date) {
+    public Map<String, Object> getTodayWorkout(Integer userId, LocalDate date, Integer planId) {
         Map<String, Object> result = new HashMap<>();
         
         // 获取今日的训练安排
-        WorkoutSchedule schedule = workoutScheduleMapper.getByUserIdAndDate(userId, date);
+        WorkoutSchedule schedule;
+        if (planId != null) {
+            // 根据计划ID和日期获取训练安排
+            schedule = workoutScheduleMapper.selectOne(
+                new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<WorkoutSchedule>()
+                    .eq("plan_id", planId)
+                    .eq("date", date)
+                    .eq("is_deleted", 0)
+            );
+        } else {
+            // 原来的逻辑，根据用户ID和日期获取训练安排
+            schedule = workoutScheduleMapper.getByUserIdAndDate(userId, date);
+        }
         result.put("schedule", schedule);
         
         // 如果有训练安排，获取训练动作和对应的训练记录

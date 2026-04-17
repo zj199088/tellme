@@ -485,13 +485,16 @@ export const api = {
   
   // 训练记录相关API
   workout: {
-    getToday: async (date?: string): Promise<ApiResponse<{
+    getToday: async (date?: string, planId?: number): Promise<ApiResponse<{
       records: any[];
       schedule: WorkoutSchedule | null;
       exercises: ScheduleExercise[];
     }>> => {
       if (isTestEnvironment) {
-        const schedule = mockData.workoutSchedules[0] || null;
+        let schedule = mockData.workoutSchedules[0] || null;
+        if (planId) {
+          schedule = mockData.workoutSchedules.find(s => s.planId === planId) || null;
+        }
         const exercises = mockData.scheduleExercises.filter(e => e.scheduleId === schedule?.id);
         return {
           code: 200,
@@ -503,7 +506,9 @@ export const api = {
           }
         };
       }
-      const params = date ? { date } : {};
+      const params: any = {};
+      if (date) params.date = date;
+      if (planId) params.planId = planId;
       const response = await apiClient.get<ApiResponse<any>>('/workout/today', { params });
       return response.data;
     },

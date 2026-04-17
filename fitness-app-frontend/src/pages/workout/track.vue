@@ -165,7 +165,7 @@ const loadWorkoutData = async () => {
     const id = route.query.planId ? parseInt(route.query.planId as string) : 1;
     planId.value = id;
     
-    const todayResponse = await api.workout.getToday();
+    const todayResponse = await api.workout.getToday(undefined, id);
     if (todayResponse.code === 200 && todayResponse.data) {
       schedule.value = todayResponse.data.schedule;
       const records = todayResponse.data.records || [];

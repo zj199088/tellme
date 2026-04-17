@@ -29,6 +29,7 @@ public class WorkoutRecordController {
     @GetMapping("/today")
     public Result<?> getTodayWorkout(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Integer planId,
             Authentication authentication) {
         Integer userId = Integer.parseInt(authentication.getName());
         
@@ -36,7 +37,7 @@ public class WorkoutRecordController {
             date = LocalDate.now();
         }
         
-        Map<String, Object> result = workoutRecordService.getTodayWorkout(userId, date);
+        Map<String, Object> result = workoutRecordService.getTodayWorkout(userId, date, planId);
         return Result.success(result);
     }
 
