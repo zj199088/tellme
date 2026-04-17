@@ -120,6 +120,7 @@ public class PlanController {
         template.setName((String) request.get("name"));
         template.setDescription((String) request.get("goal") + "计划");
         template.setDifficulty((String) request.get("difficulty"));
+        template.setImage((String) request.get("image")); // 保存封面图片
         template.setIsPublic(0); // 默认为私有
         template.setCreatedBy(userId);
         template.setIsDeleted(0);
