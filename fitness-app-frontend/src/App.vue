@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <router-view v-slot="{ Component }">
-      <transition name="slide" mode="out-in">
+      <transition name="fade" mode="out-in">
         <component :is="Component" />
       </transition>
     </router-view>
@@ -249,18 +249,13 @@ body::before {
 }
 
 /* 更流畅的页面过渡动画 */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.slide-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.slide-leave-to {
-  transform: translateX(-100%);
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 

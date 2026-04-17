@@ -140,7 +140,6 @@
                   <span class="loading-dot"></span>
                   <span class="loading-dot"></span>
                   <span class="loading-dot"></span>
-                  <span>生成中...</span>
                 </div>
               </div>
             </div>
