@@ -39,6 +39,9 @@
         <div class="plan-list" v-else-if="plans.length > 0">
           <div class="plan-card" v-for="(plan, index) in plans" :key="plan.id" :class="['plan-card', 'animate-in', 'glow-card']" :style="{ animationDelay: `${index * 0.1}s` }">
             <div class="plan-card-inner">
+              <div class="plan-image">
+                <img :src="plan.image && !plan.image.includes('The image is generating') ? plan.image : 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20cover%20neon%20cyberpunk%20style&image_size=landscape_16_9'" alt="计划封面">
+              </div>
               <div class="plan-header">
                 <div class="plan-title-group">
                   <h3 class="plan-name">{{ plan.name }}</h3>
@@ -731,6 +734,21 @@ onMounted(() => {
 
 .plan-card-inner {
   padding: 17.5px;
+}
+
+.plan-image {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.plan-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .plan-header {
