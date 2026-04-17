@@ -737,7 +737,7 @@ BEGIN
     p_plan_id,
     w.week_num,
     td.day_of_week,
-    DATE_ADD(p_start_date, INTERVAL (w.week_num - 1) WEEK + (td.day_of_week - 1) DAY) as date,
+    DATE_ADD(DATE_ADD(p_start_date, INTERVAL (w.week_num - 1) WEEK), INTERVAL (td.day_of_week - 1) DAY) as date,
     td.is_rest_day,
     td.rest_note,
     td.estimated_duration,
