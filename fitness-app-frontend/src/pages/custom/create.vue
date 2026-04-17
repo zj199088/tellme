@@ -202,11 +202,11 @@
           <button v-if="currentStep > 1" class="nav-button prev" @click="prevStep">
             <span>上一步</span>
           </button>
-          <button v-if="currentStep < 4" class="nav-button next glow-button" :class="{ disabled: !canGoNext }" @click="nextStep" :disabled="!canGoNext">
+          <button v-if="currentStep < 3" class="nav-button next glow-button" :class="{ disabled: !canGoNext }" @click="nextStep" :disabled="!canGoNext">
             <span>下一步</span>
             <span class="btn-glow"></span>
           </button>
-          <button v-if="currentStep === 4" class="nav-button save glow-button" :class="{ disabled: isSaving }" @click="savePlan" :disabled="isSaving">
+          <button v-if="currentStep === 3" class="nav-button save glow-button" :class="{ disabled: isSaving }" @click="savePlan" :disabled="isSaving">
             <span>{{ isSaving ? '保存中...' : '保存计划' }}</span>
             <span class="btn-glow"></span>
           </button>
