@@ -439,6 +439,18 @@ export const api = {
       }
       const response = await apiClient.post<ApiResponse<number>>('/plans/custom', data);
       return response.data;
+    },
+    
+    delete: async (planId: number): Promise<ApiResponse<void>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: null
+        };
+      }
+      const response = await apiClient.delete<ApiResponse<void>>(`/plans/${planId}`);
+      return response.data;
     }
   },
   

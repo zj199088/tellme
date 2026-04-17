@@ -59,6 +59,9 @@
                   <button class="plan-action-btn stop" @click="togglePlanStatus(plan, 'stop')">
                     <span>⏹</span>
                   </button>
+                  <button class="plan-action-btn delete" @click="deletePlan(plan)">
+                    <span>🗑</span>
+                  </button>
                 </div>
               </div>
               <p class="plan-description">{{ plan.description }}</p>
@@ -376,6 +379,21 @@ const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
     }
   } catch (error) {
     console.error('更新计划状态失败:', error);
+  }
+};
+
+const deletePlan = async (plan: TrainingPlan) => {
+  if (!confirm(`确定要删除计划「${plan.name}」吗？此操作不可恢复！`)) {
+    return;
+  }
+  
+  try {
+    const response = await api.plans.delete(plan.id);
+    if (response.code === 200) {
+      plans.value = plans.value.filter(p => p.id !== plan.id);
+    }
+  } catch (error) {
+    console.error('删除计划失败:', error);
   }
 };
 
@@ -847,6 +865,11 @@ onMounted(() => {
 .plan-action-btn.stop {
   background: linear-gradient(135deg, var(--neon-pink), var(--neon-pink));
   box-shadow: 0 0 15px rgba(255, 0, 110, 0.4);
+}
+
+.plan-action-btn.delete {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
 }
 
 .plan-action-btn:hover {

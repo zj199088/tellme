@@ -4,12 +4,14 @@ import com.fitness.app.entity.FitnessPlan;
 import com.fitness.app.entity.Template;
 import com.fitness.app.entity.TemplateDay;
 import com.fitness.app.entity.TemplateExercise;
+import com.fitness.app.entity.WorkoutRecord;
 import com.fitness.app.entity.WorkoutSchedule;
 import com.fitness.app.entity.WorkoutScheduleExercise;
 import com.fitness.app.service.FitnessPlanService;
 import com.fitness.app.service.TemplateService;
 import com.fitness.app.service.TemplateDayService;
 import com.fitness.app.service.TemplateExerciseService;
+import com.fitness.app.service.WorkoutRecordService;
 import com.fitness.app.service.WorkoutScheduleService;
 import com.fitness.app.service.WorkoutScheduleExerciseService;
 import com.fitness.app.common.Result;
@@ -48,6 +50,9 @@ public class PlanController {
     
     @Autowired
     private WorkoutScheduleExerciseService workoutScheduleExerciseService;
+    
+    @Autowired
+    private WorkoutRecordService workoutRecordService;
 
     @PostMapping("/template")
     public Result<?> createPlanFromTemplate(
@@ -386,5 +391,96 @@ public class PlanController {
         
         log.info("获取用户计划列表成功: userId={}, 数量: {}", userId, result.size());
         return Result.success(result);
+    }
+    
+    @DeleteMapping("/{planId}")
+    public Result<?> deletePlan(
+            @PathVariable Integer planId,
+            Authentication authentication) {
+        Integer userId = Integer.parseInt(authentication.getName());
+        log.info("删除计划: planId={}, userId={}", planId, userId);
+        
+        try {
+            // 获取计划
+            FitnessPlan plan = fitnessPlanService.getById(planId);
+            if (plan == null) {
+                log.warn("计划不存在: planId={}", planId);
+                return Result.error("计划不存在");
+            }
+            
+            // 验证权限
+            if (!plan.getUserId().equals(userId)) {
+                log.warn("没有权限删除此计划: planId={}, userId={}", planId, userId);
+                return Result.error("没有权限删除此计划");
+            }
+            
+            // 1. 删除锻炼记录 (workout_records)
+            workoutRecordService.lambdaQuery()
+                    .eq(com.fitness.app.entity.WorkoutRecord::getPlanId, planId)
+                    .list()
+                    .forEach(workoutRecordService::removeById);
+            log.info("删除锻炼记录成功: planId={}", planId);
+            
+            // 2. 获取所有训练日程ID
+            List<Integer> scheduleIds = workoutScheduleService.lambdaQuery()
+                    .eq(com.fitness.app.entity.WorkoutSchedule::getPlanId, planId)
+                    .list()
+                    .stream()
+                    .map(com.fitness.app.entity.WorkoutSchedule::getId)
+                    .collect(java.util.stream.Collectors.toList());
+            
+            if (!scheduleIds.isEmpty()) {
+                // 3. 删除训练日程动作 (workout_schedule_exercises)
+                workoutScheduleExerciseService.lambdaQuery()
+                        .in(com.fitness.app.entity.WorkoutScheduleExercise::getScheduleId, scheduleIds)
+                        .list()
+                        .forEach(workoutScheduleExerciseService::removeById);
+                log.info("删除训练日程动作成功: planId={}", planId);
+                
+                // 4. 删除训练日程 (workout_schedules)
+                workoutScheduleService.removeByIds(scheduleIds);
+                log.info("删除训练日程成功: planId={}", planId);
+            }
+            
+            // 5. 如果是自定义计划，删除关联的模板数据
+            if ("custom".equals(plan.getType()) && plan.getTemplateId() != null) {
+                Integer templateId = plan.getTemplateId();
+                
+                // 获取所有模板训练日ID
+                List<Integer> templateDayIds = templateDayService.lambdaQuery()
+                        .eq(com.fitness.app.entity.TemplateDay::getTemplateId, templateId)
+                        .list()
+                        .stream()
+                        .map(com.fitness.app.entity.TemplateDay::getId)
+                        .collect(java.util.stream.Collectors.toList());
+                
+                if (!templateDayIds.isEmpty()) {
+                    // 6. 删除模板动作关联 (template_exercises)
+                    templateExerciseService.lambdaQuery()
+                            .in(com.fitness.app.entity.TemplateExercise::getTemplateDayId, templateDayIds)
+                            .list()
+                            .forEach(templateExerciseService::removeById);
+                    log.info("删除模板动作关联成功: planId={}", planId);
+                    
+                    // 7. 删除模板训练日 (template_days)
+                    templateDayService.removeByIds(templateDayIds);
+                    log.info("删除模板训练日成功: planId={}", planId);
+                }
+                
+                // 8. 删除模板 (templates)
+                templateService.removeById(templateId);
+                log.info("删除模板成功: planId={}", planId);
+            }
+            
+            // 9. 删除健身计划 (fitness_plans)
+            fitnessPlanService.removeById(planId);
+            log.info("删除健身计划成功: planId={}", planId);
+            
+            log.info("删除计划成功: planId={}", planId);
+            return Result.success("计划删除成功");
+        } catch (Exception e) {
+            log.error("删除计划失败: planId={}", planId, e);
+            return Result.error("删除计划失败: " + e.getMessage());
+        }
     }
 }
