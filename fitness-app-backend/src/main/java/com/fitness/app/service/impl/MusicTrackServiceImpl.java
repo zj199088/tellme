@@ -28,12 +28,23 @@ public class MusicTrackServiceImpl extends ServiceImpl<MusicTrackMapper, MusicTr
     }
     
     @Override
-    public MusicTrack uploadMusic(MultipartFile file, String name, String artist, String album, String genre) throws IOException {
+    public List<MusicTrack> getUserMusicList(Integer userId) {
+        return musicTrackMapper.getUserMusicList(userId);
+    }
+    
+    @Override
+    public int countUserMusic(Integer userId) {
+        return musicTrackMapper.countUserMusic(userId);
+    }
+    
+    @Override
+    public MusicTrack uploadMusic(MultipartFile file, String name, String artist, String album, String genre, Integer userId) throws IOException {
         // 上传音乐文件到COS
         String fileUrl = cosService.uploadMusic(file);
         
         // 创建新的音乐轨道对象
         MusicTrack track = new MusicTrack();
+        track.setUserId(userId);
         track.setName(name);
         track.setArtist(artist);
         track.setAlbum(album);

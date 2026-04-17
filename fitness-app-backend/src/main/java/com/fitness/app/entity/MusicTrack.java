@@ -17,6 +17,11 @@ public class MusicTrack {
     private Integer id;
     
     /**
+     * 用户ID，null表示默认音乐
+     */
+    private Integer userId;
+    
+    /**
      * 音乐名称
      */
     private String name;

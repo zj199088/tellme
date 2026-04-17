@@ -9,5 +9,7 @@ import java.util.List;
 
 public interface MusicTrackService extends IService<MusicTrack> {
     List<MusicTrack> getActiveTracks();
-    MusicTrack uploadMusic(MultipartFile file, String name, String artist, String album, String genre) throws IOException;
+    List<MusicTrack> getUserMusicList(Integer userId);
+    int countUserMusic(Integer userId);
+    MusicTrack uploadMusic(MultipartFile file, String name, String artist, String album, String genre, Integer userId) throws IOException;
 }
