@@ -74,6 +74,8 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
 
     @Override
     public WorkoutRecord createWorkoutRecord(WorkoutRecord record) {
+        LocalDateTime now = LocalDateTime.now();
+        
         // 如果设置了 scheduleId，从训练安排中获取 planId
         if (record.getScheduleId() != null) {
             WorkoutSchedule schedule = workoutScheduleMapper.selectById(record.getScheduleId());
@@ -82,15 +84,67 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
             }
         }
         record.setIsDeleted(0);
-        record.setCreatedAt(LocalDateTime.now());
-        record.setUpdatedAt(LocalDateTime.now());
+        record.setCreatedAt(now);
+        record.setUpdatedAt(now);
+        
+        // 检查是否所有组数都完成
+        boolean allSetsCompleted = false;
+        if (record.getSetsCompleted() != null) {
+            try {
+                String[] setsArray = record.getSetsCompleted().replace("[", "").replace("]", "").split(",");
+                allSetsCompleted = true;
+                for (String set : setsArray) {
+                    if (set.trim().equals("0")) {
+                        allSetsCompleted = false;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                // 解析失败，默认不计算时长
+            }
+        }
+        
+        // 如果所有组数都完成，时长设置为0（刚创建）
+        if (allSetsCompleted) {
+            record.setDuration(0);
+        }
+        
         save(record);
         return record;
     }
 
     @Override
     public WorkoutRecord updateWorkoutRecord(WorkoutRecord record) {
-        record.setUpdatedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        record.setUpdatedAt(now);
+        
+        // 检查是否所有组数都完成
+        boolean allSetsCompleted = false;
+        if (record.getSetsCompleted() != null) {
+            try {
+                String[] setsArray = record.getSetsCompleted().replace("[", "").replace("]", "").split(",");
+                allSetsCompleted = true;
+                for (String set : setsArray) {
+                    if (set.trim().equals("0")) {
+                        allSetsCompleted = false;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                // 解析失败，默认不计算时长
+            }
+        }
+        
+        // 如果所有组数都完成，计算时长
+        if (allSetsCompleted) {
+            // 获取现有记录的创建时间
+            WorkoutRecord existingRecord = getById(record.getId());
+            if (existingRecord != null && existingRecord.getCreatedAt() != null) {
+                long durationSeconds = java.time.Duration.between(existingRecord.getCreatedAt(), now).getSeconds();
+                record.setDuration((int) durationSeconds);
+            }
+        }
+        
         updateById(record);
         return record;
     }
@@ -158,19 +212,53 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
                     .eq("is_deleted", 0)
             );
             
+            // 检查是否所有组数都完成
+            boolean allSetsCompleted = false;
+            if (record.getSetsCompleted() != null) {
+                try {
+                    String[] setsArray = record.getSetsCompleted().replace("[", "").replace("]", "").split(",");
+                    allSetsCompleted = true;
+                    for (String set : setsArray) {
+                        if (set.trim().equals("0")) {
+                            allSetsCompleted = false;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    // 解析失败，默认不计算时长
+                }
+            }
+            
             if (existingRecord != null) {
                 // 更新现有记录
                 existingRecord.setSetsCompleted(record.getSetsCompleted());
                 existingRecord.setWeight(record.getWeight());
-                existingRecord.setDuration(record.getDuration());
                 existingRecord.setNotes(record.getNotes());
                 existingRecord.setUpdatedAt(now);
+                
+                // 如果所有组数都完成，计算时长
+                if (allSetsCompleted && existingRecord.getCreatedAt() != null) {
+                    long durationSeconds = java.time.Duration.between(existingRecord.getCreatedAt(), now).getSeconds();
+                    existingRecord.setDuration((int) durationSeconds);
+                } else {
+                    // 未完成所有组数，保持原有时长或设置为0
+                    if (record.getDuration() != null) {
+                        existingRecord.setDuration(record.getDuration());
+                    }
+                }
+                
                 updateById(existingRecord);
                 result.add(existingRecord);
             } else {
                 // 创建新记录
                 record.setCreatedAt(now);
                 record.setUpdatedAt(now);
+                
+                // 如果所有组数都完成，时长设置为0（刚创建）
+                if (allSetsCompleted) {
+                    record.setDuration(0);
+                }
+                
                 save(record);
                 result.add(record);
             }
