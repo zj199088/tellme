@@ -112,10 +112,10 @@ public class PlanController {
         templateService.save(template);
         
         // 创建模板训练日和动作，同时保存它们的关系
-        List&lt;TemplateDay&gt; createdTemplateDays = new ArrayList&lt;&gt;();
+        List<TemplateDay> createdTemplateDays = new ArrayList<>();
         if (request.containsKey("days")) {
-            List&lt;Map&lt;String, Object&gt;&gt; days = (List&lt;Map&lt;String, Object&gt;&gt;) request.get("days");
-            for (Map&lt;String, Object&gt; dayData : days) {
+            List<Map<String, Object>> days = (List<Map<String, Object>>) request.get("days");
+            for (Map<String, Object> dayData : days) {
                 // 创建模板训练日
                 TemplateDay templateDay = new TemplateDay();
                 templateDay.setTemplateId(template.getId());
@@ -179,8 +179,8 @@ public class PlanController {
         // 创建训练日程（根据计划的周数，每周重复模板的训练日）
         Integer durationWeeks = (Integer) request.get("durationWeeks");
         
-        for (int weekNum = 1; weekNum &lt;= durationWeeks; weekNum++) {
-            for (int i = 0; i &lt; createdTemplateDays.size(); i++) {
+        for (int weekNum = 1; weekNum <= durationWeeks; weekNum++) {
+            for (int i = 0; i < createdTemplateDays.size(); i++) {
                 TemplateDay templateDay = createdTemplateDays.get(i);
                 
                 // 计算当前训练日程的日期
@@ -206,7 +206,7 @@ public class PlanController {
                 
                 // 如果不是休息日，创建训练日程动作
                 if (templateDay.getIsRestDay() == 0) {
-                    List&lt;TemplateExercise&gt; templateExercises = templateExerciseService.lambdaQuery()
+                    List<TemplateExercise> templateExercises = templateExerciseService.lambdaQuery()
                             .eq(TemplateExercise::getTemplateDayId, templateDay.getId())
                             .list();
                     
