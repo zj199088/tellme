@@ -410,6 +410,18 @@
         </div>
       </div>
     </div>
+    
+    <!-- 提示组件 -->
+    <div v-if="showToast" class="toast" :class="toastType">
+      <div class="toast-icon">
+        <span v-if="toastType === 'success'">✅</span>
+        <span v-else>❌</span>
+      </div>
+      <div class="toast-content">
+        <div class="toast-title">{{ toastType === 'success' ? '成功' : '失败' }}</div>
+        <div class="toast-message">{{ toastMessage }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -431,6 +443,12 @@ const currentStep = ref(1);
 const isSaving = ref(false);
 const showDayExerciseModal = ref(false);
 const currentEditingDay = ref<any>(null);
+
+// 提示组件相关
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastType = ref<'success' | 'error'>('success');
+let toastTimer: number | null = null;
 
 // 计划表单数据
 const planForm = ref({
@@ -688,6 +706,18 @@ const handleImageUpload = async (event: Event) => {
   }
 };
 
+const displayToast = (message: string, type: 'success' | 'error' = 'success') => {
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+  }
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  toastTimer = window.setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
+
 const savePlan = async () => {
   try {
     isSaving.value = true;
@@ -705,14 +735,16 @@ const savePlan = async () => {
     const response = await api.plans.createCustom(planData);
     
     if (response.code === 200) {
-      alert('计划创建成功！');
-      router.push('/pages/home/index');
+      displayToast('计划创建成功！', 'success');
+      setTimeout(() => {
+        router.push('/pages/home/index');
+      }, 1500);
     } else {
-      alert('计划创建失败，请重试');
+      displayToast('计划创建失败，请重试', 'error');
     }
   } catch (error) {
     console.error('保存计划失败:', error);
-    alert('保存计划失败，请重试');
+    displayToast('保存计划失败，请重试', 'error');
   } finally {
     isSaving.value = false;
   }
@@ -2465,6 +2497,88 @@ const formatDate = (dateString: string) => {
   
   .plan-meta {
     gap: 10px;
+  }
+}
+
+/* Toast提示组件样式 */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 30px;
+  border-radius: 16px;
+  background: rgba(10, 10, 15, 0.95);
+  border: 2px solid;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  animation: toastIn 0.3s ease-out;
+  backdrop-filter: blur(10px);
+}
+
+.toast.success {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 40px rgba(0, 245, 255, 0.3);
+}
+
+.toast.error {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 40px rgba(255, 0, 110, 0.3);
+}
+
+.toast-icon {
+  font-size: 32px;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.toast-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.toast.success .toast-title {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.toast.error .toast-title {
+  color: var(--neon-pink);
+  text-shadow: 0 0 10px var(--neon-pink);
+}
+
+.toast-message {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
   }
 }
 </style>
