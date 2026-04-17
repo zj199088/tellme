@@ -91,6 +91,18 @@ public class PlanController {
             return Result.error("训练周期必须大于0");
         }
         
+        // 检查用户进行中的计划数量（最多2个）
+        long activePlanCount = fitnessPlanService.lambdaQuery()
+                .eq(FitnessPlan::getUserId, userId)
+                .eq(FitnessPlan::getStatus, "active")
+                .eq(FitnessPlan::getIsDeleted, 0)
+                .count();
+        
+        if (activePlanCount >= 2) {
+            log.warn("用户进行中的计划已达上限（2个）: userId={}", userId);
+            return Result.error("进行中的计划最多2个，请先完成或暂停其他计划");
+        }
+        
         Integer planId = fitnessPlanService.createPlanFromTemplate(userId, templateId, name, goal, difficulty, durationWeeks, startDateStr);
         log.info("从模板创建计划成功: planId={}", planId);
         return Result.success(planId);
@@ -180,6 +192,18 @@ public class PlanController {
                     }
                 }
             }
+        }
+        
+        // 检查用户进行中的计划数量（最多2个）
+        long activePlanCount = fitnessPlanService.lambdaQuery()
+                .eq(FitnessPlan::getUserId, userId)
+                .eq(FitnessPlan::getStatus, "active")
+                .eq(FitnessPlan::getIsDeleted, 0)
+                .count();
+        
+        if (activePlanCount >= 2) {
+            log.warn("用户进行中的计划已达上限（2个）: userId={}", userId);
+            return Result.error("进行中的计划最多2个，请先完成或暂停其他计划");
         }
         
         // 创建自定义计划
