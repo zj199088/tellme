@@ -169,13 +169,19 @@ const loadWorkoutData = async () => {
     if (todayResponse.code === 200 && todayResponse.data) {
       schedule.value = todayResponse.data.schedule;
       const records = todayResponse.data.records || [];
+      const record = todayResponse.data.record;
       
       if (todayResponse.data.exercises) {
         exercises.value = todayResponse.data.exercises.map(ex => {
           let completedSets = new Array(ex.sets).fill(false);
           
-          // 查找当前动作对应的训练记录
-          const exerciseRecord = records.find((record: any) => record.scheduleExerciseId === ex.id);
+          // 优先查找当前动作对应的训练记录
+          let exerciseRecord = records.find((r: any) => r.scheduleExerciseId === ex.id);
+          
+          // 如果没有找到对应的训练记录，使用单个 record（保持向后兼容）
+          if (!exerciseRecord && record && record.scheduleExerciseId === ex.id) {
+            exerciseRecord = record;
+          }
           
           // 如果有训练记录，根据 setsCompleted 字段设置勾选状态
           if (exerciseRecord && exerciseRecord.setsCompleted) {

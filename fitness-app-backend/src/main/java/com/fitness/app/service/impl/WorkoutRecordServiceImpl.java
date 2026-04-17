@@ -50,9 +50,17 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
                     .eq("is_deleted", 0)
             );
             result.put("records", records);
+            
+            // 为了保持向后兼容性，返回第一条训练记录
+            if (!records.isEmpty()) {
+                result.put("record", records.get(0));
+            } else {
+                result.put("record", null);
+            }
         } else {
             result.put("exercises", null);
             result.put("records", null);
+            result.put("record", null);
         }
         
         return result;
