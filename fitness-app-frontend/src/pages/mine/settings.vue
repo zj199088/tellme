@@ -80,6 +80,40 @@
               </svg>
             </div>
           </div>
+          
+          <div class="theme-item" :class="{ active: currentTheme === 'chinese-ink' }" @click="changeTheme('chinese-ink')">
+            <div class="theme-preview chinese-ink">
+              <div class="preview-dot dot-1"></div>
+              <div class="preview-dot dot-2"></div>
+              <div class="preview-dot dot-3"></div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">中国风水墨画</div>
+              <div class="theme-desc">红衣女侠水墨风格</div>
+            </div>
+            <div class="theme-check" v-if="currentTheme === 'chinese-ink'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          
+          <div class="theme-item" :class="{ active: currentTheme === 'light-blue' }" @click="changeTheme('light-blue')">
+            <div class="theme-preview light-blue">
+              <div class="preview-dot dot-1"></div>
+              <div class="preview-dot dot-2"></div>
+              <div class="preview-dot dot-3"></div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">淡蓝世界</div>
+              <div class="theme-desc">海蓝天白云风格</div>
+            </div>
+            <div class="theme-check" v-if="currentTheme === 'light-blue'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -173,7 +207,7 @@ const changeTheme = (theme: string) => {
 
 const applyTheme = (theme: string) => {
   // 移除所有主题类
-  document.body.classList.remove('theme-tech-future', 'theme-passionate-fire', 'theme-green-breeze');
+  document.body.classList.remove('theme-tech-future', 'theme-passionate-fire', 'theme-green-breeze', 'theme-chinese-ink', 'theme-light-blue');
   // 添加当前主题类
   document.body.classList.add(`theme-${theme}`);
 };
@@ -556,6 +590,14 @@ const applyTheme = (theme: string) => {
   background: linear-gradient(135deg, #0a1a0a 0%, #1a3d1a 100%);
 }
 
+.theme-preview.chinese-ink {
+  background: linear-gradient(135deg, #0a0a0a 0%, #2a2a2a 100%);
+}
+
+.theme-preview.light-blue {
+  background: linear-gradient(135deg, #87ceeb 0%, #e0f7fa 100%);
+}
+
 .preview-dot {
   width: 12.0px;
   height: 12.0px;
@@ -605,6 +647,36 @@ const applyTheme = (theme: string) => {
 
 .theme-preview.green-breeze .dot-3 {
   background: #1e90ff;
+  animation-delay: 0.6s;
+}
+
+.theme-preview.chinese-ink .dot-1 {
+  background: #c62828;
+  animation-delay: 0s;
+}
+
+.theme-preview.chinese-ink .dot-2 {
+  background: #424242;
+  animation-delay: 0.3s;
+}
+
+.theme-preview.chinese-ink .dot-3 {
+  background: #bdbdbd;
+  animation-delay: 0.6s;
+}
+
+.theme-preview.light-blue .dot-1 {
+  background: #2196f3;
+  animation-delay: 0s;
+}
+
+.theme-preview.light-blue .dot-2 {
+  background: #81d4fa;
+  animation-delay: 0.3s;
+}
+
+.theme-preview.light-blue .dot-3 {
+  background: #ffffff;
   animation-delay: 0.6s;
 }
 

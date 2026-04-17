@@ -79,6 +79,50 @@ body.theme-green-breeze {
   --gradient-cyan: linear-gradient(90deg, #2ed573, #7bed9f);
 }
 
+/* 中国风水墨画主题 */
+body.theme-chinese-ink {
+  --neon-cyan: #c62828;
+  --neon-purple: #424242;
+  --neon-pink: #bdbdbd;
+  --neon-blue: #c62828;
+  --gradient-bg: linear-gradient(135deg, #0a0a0a 0%, #2a2a2a 50%, #424242 100%);
+  --bg-card: rgba(20, 20, 20, 0.8);
+  --bg-tertiary: rgba(40, 40, 40, 0.6);
+  --text-primary: #f5f5f5;
+  --text-secondary: #e0e0e0;
+  --text-muted: #9e9e9e;
+  --border-color: rgba(198, 40, 40, 0.2);
+  --gradient-neon: linear-gradient(90deg, #c62828, #424242, #bdbdbd);
+  --gradient-cyan: linear-gradient(90deg, #c62828, #424242);
+  background-image: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Chinese%20ink%20painting%20style%2C%20red%20clothed%20female%20warrior%20in%20martial%20arts%20pose%2C%20elegant%20movement%2C%20ink%20wash%20background%2C%20traditional%20Chinese%20painting%20style&image_size=landscape_16_9");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: overlay;
+}
+
+/* 淡蓝世界主题 */
+body.theme-light-blue {
+  --neon-cyan: #2196f3;
+  --neon-purple: #81d4fa;
+  --neon-pink: #ffffff;
+  --neon-blue: #2196f3;
+  --gradient-bg: linear-gradient(135deg, #87ceeb 0%, #e0f7fa 50%, #ffffff 100%);
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-tertiary: rgba(240, 255, 255, 0.6);
+  --text-primary: #1a237e;
+  --text-secondary: #303f9f;
+  --text-muted: #64b5f6;
+  --border-color: rgba(33, 150, 243, 0.2);
+  --gradient-neon: linear-gradient(90deg, #2196f3, #81d4fa, #ffffff);
+  --gradient-cyan: linear-gradient(90deg, #2196f3, #81d4fa);
+  background-image: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Light%20blue%20world%2C%20sea%20and%20sky%2C%20few%20white%20clouds%2C%20peaceful%20scenery%2C%20soft%20colors%2C%20serene%20atmosphere&image_size=landscape_16_9");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: overlay;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg-gradient);
