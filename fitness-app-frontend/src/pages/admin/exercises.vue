@@ -4,13 +4,7 @@
     <div class="glow-orb orb-1"></div>
     <div class="glow-orb orb-2"></div>
     
-    <div class="header glass-card">
-      <h1 class="title neon-glow">运动动作管理</h1>
-      <button class="add-btn neon-button" @click="showAddForm = true">
-        <span class="btn-icon">+</span>
-        添加动作
-      </button>
-    </div>
+
     
     <div class="exercises-list">
       <div v-for="(exercise, index) in exercises" :key="exercise.id" 

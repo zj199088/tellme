@@ -7,14 +7,7 @@
       <div class="orb orb-3"></div>
     </div>
     
-    <div class="header">
-      <div class="header-content">
-        <div class="header-icon">🤖</div>
-        <h1 class="title neon-glow">AI健身助手</h1>
-      </div>
-      <div class="header-bg"></div>
-      <div class="scanline"></div>
-    </div>
+
     
     <div v-if="!showChat" class="goal-setting animate-in">
       <div class="goal-card glow-card">

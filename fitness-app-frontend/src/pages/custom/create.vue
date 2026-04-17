@@ -7,19 +7,7 @@
       <div class="orb orb-3"></div>
     </div>
     
-    <div class="header">
-      <div class="header-content">
-        <div v-if="isCreatingCustomPlan" class="back-btn" @click="cancelCreateCustomPlan">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </div>
-        <div class="header-icon">✨</div>
-        <h1 class="title neon-glow">{{ isCreatingCustomPlan ? '创建自定义计划' : '定制计划' }}</h1>
-      </div>
-      <div class="header-bg"></div>
-      <div class="scanline"></div>
-    </div>
+
     
     <div class="content">
       <!-- 自定义计划创建流程 -->

@@ -7,19 +7,7 @@
       <div class="orb orb-3"></div>
     </div>
     
-    <div class="header">
-      <div class="header-content">
-        <div class="back-btn" @click="goBack">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </div>
-        <div class="header-icon">📊</div>
-        <h1 class="title neon-glow">训练记录</h1>
-      </div>
-      <div class="header-bg"></div>
-      <div class="scanline"></div>
-    </div>
+
     
     <div class="content">
       <div class="filter-section glow-card animate-in">

@@ -4,9 +4,7 @@
     <div class="glow-orb orb-1"></div>
     <div class="glow-orb orb-2"></div>
     
-    <div class="header glass-card">
-      <h1 class="title neon-glow">用户管理</h1>
-    </div>
+
     
     <div class="users-list">
       <div v-for="(user, index) in users" :key="user.id" 
