@@ -55,6 +55,11 @@ const routes = [
     name: 'RecordsIndex',
     component: () => import('../pages/records/index.vue')
   },
+  {
+    path: '/pages/plans/index',
+    name: 'PlansIndex',
+    component: () => import('../pages/plans/index.vue')
+  },
   // 用户登录路由
   {
     path: '/auth/login',
@@ -98,7 +103,8 @@ router.beforeEach((to, from, next) => {
     '/pages/ai/index',
     '/pages/mine/index',
     '/pages/mine/settings',
-    '/pages/records/index'
+    '/pages/records/index',
+    '/pages/plans/index'
   ];
   
   // 检查当前路径是否需要登录

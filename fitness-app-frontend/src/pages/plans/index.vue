@@ -1,5 +1,5 @@
 <template>
-  <div class="home-container">
+  <div class="plans-container">
     <div class="particle-bg" id="particleBg"></div>
     <div class="glow-orbs">
       <div class="orb orb-1"></div>
@@ -8,162 +8,94 @@
     </div>
     
     <div class="header">
+      <button class="back-btn" @click="goBack">
+        <span>←</span>
+      </button>
       <div class="header-content">
         <div class="header-icon">📋</div>
-        <h1 class="title neon-glow">查看计划</h1>
+        <h1 class="title neon-glow">我的计划</h1>
       </div>
       <div class="header-bg"></div>
       <div class="scanline"></div>
     </div>
     
     <div class="content">
-      <!-- 计划列表 -->
-      <div class="plans-section" :class="['plans-section', 'animate-in']">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="title-icon">📋</span>
-            <span>我的计划</span>
-            <span class="title-glow"></span>
-          </h2>
-          <button v-if="plans.length > 2" class="more-btn" @click="navigateToMorePlans">
-            查看更多
-            <span class="arrow">→</span>
-          </button>
-        </div>
-        <div v-if="loading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>加载中...</p>
-        </div>
-        <div v-else-if="networkError" class="error-state">
-          <div class="error-icon">⚠️</div>
-          <p class="error-text">网络连接失败，请检查网络后重试</p>
-          <button class="retry-button glow-button" @click="fetchPlans">
-            <span>重试</span>
-            <span class="btn-glow"></span>
-          </button>
-        </div>
-        <div class="plan-list" v-else-if="plans.length > 0">
-          <div class="plan-card" v-for="(plan, index) in plans.slice(0, 2)" :key="plan.id" :class="['plan-card', 'animate-in', 'glow-card']" :style="{ animationDelay: `${index * 0.1}s` }">
-            <div class="plan-card-inner">
-              <div class="plan-image">
-                <img :src="plan.image && !plan.image.includes('The image is generating') ? plan.image : 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20cover%20neon%20cyberpunk%20style&image_size=landscape_16_9'" alt="计划封面">
-              </div>
-              <div class="plan-header">
-                <div class="plan-title-group">
-                  <h3 class="plan-name">{{ plan.name }}</h3>
-                  <div class="plan-status" :class="plan.status">
-                    {{ getStatusText(plan.status) }}
-                  </div>
-                </div>
-                <div class="plan-actions">
-                  <button class="plan-action-btn pause" @click="togglePlanStatus(plan, 'pause')" v-if="plan.status === 'active'">
-                    <span>⏸</span>
-                  </button>
-                  <button class="plan-action-btn resume" @click="togglePlanStatus(plan, 'resume')" v-else-if="plan.status === 'paused'">
-                    <span>▶</span>
-                  </button>
-                  <button class="plan-action-btn stop" @click="togglePlanStatus(plan, 'stop')">
-                    <span>⏹</span>
-                  </button>
-                  <button class="plan-action-btn delete" @click="deletePlan(plan)">
-                    <span>🗑</span>
-                  </button>
-                </div>
-              </div>
-              <p class="plan-description">{{ plan.description }}</p>
-              <div class="progress-container">
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{ width: getPlanProgress(plan) + '%' }"></div>
-                  <div class="progress-glow" :style="{ left: getPlanProgress(plan) + '%' }"></div>
-                </div>
-                <div class="progress-info">
-                  <p class="progress-text">第 {{ plan.currentDay }} 天 / 共 {{ plan.totalDays }} 天</p>
-                  <p class="progress-percent">{{ Math.round(getPlanProgress(plan)) }}%</p>
-                </div>
-              </div>
-              <button 
-                v-if="plan.status === 'active'" 
-                class="continue-btn glow-button" 
-                @click="continueWorkout(plan)"
-              >
-                <span>继续锻炼</span>
-                <span class="btn-glow"></span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="no-plans" v-else>
-          <div class="no-plans-icon">📝</div>
-          <p class="no-plans-text">暂无计划</p>
-          <button class="create-plan-btn glow-button" @click="navigateToCreatePlan">
-            <span>创建计划</span>
-            <span class="btn-glow"></span>
-          </button>
-        </div>
+      <div v-if="loading" class="loading-state animate-in">
+        <div class="loading-spinner"></div>
+        <p>加载中...</p>
       </div>
-
-
-
-      <!-- 训练记录 -->
-      <div class="records-section" :class="['records-section', 'animate-in', 'glow-card']">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="title-icon">📊</span>
-            <span>训练记录</span>
-            <span class="title-glow"></span>
-          </h2>
-          <div class="header-right">
-            <span class="total-count">共 {{ totalRecords }} 条</span>
-            <button class="more-btn" @click="navigateToMoreRecords">
-              查看更多
-              <span class="arrow">→</span>
+      <div v-else-if="networkError" class="error-state animate-in">
+        <div class="error-icon">⚠️</div>
+        <p class="error-text">网络连接失败，请检查网络后重试</p>
+        <button class="retry-button glow-button" @click="fetchPlans">
+          <span>重试</span>
+          <span class="btn-glow"></span>
+        </button>
+      </div>
+      <div class="plan-list" v-else-if="plans.length > 0">
+        <div class="plan-card" v-for="(plan, index) in plans" :key="plan.id" :class="['plan-card', 'animate-in', 'glow-card']" :style="{ animationDelay: `${index * 0.1}s` }">
+          <div class="plan-card-inner">
+            <div class="plan-image">
+              <img :src="plan.image && !plan.image.includes('The image is generating') ? plan.image : 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fitness%20training%20workout%20plan%20cover%20neon%20cyberpunk%20style&image_size=landscape_16_9'" alt="计划封面">
+            </div>
+            <div class="plan-header">
+              <div class="plan-title-group">
+                <h3 class="plan-name">{{ plan.name }}</h3>
+                <div class="plan-status" :class="plan.status">
+                  {{ getStatusText(plan.status) }}
+                </div>
+              </div>
+              <div class="plan-actions">
+                <button class="plan-action-btn pause" @click="togglePlanStatus(plan, 'pause')" v-if="plan.status === 'active'">
+                  <span>⏸</span>
+                </button>
+                <button class="plan-action-btn resume" @click="togglePlanStatus(plan, 'resume')" v-else-if="plan.status === 'paused'">
+                  <span>▶</span>
+                </button>
+                <button class="plan-action-btn stop" @click="togglePlanStatus(plan, 'stop')">
+                  <span>⏹</span>
+                </button>
+                <button class="plan-action-btn delete" @click="deletePlan(plan)">
+                  <span>🗑</span>
+                </button>
+              </div>
+            </div>
+            <p class="plan-description">{{ plan.description }}</p>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" :style="{ width: getPlanProgress(plan) + '%' }"></div>
+                <div class="progress-glow" :style="{ left: getPlanProgress(plan) + '%' }"></div>
+              </div>
+              <div class="progress-info">
+                <p class="progress-text">第 {{ plan.currentDay }} 天 / 共 {{ plan.totalDays }} 天</p>
+                <p class="progress-percent">{{ Math.round(getPlanProgress(plan)) }}%</p>
+              </div>
+            </div>
+            <button 
+              v-if="plan.status === 'active'" 
+              class="continue-btn glow-button" 
+              @click="continueWorkout(plan)"
+            >
+              <span>继续锻炼</span>
+              <span class="btn-glow"></span>
             </button>
           </div>
         </div>
-        <div v-if="recordsLoading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>加载中...</p>
-        </div>
-        <div v-else-if="recordsNetworkError" class="error-state">
-          <div class="error-icon">⚠️</div>
-          <p class="error-text">网络连接失败，请检查网络后重试</p>
-          <button class="retry-button glow-button" @click="fetchRecentRecords">
-            <span>重试</span>
-            <span class="btn-glow"></span>
-          </button>
-        </div>
-        <div class="record-list" v-else-if="recentRecords.length > 0">
-          <div class="record-item" v-for="(record, index) in recentRecords.slice(0, 3)" :key="record.id" :class="['record-item', 'animate-in']" :style="{ animationDelay: `${index * 0.1}s` }">
-            <div class="record-header">
-              <h3 class="record-plan">{{ record.plan_name || record.planName }}</h3>
-            </div>
-            <div class="record-details glow-card">
-              <div class="record-details-left">
-                <span class="record-exercise">{{ record.exerciseName }}</span>
-                <span class="record-sets" v-if="record.setsCompleted">
-                  完成组数: {{ JSON.parse(record.setsCompleted).length }}
-                </span>
-                <span class="record-duration">
-                  <span class="duration-icon">⏱</span>
-                  {{ Math.round((record.duration || 0) / 60) }}分钟
-                </span>
-                <span class="record-weight" v-if="record.weight !== null && record.weight !== undefined">
-                <span class="weight-icon">🏋️</span>
-                {{ record.weight }}kg
-              </span>
-              </div>
-              <div class="record-date">{{ formatDateTime(record.date) }}</div>
-            </div>
-          </div>
-        </div>
-        <p class="no-records" v-else>暂无训练记录</p>
+      </div>
+      <div class="no-plans" v-else>
+        <div class="no-plans-icon">📝</div>
+        <p class="no-plans-text">暂无计划</p>
+        <button class="create-plan-btn glow-button" @click="navigateToCreatePlan">
+          <span>创建计划</span>
+          <span class="btn-glow"></span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import api, { Exercise as ApiExercise, FitnessPlan, WorkoutRecord } from '../../utils/api';
 
@@ -185,25 +117,13 @@ interface TrainingPlan {
   currentDay: number;
   totalDays: number;
   status: string;
-}
-
-interface TrainingRecord {
-  id: number;
-  planId: number;
-  date: string;
-  dayNumber: number;
-  completed: boolean;
-  exercises: Exercise[];
-  exercisesJson?: string;
-  planName?: string;
+  startDate?: string;
+  image?: string;
 }
 
 const plans = ref<TrainingPlan[]>([]);
-const recentRecords = ref<TrainingRecord[]>([]);
 const loading = ref(false);
 const networkError = ref(false);
-const recordsLoading = ref(false);
-const recordsNetworkError = ref(false);
 
 const initParticles = () => {
   const particleBg = document.getElementById('particleBg');
@@ -252,16 +172,6 @@ const getStatusOrder = (status: string): number => {
   }
 };
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return `${date.getMonth() + 1}月${date.getDate()}日`;
-};
-
-const formatDateTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return `${date.getFullYear()}:${String(date.getMonth() + 1).padStart(2, '0')}:${String(date.getDate()).padStart(2, '0')} - ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-};
-
 const fetchPlans = async () => {
   loading.value = true;
   networkError.value = false;
@@ -287,6 +197,7 @@ const fetchPlans = async () => {
           description: plan.description || `${plan.goal || '健身'}计划`
         };
       });
+      
       // 按状态和时间排序：active -> paused -> completed -> stopped，同状态下按开始时间倒序
       plans.value.sort((a, b) => {
         const statusOrderA = getStatusOrder(a.status);
@@ -312,93 +223,13 @@ const fetchPlans = async () => {
   }
 };
 
-
-
-const totalRecords = ref(0);
-
-const fetchRecentRecords = async () => {
-  recordsLoading.value = true;
-  recordsNetworkError.value = false;
-  try {
-    const response = await api.workout.getRecent(10);
-    if (response.code === 200 && response.data) {
-      recentRecords.value = response.data.records;
-      totalRecords.value = response.data.total;
-    }
-  } catch (error) {
-    console.error('获取训练记录失败:', error);
-    recordsNetworkError.value = true;
-  } finally {
-    recordsLoading.value = false;
-  }
-};
-
-const useLocalData = () => {
-  plans.value = [
-    {
-      id: 1,
-      name: '新手增肌计划',
-      description: '专为新手设计的全身增肌训练计划',
-      currentDay: 3,
-      totalDays: 28,
-      status: 'active'
-    },
-    {
-      id: 2,
-      name: '减脂塑形计划',
-      description: '通过有氧运动和力量训练相结合的减脂计划',
-      currentDay: 5,
-      totalDays: 30,
-      status: 'paused'
-    },
-    {
-      id: 3,
-      name: '耐力提升计划',
-      description: '提高心肺功能和耐力的训练计划',
-      currentDay: 2,
-      totalDays: 21,
-      status: 'active'
-    }
-  ];
-  
-  recentRecords.value = [
-    {
-      id: 1,
-      planId: 1,
-      planName: '新手增肌计划',
-      date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-      dayNumber: 2,
-      completed: true,
-      exercises: []
-    },
-    {
-      id: 2,
-      planId: 1,
-      planName: '新手增肌计划',
-      date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-      dayNumber: 1,
-      completed: true,
-      exercises: []
-    },
-    {
-      id: 3,
-      planId: 2,
-      planName: '减脂塑形计划',
-      date: new Date(Date.now() - 259200000).toISOString().split('T')[0],
-      dayNumber: 5,
-      completed: true,
-      exercises: []
-    }
-  ];
-};
-
 const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
   try {
     const newStatus = action === 'pause' ? 'paused' : action === 'resume' ? 'active' : 'stopped';
     const response = await api.plans.updateStatus(plan.id, newStatus);
     if (response.code === 200) {
       plan.status = newStatus;
-      // 按状态和时间排序：active -> paused -> completed -> stopped，同状态下按开始时间倒序
+      // 重新排序
       plans.value.sort((a, b) => {
         const statusOrderA = getStatusOrder(a.status);
         const statusOrderB = getStatusOrder(b.status);
@@ -407,7 +238,6 @@ const togglePlanStatus = async (plan: TrainingPlan, action: string) => {
           return statusOrderA - statusOrderB;
         }
         
-        // 同状态下按开始时间倒序（最新的在前）
         if (a.startDate && b.startDate) {
           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
         }
@@ -435,18 +265,8 @@ const deletePlan = async (plan: TrainingPlan) => {
   }
 };
 
-
-
 const navigateToCreatePlan = () => {
   router.push('/pages/template/list');
-};
-
-const navigateToMoreRecords = () => {
-  router.push('/pages/records/index');
-};
-
-const navigateToMorePlans = () => {
-  router.push('/pages/plans/index');
 };
 
 const continueWorkout = (plan: TrainingPlan) => {
@@ -456,13 +276,16 @@ const continueWorkout = (plan: TrainingPlan) => {
   });
 };
 
+const goBack = () => {
+  router.back();
+};
+
 onMounted(() => {
   nextTick(() => {
     initParticles();
   });
   
   fetchPlans();
-  fetchRecentRecords();
 });
 </script>
 
@@ -541,7 +364,7 @@ onMounted(() => {
   animation: fadeInUp 0.6s ease forwards;
 }
 
-.home-container {
+.plans-container {
   width: 100%;
   min-height: 100vh;
   background: var(--gradient-bg);
@@ -627,6 +450,31 @@ onMounted(() => {
   z-index: 1;
 }
 
+.back-btn {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.back-btn:hover {
+  background: rgba(0, 245, 255, 0.1);
+  border-color: var(--neon-cyan);
+  transform: translateY(-50%) scale(1.1);
+}
+
 .header-content {
   position: relative;
   z-index: 2;
@@ -697,15 +545,13 @@ onMounted(() => {
   z-index: 1;
 }
 
-.plan-card,
-.records-section,
-.plans-section {
+.plan-card {
   background: var(--bg-card);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border-radius: 15.0px;
-  padding: 20.0px;
-  margin-bottom: 15.0px;
+  padding: 0;
+  margin-bottom: 12.5px;
   box-shadow: 0 4.0px 20.0px rgba(0, 0, 0, 0.4);
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
@@ -713,9 +559,7 @@ onMounted(() => {
   border: 1px solid var(--border-color);
 }
 
-.plan-card::before,
-.records-section::before,
-.plans-section::before {
+.plan-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -727,9 +571,7 @@ onMounted(() => {
   border-top-right-radius: 15.0px;
 }
 
-.plan-card::after,
-.records-section::after,
-.plans-section::after {
+.plan-card::after {
   content: '';
   position: absolute;
   top: 0;
@@ -755,48 +597,6 @@ onMounted(() => {
 .glow-card:hover {
   transform: translateY(-3.0px) scale(1.01);
   box-shadow: 0 8.0px 30.0px rgba(0, 245, 255, 0.25);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10.0px;
-}
-
-.section-title {
-  font-size: 16.0px;
-  font-weight: bold;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 6.0px;
-  position: relative;
-  margin-bottom: 0;
-}
-
-.title-icon {
-  font-size: 18.0px;
-}
-
-.title-glow {
-  position: absolute;
-  bottom: -4.0px;
-  left: 0;
-  width: 30.0px;
-  height: 1.5px;
-  background: var(--gradient-cyan);
-  border-radius: 1.0px;
-  box-shadow: 0 0 10px var(--neon-cyan);
-}
-
-.plan-list {
-  margin-top: 10.0px;
-}
-
-.plan-card {
-  margin-bottom: 12.5px;
-  padding: 0;
 }
 
 .plan-card-inner {
@@ -1049,9 +849,7 @@ onMounted(() => {
   margin-bottom: 15.0px;
 }
 
-.create-plan-btn,
-.complete-button,
-.start-button {
+.create-plan-btn {
   position: relative;
   overflow: hidden;
   background: var(--gradient-cyan);
@@ -1087,211 +885,6 @@ onMounted(() => {
 
 .glow-button:hover .btn-glow {
   left: 100%;
-}
-
-
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10.0px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12.0px;
-}
-
-.total-count {
-  font-size: 11.0px;
-  color: var(--neon-cyan);
-  font-weight: 600;
-  background: rgba(0, 245, 255, 0.1);
-  padding: 4.0px 10.0px;
-  border-radius: 12.0px;
-  border: 1px solid rgba(0, 245, 255, 0.2);
-}
-
-.more-btn {
-  background: none;
-  border: none;
-  color: var(--neon-cyan);
-  font-size: 11.0px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 4.0px 8.0px;
-  border-radius: 6.0px;
-  display: flex;
-  align-items: center;
-  gap: 3.0px;
-}
-
-.more-btn:hover {
-  background: rgba(0, 245, 255, 0.1);
-  transform: translateX(2.0px);
-}
-
-.more-btn {
-  background: none;
-  border: none;
-  color: var(--neon-cyan);
-  font-size: 11.0px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 4.0px 8.0px;
-  border-radius: 6.0px;
-  display: flex;
-  align-items: center;
-  gap: 3.0px;
-}
-
-.more-btn:hover {
-  background: rgba(0, 245, 255, 0.1);
-  transform: translateX(2.0px);
-}
-
-.more-btn .arrow {
-  transition: transform 0.3s ease;
-}
-
-.more-btn:hover .arrow {
-  transform: translateX(2.0px);
-}
-
-.record-list {
-  margin-top: 10.0px;
-}
-
-.record-item {
-  display: flex;
-  flex-direction: column;
-  padding: 12.0px 0;
-  border-bottom: 1px solid rgba(0, 245, 255, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  gap: 8.0px;
-}
-
-.record-item:last-child {
-  border-bottom: none;
-}
-
-.record-item:hover {
-  background: rgba(0, 245, 255, 0.03);
-  border-radius: 8.0px;
-  padding-left: 10.0px;
-  padding-right: 10.0px;
-  margin-left: -10.0px;
-  margin-right: -10.0px;
-}
-
-.record-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4.0px;
-}
-
-.record-plan {
-  font-size: 13.0px;
-  font-weight: 600;
-  color: var(--text-primary);
-  transition: color 0.3s ease;
-}
-
-.record-item:hover .record-plan {
-  color: var(--neon-cyan);
-}
-
-.record-date {
-  font-size: 10.0px;
-  color: var(--text-muted);
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.record-details {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12.0px;
-  padding: 10.0px 12.0px;
-  background: rgba(0, 245, 255, 0.05);
-  border-radius: 8.0px;
-  border: 1px solid rgba(0, 245, 255, 0.1);
-}
-
-.record-details-left {
-  display: flex;
-  align-items: center;
-  gap: 12.0px;
-  flex-wrap: wrap;
-}
-
-.record-exercise {
-  font-size: 11.0px;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-  font-weight: 500;
-}
-
-.record-sets {
-  font-size: 10.0px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.record-duration {
-  font-size: 10.0px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 3.0px;
-  white-space: nowrap;
-}
-
-.duration-icon {
-  font-size: 10.0px;
-}
-
-.record-weight {
-  font-size: 10.0px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 3.0px;
-  white-space: nowrap;
-}
-
-.weight-icon {
-  font-size: 10.0px;
-}
-
-.record-date {
-  font-size: 10.0px;
-  color: var(--text-muted);
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.no-records {
-  font-size: 12.0px;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 30.0px 0;
-  background: rgba(0, 245, 255, 0.03);
-  border-radius: 8.0px;
-  margin-top: 7.5px;
-  border: 1px dashed var(--border-color);
 }
 
 .loading-state,
@@ -1361,11 +954,8 @@ onMounted(() => {
     padding: 10.0px 7.5px;
   }
   
-  .plan-card,
-  .today-section,
-  .records-section,
-  .plans-section {
-    padding: 15.0px;
+  .plan-card {
+    padding: 0;
   }
   
   .plan-card-inner {
@@ -1376,16 +966,8 @@ onMounted(() => {
     font-size: 17.0px;
   }
   
-  .section-title {
-    font-size: 14.0px;
-  }
-  
   .plan-name {
     font-size: 13.0px;
-  }
-  
-  .exercise-name {
-    font-size: 12.0px;
   }
   
   .plan-action-btn {
