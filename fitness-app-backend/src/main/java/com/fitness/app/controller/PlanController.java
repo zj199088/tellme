@@ -4,10 +4,14 @@ import com.fitness.app.entity.FitnessPlan;
 import com.fitness.app.entity.Template;
 import com.fitness.app.entity.TemplateDay;
 import com.fitness.app.entity.TemplateExercise;
+import com.fitness.app.entity.WorkoutSchedule;
+import com.fitness.app.entity.WorkoutScheduleExercise;
 import com.fitness.app.service.FitnessPlanService;
 import com.fitness.app.service.TemplateService;
 import com.fitness.app.service.TemplateDayService;
 import com.fitness.app.service.TemplateExerciseService;
+import com.fitness.app.service.WorkoutScheduleService;
+import com.fitness.app.service.WorkoutScheduleExerciseService;
 import com.fitness.app.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,12 @@ public class PlanController {
     
     @Autowired
     private TemplateExerciseService templateExerciseService;
+    
+    @Autowired
+    private WorkoutScheduleService workoutScheduleService;
+    
+    @Autowired
+    private WorkoutScheduleExerciseService workoutScheduleExerciseService;
 
     @PostMapping("/template")
     public Result<?> createPlanFromTemplate(
@@ -101,22 +111,24 @@ public class PlanController {
         
         templateService.save(template);
         
-        // 创建模板训练日和动作
+        // 创建模板训练日和动作，同时保存它们的关系
+        List&lt;TemplateDay&gt; createdTemplateDays = new ArrayList&lt;&gt;();
         if (request.containsKey("days")) {
-            List<Map<String, Object>> days = (List<Map<String, Object>>) request.get("days");
-            for (Map<String, Object> dayData : days) {
+            List&lt;Map&lt;String, Object&gt;&gt; days = (List&lt;Map&lt;String, Object&gt;&gt;) request.get("days");
+            for (Map&lt;String, Object&gt; dayData : days) {
                 // 创建模板训练日
                 TemplateDay templateDay = new TemplateDay();
                 templateDay.setTemplateId(template.getId());
                 templateDay.setDayOfWeek((Integer) dayData.get("dayOfWeek"));
                 templateDay.setIsRestDay((Integer) dayData.get("isRestDay"));
                 templateDay.setRestNote((String) dayData.get("restNote"));
-                templateDay.setEstimatedDuration(30); // 默认30分钟
+                templateDay.setEstimatedDuration(30);
                 templateDay.setIsDeleted(0);
                 templateDay.setCreatedAt(LocalDateTime.now());
                 templateDay.setUpdatedAt(LocalDateTime.now());
                 
                 templateDayService.save(templateDay);
+                createdTemplateDays.add(templateDay);
                 
                 // 创建模板动作
                 if (dayData.containsKey("exercises")) {
@@ -149,8 +161,13 @@ public class PlanController {
         plan.setGoal((String) request.get("goal"));
         plan.setDifficulty((String) request.get("difficulty"));
         plan.setDurationWeeks((Integer) request.get("durationWeeks"));
-        plan.setStartDate(LocalDate.now());
-        plan.setEndDate(LocalDate.now().plusWeeks((Integer) request.get("durationWeeks")));
+        
+        // 处理开始日期
+        String startDateStr = (String) request.get("startDate");
+        LocalDate startDate = startDateStr != null ? LocalDate.parse(startDateStr) : LocalDate.now();
+        plan.setStartDate(startDate);
+        plan.setEndDate(startDate.plusWeeks((Integer) request.get("durationWeeks")));
+        
         plan.setStatus("active");
         plan.setIsShared(0);
         plan.setIsDeleted(0);
@@ -158,6 +175,59 @@ public class PlanController {
         plan.setUpdatedAt(LocalDateTime.now());
         
         fitnessPlanService.save(plan);
+        
+        // 创建训练日程（根据计划的周数，每周重复模板的训练日）
+        Integer durationWeeks = (Integer) request.get("durationWeeks");
+        
+        for (int weekNum = 1; weekNum &lt;= durationWeeks; weekNum++) {
+            for (int i = 0; i &lt; createdTemplateDays.size(); i++) {
+                TemplateDay templateDay = createdTemplateDays.get(i);
+                
+                // 计算当前训练日程的日期
+                // 第1周的第i个训练日 = 开始日期 + i天
+                // 第n周的第i个训练日 = 开始日期 + (n-1)*7天 + i天
+                LocalDate scheduleDate = startDate.plusWeeks(weekNum - 1).plusDays(i);
+                
+                // 创建训练日程
+                WorkoutSchedule workoutSchedule = new WorkoutSchedule();
+                workoutSchedule.setPlanId(plan.getId());
+                workoutSchedule.setWeekNum(weekNum);
+                workoutSchedule.setDayOfWeek(templateDay.getDayOfWeek());
+                workoutSchedule.setDate(scheduleDate);
+                workoutSchedule.setIsRestDay(templateDay.getIsRestDay());
+                workoutSchedule.setRestNote(templateDay.getRestNote());
+                workoutSchedule.setEstimatedDuration(templateDay.getEstimatedDuration());
+                workoutSchedule.setTemplateDayId(templateDay.getId());
+                workoutSchedule.setIsDeleted(0);
+                workoutSchedule.setCreatedAt(LocalDateTime.now());
+                workoutSchedule.setUpdatedAt(LocalDateTime.now());
+                
+                workoutScheduleService.save(workoutSchedule);
+                
+                // 如果不是休息日，创建训练日程动作
+                if (templateDay.getIsRestDay() == 0) {
+                    List&lt;TemplateExercise&gt; templateExercises = templateExerciseService.lambdaQuery()
+                            .eq(TemplateExercise::getTemplateDayId, templateDay.getId())
+                            .list();
+                    
+                    for (TemplateExercise templateExercise : templateExercises) {
+                        WorkoutScheduleExercise workoutScheduleExercise = new WorkoutScheduleExercise();
+                        workoutScheduleExercise.setScheduleId(workoutSchedule.getId());
+                        workoutScheduleExercise.setExerciseId(templateExercise.getExerciseId());
+                        workoutScheduleExercise.setExerciseName(templateExercise.getExerciseName());
+                        workoutScheduleExercise.setSets(templateExercise.getSets());
+                        workoutScheduleExercise.setReps(templateExercise.getReps());
+                        workoutScheduleExercise.setSortOrder(templateExercise.getSortOrder());
+                        workoutScheduleExercise.setIsDeleted(0);
+                        workoutScheduleExercise.setCreatedAt(LocalDateTime.now());
+                        workoutScheduleExercise.setUpdatedAt(LocalDateTime.now());
+                        
+                        workoutScheduleExerciseService.save(workoutScheduleExercise);
+                    }
+                }
+            }
+        }
+        
         log.info("创建自定义计划成功: planId={}", plan.getId());
         return Result.success(plan.getId());
     }
