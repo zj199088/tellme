@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,8 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
     @Override
     public List<WorkoutRecord> createWorkoutRecords(List<WorkoutRecord> records, Integer userId) {
         LocalDateTime now = LocalDateTime.now();
+        List<WorkoutRecord> result = new ArrayList<>();
+        
         for (WorkoutRecord record : records) {
             // 如果设置了 scheduleId，从训练安排中获取 planId
             if (record.getScheduleId() != null) {
@@ -145,10 +148,33 @@ public class WorkoutRecordServiceImpl extends ServiceImpl<WorkoutRecordMapper, W
             }
             record.setUserId(userId);
             record.setIsDeleted(0);
-            record.setCreatedAt(now);
-            record.setUpdatedAt(now);
+            
+            // 查找是否已存在该动作的训练记录
+            WorkoutRecord existingRecord = workoutRecordMapper.selectOne(
+                new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<WorkoutRecord>()
+                    .eq("user_id", userId)
+                    .eq("date", record.getDate())
+                    .eq("schedule_exercise_id", record.getScheduleExerciseId())
+                    .eq("is_deleted", 0)
+            );
+            
+            if (existingRecord != null) {
+                // 更新现有记录
+                existingRecord.setSetsCompleted(record.getSetsCompleted());
+                existingRecord.setWeight(record.getWeight());
+                existingRecord.setDuration(record.getDuration());
+                existingRecord.setNotes(record.getNotes());
+                existingRecord.setUpdatedAt(now);
+                updateById(existingRecord);
+                result.add(existingRecord);
+            } else {
+                // 创建新记录
+                record.setCreatedAt(now);
+                record.setUpdatedAt(now);
+                save(record);
+                result.add(record);
+            }
         }
-        saveBatch(records);
-        return records;
+        return result;
     }
 }
