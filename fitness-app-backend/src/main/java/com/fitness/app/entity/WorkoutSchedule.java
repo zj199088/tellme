@@ -10,26 +10,59 @@ import java.time.LocalDateTime;
 @Data
 @TableName("workout_schedules")
 public class WorkoutSchedule {
+    /**
+     * 训练安排ID
+     */
     @TableId(type = IdType.AUTO)
     private Integer id;
     
-    private Integer plan_id;
+    /**
+     * 计划ID
+     */
+    private Integer planId;
     
-    private Integer week_num;
+    /**
+     * 周数
+     */
+    private Integer weekNum;
     
-    private Integer day_of_week;
+    /**
+     * 星期几 1:周日 2:周一 3:周二 4:周三 5:周四 6:周五 7:周六
+     */
+    private Integer dayOfWeek;
     
-    private Integer is_rest_day;
+    /**
+     * 是否休息日 0:训练日 1:休息日
+     */
+    private Integer isRestDay;
     
-    private String rest_note;
+    /**
+     * 休息备注
+     */
+    private String restNote;
     
-    private Integer estimated_duration;
+    /**
+     * 预计训练时长（分钟）
+     */
+    private Integer estimatedDuration;
     
-    private Integer template_day_id;
+    /**
+     * 模板训练日ID
+     */
+    private Integer templateDayId;
     
-    private Integer is_deleted;
+    /**
+     * 是否删除 0:未删除 1:已删除
+     */
+    private Integer isDeleted;
     
-    private LocalDateTime created_at;
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
     
-    private LocalDateTime updated_at;
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
 }

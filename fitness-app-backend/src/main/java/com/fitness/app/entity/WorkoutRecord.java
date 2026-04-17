@@ -13,35 +13,80 @@ import java.time.LocalDateTime;
 @Data
 @TableName("workout_records")
 public class WorkoutRecord {
+    /**
+     * 训练记录ID
+     */
     @TableId(type = IdType.AUTO)
     private Integer id;
     
-    private Integer user_id;
+    /**
+     * 用户ID
+     */
+    private Integer userId;
     
-    private Integer plan_id;
+    /**
+     * 计划ID
+     */
+    private Integer planId;
     
-    private Integer schedule_id;
+    /**
+     * 训练安排ID
+     */
+    private Integer scheduleId;
     
-    private Integer schedule_exercise_id;
+    /**
+     * 训练安排动作ID
+     */
+    private Integer scheduleExerciseId;
     
-    private Integer exercise_id;
+    /**
+     * 动作ID
+     */
+    private Integer exerciseId;
     
-    private String exercise_name;
+    /**
+     * 动作名称
+     */
+    private String exerciseName;
     
+    /**
+     * 训练日期
+     */
     private LocalDate date;
     
-    private String sets_completed;
+    /**
+     * 完成的组数
+     */
+    private String setsCompleted;
     
+    /**
+     * 重量
+     */
     private BigDecimal weight;
     
+    /**
+     * 时长（秒）
+     */
     private Integer duration;
     
+    /**
+     * 备注
+     */
     private String notes;
     
-    private Integer is_deleted;
+    /**
+     * 是否删除 0:未删除 1:已删除
+     */
+    private Integer isDeleted;
     
-    private LocalDateTime created_at;
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
     
-    private LocalDateTime updated_at;
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
 }
 

@@ -15,11 +15,13 @@ import com.fitness.app.service.FitnessPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, FitnessPlan> implements FitnessPlanService {
 
@@ -48,25 +50,25 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
         }
         
         FitnessPlan plan = new FitnessPlan();
-        plan.setUser_id(userId);
-        plan.setTemplate_id(templateId);
+        plan.setUserId(userId);
+        plan.setTemplateId(templateId);
         plan.setName(name);
         plan.setType("template");
         plan.setGoal(goal);
         plan.setDifficulty(difficulty);
-        plan.setDuration_weeks(durationWeeks);
-        plan.setStart_date(startDateObj);
-        plan.setEnd_date(startDateObj.plusWeeks(durationWeeks));
+        plan.setDurationWeeks(durationWeeks);
+        plan.setStartDate(startDateObj);
+        plan.setEndDate(startDateObj.plusWeeks(durationWeeks));
         plan.setStatus("active");
-        plan.setIs_shared(0);
-        plan.setIs_deleted(0);
-        plan.setCreated_at(LocalDateTime.now());
-        plan.setUpdated_at(LocalDateTime.now());
+        plan.setIsShared(0);
+        plan.setIsDeleted(0);
+        plan.setCreatedAt(LocalDateTime.now());
+        plan.setUpdatedAt(LocalDateTime.now());
 
         save(plan);
         
         // 生成训练安排
-        generateWorkoutSchedules(plan.getId(), templateId, plan.getStart_date(), durationWeeks);
+        generateWorkoutSchedules(plan.getId(), templateId, plan.getStartDate(), durationWeeks);
         
         return plan.getId();
     }
@@ -87,14 +89,14 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
                 
                 // 创建训练安排
                 WorkoutSchedule schedule = new WorkoutSchedule();
-                schedule.setPlan_id(planId);
-                schedule.setDay_of_week(templateDay.getDayOfWeek());
-                schedule.setIs_rest_day(templateDay.getIsRestDay());
-                schedule.setEstimated_duration(templateDay.getEstimatedDuration());
+                schedule.setPlanId(planId);
+                schedule.setDayOfWeek(templateDay.getDayOfWeek());
+                schedule.setIsRestDay(templateDay.getIsRestDay());
+                schedule.setEstimatedDuration(templateDay.getEstimatedDuration());
                 schedule.setDate(scheduleDate);
-                schedule.setIs_deleted(0);
-                schedule.setCreated_at(LocalDateTime.now());
-                schedule.setUpdated_at(LocalDateTime.now());
+                schedule.setIsDeleted(0);
+                schedule.setCreatedAt(LocalDateTime.now());
+                schedule.setUpdatedAt(LocalDateTime.now());
                 
                 workoutScheduleMapper.insert(schedule);
                 
@@ -104,15 +106,15 @@ public class FitnessPlanServiceImpl extends ServiceImpl<FitnessPlanMapper, Fitne
                     
                     for (TemplateExercise templateExercise : templateExercises) {
                         WorkoutScheduleExercise scheduleExercise = new WorkoutScheduleExercise();
-                        scheduleExercise.setSchedule_id(schedule.getId());
-                        scheduleExercise.setExercise_id(templateExercise.getExerciseId());
-                        scheduleExercise.setExercise_name(templateExercise.getExerciseName());
+                        scheduleExercise.setScheduleId(schedule.getId());
+                        scheduleExercise.setExerciseId(templateExercise.getExerciseId());
+                        scheduleExercise.setExerciseName(templateExercise.getExerciseName());
                         scheduleExercise.setSets(templateExercise.getSets());
                         scheduleExercise.setReps(templateExercise.getReps());
-                        scheduleExercise.setSort_order(templateExercise.getSortOrder());
-                        scheduleExercise.setIs_deleted(0);
-                        scheduleExercise.setCreated_at(LocalDateTime.now());
-                        scheduleExercise.setUpdated_at(LocalDateTime.now());
+                        scheduleExercise.setSortOrder(templateExercise.getSortOrder());
+                        scheduleExercise.setIsDeleted(0);
+                        scheduleExercise.setCreatedAt(LocalDateTime.now());
+                        scheduleExercise.setUpdatedAt(LocalDateTime.now());
                         
                         workoutScheduleExerciseMapper.insert(scheduleExercise);
                     }

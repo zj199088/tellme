@@ -10,14 +10,49 @@ import java.time.LocalDateTime;
 @Data
 @TableName("template_days")
 public class TemplateDay {
+    /**
+     * 训练日ID
+     */
     @TableId(type = IdType.AUTO)
     private Integer id;
+    
+    /**
+     * 模板ID
+     */
     private Integer templateId;
+    
+    /**
+     * 星期几 1:周日 2:周一 3:周二 4:周三 5:周四 6:周五 7:周六
+     */
     private Integer dayOfWeek;
+    
+    /**
+     * 是否休息日 0:训练日 1:休息日
+     */
     private Integer isRestDay;
+    
+    /**
+     * 休息备注
+     */
     private String restNote;
+    
+    /**
+     * 预计训练时长（分钟）
+     */
     private Integer estimatedDuration;
+    
+    /**
+     * 创建时间
+     */
     private LocalDateTime createdAt;
+    
+    /**
+     * 更新时间
+     */
     private LocalDateTime updatedAt;
+    
+    /**
+     * 是否删除 0:未删除 1:已删除
+     */
     private Integer isDeleted;
 }

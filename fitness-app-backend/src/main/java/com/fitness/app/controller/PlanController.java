@@ -150,20 +150,20 @@ public class PlanController {
         
         // 创建自定义计划
         FitnessPlan plan = new FitnessPlan();
-        plan.setUser_id(userId);
-        plan.setTemplate_id(template.getId());
+        plan.setUserId(userId);
+        plan.setTemplateId(template.getId());
         plan.setName((String) request.get("name"));
         plan.setType("custom");
         plan.setGoal((String) request.get("goal"));
         plan.setDifficulty((String) request.get("difficulty"));
-        plan.setDuration_weeks((Integer) request.get("durationWeeks"));
-        plan.setStart_date(LocalDate.now());
-        plan.setEnd_date(LocalDate.now().plusWeeks((Integer) request.get("durationWeeks")));
+        plan.setDurationWeeks((Integer) request.get("durationWeeks"));
+        plan.setStartDate(LocalDate.now());
+        plan.setEndDate(LocalDate.now().plusWeeks((Integer) request.get("durationWeeks")));
         plan.setStatus("active");
-        plan.setIs_shared(0);
-        plan.setIs_deleted(0);
-        plan.setCreated_at(LocalDateTime.now());
-        plan.setUpdated_at(LocalDateTime.now());
+        plan.setIsShared(0);
+        plan.setIsDeleted(0);
+        plan.setCreatedAt(LocalDateTime.now());
+        plan.setUpdatedAt(LocalDateTime.now());
         
         fitnessPlanService.save(plan);
         log.info("创建自定义计划成功: planId={}", plan.getId());
@@ -179,16 +179,16 @@ public class PlanController {
         
         // 获取计划
         FitnessPlan plan = fitnessPlanService.getById(planId);
-        if (plan == null || !plan.getUser_id().equals(userId)) {
+        if (plan == null || !plan.getUserId().equals(userId)) {
             return Result.error("计划不存在或无权限");
         }
         
         // 获取模板
-        if (plan.getTemplate_id() == null) {
+        if (plan.getTemplateId() == null) {
             return Result.error("计划未关联模板");
         }
         
-        Template template = templateService.getById(plan.getTemplate_id());
+        Template template = templateService.getById(plan.getTemplateId());
         if (template == null) {
             return Result.error("模板不存在");
         }
@@ -199,8 +199,8 @@ public class PlanController {
         templateService.updateById(template);
         
         // 更新计划的分享状态
-        plan.setIs_shared(1);
-        plan.setUpdated_at(LocalDateTime.now());
+        plan.setIsShared(1);
+        plan.setUpdatedAt(LocalDateTime.now());
         fitnessPlanService.updateById(plan);
         
         log.info("分享计划成功: planId={}", planId);
@@ -216,12 +216,12 @@ public class PlanController {
         log.info("更新计划状态: planId={}, status={}, userId={}", planId, status, userId);
         
         FitnessPlan plan = fitnessPlanService.getById(planId);
-        if (plan == null || !plan.getUser_id().equals(userId)) {
+        if (plan == null || !plan.getUserId().equals(userId)) {
             return Result.error("计划不存在或无权限");
         }
         
         plan.setStatus(status);
-        plan.setUpdated_at(LocalDateTime.now());
+        plan.setUpdatedAt(LocalDateTime.now());
         fitnessPlanService.updateById(plan);
         
         log.info("更新计划状态成功: planId={}, status={}", planId, status);
@@ -234,8 +234,8 @@ public class PlanController {
         log.info("获取用户计划列表: userId={}", userId);
         
         List<FitnessPlan> plans = fitnessPlanService.lambdaQuery()
-                .eq(FitnessPlan::getUser_id, userId)
-                .eq(FitnessPlan::getIs_deleted, 0)
+                .eq(FitnessPlan::getUserId, userId)
+                .eq(FitnessPlan::getIsDeleted, 0)
                 .list();
         
         List<Map<String, Object>> result = new ArrayList<>();
@@ -244,26 +244,26 @@ public class PlanController {
         for (FitnessPlan plan : plans) {
             Map<String, Object> planMap = new HashMap<>();
             planMap.put("id", plan.getId());
-            planMap.put("userId", plan.getUser_id());
-            planMap.put("templateId", plan.getTemplate_id());
+            planMap.put("userId", plan.getUserId());
+            planMap.put("templateId", plan.getTemplateId());
             planMap.put("name", plan.getName());
             planMap.put("type", plan.getType());
             planMap.put("goal", plan.getGoal());
             planMap.put("difficulty", plan.getDifficulty());
-            planMap.put("durationWeeks", plan.getDuration_weeks());
-            planMap.put("startDate", plan.getStart_date() != null ? plan.getStart_date().toString() : null);
-            planMap.put("endDate", plan.getEnd_date() != null ? plan.getEnd_date().toString() : null);
+            planMap.put("durationWeeks", plan.getDurationWeeks());
+            planMap.put("startDate", plan.getStartDate() != null ? plan.getStartDate().toString() : null);
+            planMap.put("endDate", plan.getEndDate() != null ? plan.getEndDate().toString() : null);
             planMap.put("status", plan.getStatus());
-            planMap.put("isShared", plan.getIs_shared());
-            planMap.put("sharedCode", plan.getShared_code());
-            planMap.put("lastWorkoutDate", plan.getLast_workout_date() != null ? plan.getLast_workout_date().toString() : null);
+            planMap.put("isShared", plan.getIsShared());
+            planMap.put("sharedCode", plan.getSharedCode());
+            planMap.put("lastWorkoutDate", plan.getLastWorkoutDate() != null ? plan.getLastWorkoutDate().toString() : null);
             planMap.put("description", plan.getGoal() != null ? plan.getGoal() + "计划" : "健身计划");
             
-            int totalDays = plan.getDuration_weeks() != null ? plan.getDuration_weeks() * 7 : 28;
+            int totalDays = plan.getDurationWeeks() != null ? plan.getDurationWeeks() * 7 : 28;
             int currentDay = 1;
             
-            if (plan.getStart_date() != null) {
-                long daysBetween = ChronoUnit.DAYS.between(plan.getStart_date(), today);
+            if (plan.getStartDate() != null) {
+                long daysBetween = ChronoUnit.DAYS.between(plan.getStartDate(), today);
                 currentDay = (int) Math.min(Math.max(daysBetween + 1, 1), totalDays);
             }
             
