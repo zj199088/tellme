@@ -115,7 +115,9 @@ public class PlanController {
         List<TemplateDay> createdTemplateDays = new ArrayList<>();
         if (request.containsKey("days")) {
             List<Map<String, Object>> days = (List<Map<String, Object>>) request.get("days");
+            log.info("处理训练日数据，共 {} 天", days.size());
             for (Map<String, Object> dayData : days) {
+                log.info("处理训练日: dayOfWeek={}, isRestDay={}", dayData.get("dayOfWeek"), dayData.get("isRestDay"));
                 // 创建模板训练日
                 TemplateDay templateDay = new TemplateDay();
                 templateDay.setTemplateId(template.getId());
@@ -133,14 +135,37 @@ public class PlanController {
                 // 创建模板动作
                 if (dayData.containsKey("exercises")) {
                     List<Map<String, Object>> exercises = (List<Map<String, Object>>) dayData.get("exercises");
+                    log.info("处理训练日动作，共 {} 个动作", exercises.size());
                     int sortOrder = 1;
                     for (Map<String, Object> exerciseData : exercises) {
                         TemplateExercise templateExercise = new TemplateExercise();
                         templateExercise.setTemplateDayId(templateDay.getId());
                         templateExercise.setExerciseId((Integer) exerciseData.get("exerciseId"));
                         templateExercise.setExerciseName((String) exerciseData.get("exerciseName"));
-                        templateExercise.setSets((Integer) exerciseData.get("sets"));
-                        templateExercise.setReps((String) exerciseData.get("reps"));
+                        // 处理sets字段，支持数字和字符串类型
+                        Object setsObj = exerciseData.get("sets");
+                        if (setsObj != null) {
+                            if (setsObj instanceof Number) {
+                                templateExercise.setSets(((Number) setsObj).intValue());
+                            } else if (setsObj instanceof String) {
+                                try {
+                                    templateExercise.setSets(Integer.parseInt((String) setsObj));
+                                } catch (NumberFormatException e) {
+                                    templateExercise.setSets(3);
+                                }
+                            } else {
+                                templateExercise.setSets(3);
+                            }
+                        } else {
+                            templateExercise.setSets(3);
+                        }
+                        // 处理reps字段，支持数字和字符串类型
+                        Object repsObj = exerciseData.get("reps");
+                        if (repsObj != null) {
+                            templateExercise.setReps(repsObj.toString());
+                        } else {
+                            templateExercise.setReps("12");
+                        }
                         templateExercise.setSortOrder(sortOrder++);
                         templateExercise.setIsDeleted(0);
                         templateExercise.setCreatedAt(LocalDateTime.now());
