@@ -43,50 +43,42 @@ public class PlanController {
     public Result<?> createPlanFromTemplate(
             @RequestBody Map<String, Object> request,
             Authentication authentication) {
-        try {
-            Integer userId = Integer.parseInt(authentication.getName());
-            Integer templateId = (Integer) request.get("templateId");
-            String name = (String) request.get("name");
-            String goal = (String) request.get("goal");
-            String difficulty = (String) request.get("difficulty");
-            Integer durationWeeks = (Integer) request.get("durationWeeks");
-            String startDateStr = (String) request.get("startDate");
-            
-            log.info("从模板创建计划: userId={}, templateId={}, name={}, goal={}, difficulty={}, durationWeeks={}, startDate={}", 
-                     userId, templateId, name, goal, difficulty, durationWeeks, startDateStr);
-            
-            // 参数验证
-            if (templateId == null) {
-                log.warn("模板ID不能为空");
-                return Result.error("模板ID不能为空");
-            }
-            if (name == null || name.isEmpty()) {
-                log.warn("计划名称不能为空");
-                return Result.error("计划名称不能为空");
-            }
-            if (goal == null || goal.isEmpty()) {
-                log.warn("健身目标不能为空");
-                return Result.error("健身目标不能为空");
-            }
-            if (difficulty == null || difficulty.isEmpty()) {
-                log.warn("难度等级不能为空");
-                return Result.error("难度等级不能为空");
-            }
-            if (durationWeeks == null || durationWeeks <= 0) {
-                log.warn("训练周期必须大于0");
-                return Result.error("训练周期必须大于0");
-            }
-            
-            Integer planId = fitnessPlanService.createPlanFromTemplate(userId, templateId, name, goal, difficulty, durationWeeks, startDateStr);
-            log.info("从模板创建计划成功: planId={}", planId);
-            return Result.success(planId);
-        } catch (NumberFormatException e) {
-            log.error("用户ID格式错误", e);
-            return Result.error("用户身份验证失败");
-        } catch (Exception e) {
-            log.error("创建计划失败", e);
-            return Result.error("创建计划失败: " + e.getMessage());
+        Integer userId = Integer.parseInt(authentication.getName());
+        Integer templateId = (Integer) request.get("templateId");
+        String name = (String) request.get("name");
+        String goal = (String) request.get("goal");
+        String difficulty = (String) request.get("difficulty");
+        Integer durationWeeks = (Integer) request.get("durationWeeks");
+        String startDateStr = (String) request.get("startDate");
+        
+        log.info("从模板创建计划: userId={}, templateId={}, name={}, goal={}, difficulty={}, durationWeeks={}, startDate={}", 
+                 userId, templateId, name, goal, difficulty, durationWeeks, startDateStr);
+        
+        // 参数验证
+        if (templateId == null) {
+            log.warn("模板ID不能为空");
+            return Result.error("模板ID不能为空");
         }
+        if (name == null || name.isEmpty()) {
+            log.warn("计划名称不能为空");
+            return Result.error("计划名称不能为空");
+        }
+        if (goal == null || goal.isEmpty()) {
+            log.warn("健身目标不能为空");
+            return Result.error("健身目标不能为空");
+        }
+        if (difficulty == null || difficulty.isEmpty()) {
+            log.warn("难度等级不能为空");
+            return Result.error("难度等级不能为空");
+        }
+        if (durationWeeks == null || durationWeeks <= 0) {
+            log.warn("训练周期必须大于0");
+            return Result.error("训练周期必须大于0");
+        }
+        
+        Integer planId = fitnessPlanService.createPlanFromTemplate(userId, templateId, name, goal, difficulty, durationWeeks, startDateStr);
+        log.info("从模板创建计划成功: planId={}", planId);
+        return Result.success(planId);
     }
 
     @PostMapping("/custom")

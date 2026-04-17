@@ -21,31 +21,19 @@ public class FileController {
     }
 
     @PostMapping("/upload/music")
-    public ResponseEntity<String> uploadMusic(@RequestParam("file") MultipartFile file) {
-        try {
-            String url = cosService.uploadFile(file, "music");
-            return ResponseEntity.ok(url);
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("上传失败: " + e.getMessage());
-        }
+    public ResponseEntity<String> uploadMusic(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadFile(file, "music");
+        return ResponseEntity.ok(url);
     }
 
     @PostMapping("/upload/image")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
-        try {
-            String url = cosService.uploadFile(file, "image");
-            return ResponseEntity.ok(url);
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("上传失败: " + e.getMessage());
-        }
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = cosService.uploadFile(file, "image");
+        return ResponseEntity.ok(url);
     }
 
     @GetMapping("/download")
-    public void downloadFile(@RequestParam("key") String key, HttpServletResponse response) {
-        try {
-            cosService.downloadFile(key, response);
-        } catch (IOException e) {
-            response.setStatus(500);
-        }
+    public void downloadFile(@RequestParam("key") String key, HttpServletResponse response) throws IOException {
+        cosService.downloadFile(key, response);
     }
 }

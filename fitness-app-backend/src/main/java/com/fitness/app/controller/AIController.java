@@ -18,37 +18,25 @@ public class AIController {
 
     @PostMapping("/chat")
     public Result<?> chatWithAI(@RequestBody ChatRequest request) {
-        try {
-            String response = aiService.chatWithAI(request.getMessage(), request.getContext());
-            return Result.success(response);
-        } catch (Exception e) {
-            return Result.error("AI对话失败: " + e.getMessage());
-        }
+        String response = aiService.chatWithAI(request.getMessage(), request.getContext());
+        return Result.success(response);
     }
 
     @PostMapping("/generate-plan")
     public Result<?> generateFitnessPlan(@RequestBody GeneratePlanRequest request) {
-        try {
-            String plan = aiService.generateFitnessPlan(request.getGoal(), request.getHealthReport());
-            return Result.success(plan);
-        } catch (Exception e) {
-            return Result.error("生成健身计划失败: " + e.getMessage());
-        }
+        String plan = aiService.generateFitnessPlan(request.getGoal(), request.getHealthReport());
+        return Result.success(plan);
     }
 
     @PostMapping("/upload-health-report")
-    public Result<?> uploadHealthReport(@RequestParam("file") MultipartFile file) {
-        try {
-            if (file.isEmpty()) {
-                return Result.error("文件不能为空");
-            }
-
-            byte[] bytes = file.getBytes();
-            String base64File = Base64.getEncoder().encodeToString(bytes);
-            return Result.success(base64File);
-        } catch (IOException e) {
-            return Result.error("上传文件失败: " + e.getMessage());
+    public Result<?> uploadHealthReport(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            return Result.error("文件不能为空");
         }
+
+        byte[] bytes = file.getBytes();
+        String base64File = Base64.getEncoder().encodeToString(bytes);
+        return Result.success(base64File);
     }
 
     public static class ChatRequest {
