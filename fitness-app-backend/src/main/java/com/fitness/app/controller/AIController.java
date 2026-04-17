@@ -1,6 +1,7 @@
 package com.fitness.app.controller;
 
 import com.fitness.app.service.AIService;
+import com.fitness.app.service.AppConfigService;
 import com.fitness.app.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,21 +16,33 @@ public class AIController {
 
     @Autowired
     private AIService aiService;
+    
+    @Autowired
+    private AppConfigService appConfigService;
 
     @PostMapping("/chat")
     public Result<?> chatWithAI(@RequestBody ChatRequest request) {
+        if (!appConfigService.getBooleanConfig("ai_enabled")) {
+            return Result.error("AI功能已禁用");
+        }
         String response = aiService.chatWithAI(request.getMessage(), request.getContext());
         return Result.success(response);
     }
 
     @PostMapping("/generate-plan")
     public Result<?> generateFitnessPlan(@RequestBody GeneratePlanRequest request) {
+        if (!appConfigService.getBooleanConfig("ai_enabled")) {
+            return Result.error("AI功能已禁用");
+        }
         String plan = aiService.generateFitnessPlan(request.getGoal(), request.getHealthReport());
         return Result.success(plan);
     }
 
     @PostMapping("/upload-health-report")
     public Result<?> uploadHealthReport(@RequestParam("file") MultipartFile file) throws IOException {
+        if (!appConfigService.getBooleanConfig("ai_enabled")) {
+            return Result.error("AI功能已禁用");
+        }
         if (file.isEmpty()) {
             return Result.error("文件不能为空");
         }

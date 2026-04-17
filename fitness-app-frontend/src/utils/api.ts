@@ -636,6 +636,32 @@ export const api = {
     }
   },
   
+  // 配置相关API
+  config: {
+    getAppConfig: async (): Promise<ApiResponse<{ [key: string]: any }>> => {
+      if (isTestEnvironment) {
+        return {
+          code: 200,
+          message: 'success',
+          data: {
+            app_name: '健身助手',
+            version: '1.0.0',
+            maintenance_mode: false,
+            max_workout_records_p: 1000,
+            default_plan_duration: 8,
+            ai_enabled: true,
+            music_enabled: true,
+            social_share_enabled: true,
+            max_file_size_mb: 10,
+            workout_reminder_enable: true
+          }
+        };
+      }
+      const response = await apiClient.get<ApiResponse<{ [key: string]: any }>>('/config');
+      return response.data;
+    }
+  },
+  
   // 管理员相关API
   admin: {
     // 分类管理
