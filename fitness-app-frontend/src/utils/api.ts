@@ -23,6 +23,8 @@ apiClient.interceptors.response.use(
     if (response.data && response.data.code !== undefined && response.data.code !== 200) {
       // 显示错误消息
       toast.error(response.data.message || '请求失败');
+      // 拒绝Promise，让调用方进入catch块
+      return Promise.reject(new Error(response.data.message || '请求失败'));
     }
     return response;
   },
