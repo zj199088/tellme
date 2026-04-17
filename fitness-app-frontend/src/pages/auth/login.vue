@@ -8,9 +8,28 @@
       <div class="scan-line"></div>
       <div class="logo-container">
         <div class="logo-icon">💪</div>
-        <h1 class="title neon-glow">{{ isRegisterMode ? '用户注册' : '用户登录' }}</h1>
+        <h1 class="title neon-glow">{{ appConfig.isMiniprogram ? '微信登录' : (isRegisterMode ? '用户注册' : '用户登录') }}</h1>
       </div>
-      <form @submit.prevent="handleSubmit" class="login-form">
+      
+      <div v-if="appConfig.isMiniprogram" class="miniprogram-login">
+        <p class="login-description">使用微信授权登录健身助手</p>
+        <button 
+          @click="handleWechatLogin" 
+          class="wechat-login-btn neon-button" 
+          :disabled="isLoading"
+        >
+          <span v-if="isLoading" class="loading-spinner"></span>
+          <span class="wechat-icon">💬</span>
+          <span class="btn-text">{{ isLoading ? '登录中...' : '微信授权登录' }}</span>
+          <span class="btn-glow"></span>
+        </button>
+        <div v-if="error" class="error-message">
+          <span class="error-icon">⚠</span>
+          {{ error }}
+        </div>
+      </div>
+      
+      <form v-else @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group" :class="{ 'has-error': errors.username }">
           <label for="username" class="form-label">用户名</label>
           <div class="input-wrapper">
@@ -111,6 +130,7 @@
 import { ref, onMounted, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/utils/api';
+import appConfig from '@/utils/config';
 
 const router = useRouter();
 const isRegisterMode = ref(false);
@@ -219,7 +239,6 @@ const handleSubmit = async () => {
     
     if (response.success) {
       localStorage.setItem('token', response.token);
-      // 缓存用户信息
       const userInfo = {
         username: form.value.username,
         role: response.role,
@@ -232,7 +251,6 @@ const handleSubmit = async () => {
       } else {
         localStorage.removeItem('rememberedUser');
       }
-      // 跳转到定制计划页面
       router.push('/pages/custom/create');
     } else {
       error.value = response.message || (isRegisterMode.value ? '注册失败' : '登录失败，请检查用户名和密码');
@@ -240,6 +258,33 @@ const handleSubmit = async () => {
   } catch (err) {
     console.error(isRegisterMode.value ? '注册错误:' : '登录错误:', err);
     error.value = isRegisterMode.value ? '注册失败，请检查网络连接' : '登录失败，请检查网络连接';
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleWechatLogin = async () => {
+  try {
+    isLoading.value = true;
+    error.value = '';
+    
+    const response = await api.auth.wechatLogin();
+    
+    if (response.success) {
+      localStorage.setItem('token', response.token);
+      const userInfo = {
+        username: response.username,
+        role: response.role,
+        nickname: response.nickname
+      };
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      router.push('/pages/custom/create');
+    } else {
+      error.value = response.message || '微信登录失败，请稍后重试';
+    }
+  } catch (err) {
+    console.error('微信登录错误:', err);
+    error.value = '微信登录失败，请检查网络连接';
   } finally {
     isLoading.value = false;
   }
@@ -421,6 +466,58 @@ onMounted(() => {
 .neon-glow {
   text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-cyan);
   animation: pulse 2s ease-in-out infinite;
+}
+
+.miniprogram-login {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.login-description {
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+}
+
+.wechat-login-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--glass-bg);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.wechat-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.wechat-login-btn:hover:not(:disabled) {
+  background: var(--neon-green);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+  transform: translateY(-2px);
+}
+
+.wechat-icon {
+  font-size: 20px;
 }
 
 .login-form {
