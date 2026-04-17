@@ -109,9 +109,6 @@ const uploadProgress = ref(0);
 const message = ref('');
 const messageType = ref('');
 
-// 最大文件大小限制（10MB）
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
 const formData = reactive({
   name: '',
   artist: '',
@@ -122,10 +119,6 @@ const formData = reactive({
 const handleFileChange = (e) => {
   const file = e.target.files[0];
   if (file) {
-    if (file.size > MAX_FILE_SIZE) {
-      showMessage('文件大小超过限制，最大允许10MB', 'error');
-      return;
-    }
     selectedFile.value = file;
     formData.name = file.name.replace(/\.[^/.]+$/, '');
   }
@@ -136,10 +129,6 @@ const handleDrop = (e) => {
   isDragOver.value = false;
   const file = e.dataTransfer.files[0];
   if (file && file.type.startsWith('audio/')) {
-    if (file.size > MAX_FILE_SIZE) {
-      showMessage('文件大小超过限制，最大允许10MB', 'error');
-      return;
-    }
     selectedFile.value = file;
     formData.name = file.name.replace(/\.[^/.]+$/, '');
   }

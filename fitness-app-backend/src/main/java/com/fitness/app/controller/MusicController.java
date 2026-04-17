@@ -43,6 +43,12 @@ public class MusicController {
             @RequestParam(value = "album", required = false) String album,
             @RequestParam(value = "genre", required = false) String genre
     ) throws IOException {
+        // 检查文件大小限制（10MB）
+        long maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.getSize() > maxSize) {
+            throw new BusinessException("文件大小超过限制，最大允许10MB");
+        }
+        
         // 获取当前用户ID
         Integer userId = getCurrentUserId();
         
