@@ -71,7 +71,11 @@ export const musicApi = {
     
     try {
       const response = await api.get('/music/tracks');
-      return response.data;
+      // 后端返回的结构是 { code, message, data }，其中 data 是音乐列表
+      if (response.data && response.data.data) {
+        return { tracks: response.data.data };
+      }
+      return mockMusicData;
     } catch (error) {
       console.error('获取音乐列表失败:', error);
       return mockMusicData;
@@ -106,21 +110,31 @@ export const musicApi = {
           console.log(`上传进度: ${percentCompleted}%`);
         }
       });
-      return response.data;
+      // 后端返回的结构是 { code, message, data }，其中 data 是音乐轨道对象
+      if (response.data && response.data.data) {
+        return {
+          success: true,
+          track: {
+            id: response.data.data.id,
+            name: response.data.data.name,
+            artist: response.data.data.artist,
+            album: response.data.data.album,
+            duration: response.data.data.duration || 180,
+            file_url: response.data.data.fileUrl,
+            cover_url: response.data.data.coverUrl || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover&image_size=square_hd',
+            genre: response.data.data.genre
+          }
+        };
+      }
+      return {
+        success: false,
+        message: '上传失败'
+      };
     } catch (error) {
       console.error('上传音乐失败:', error);
       return {
-        success: true,
-        track: {
-          id: Date.now(),
-          name: formData.get('name') as string,
-          artist: formData.get('artist') as string,
-          album: formData.get('album') as string,
-          duration: 180,
-          file_url: `https://example.com/music/${Date.now()}.mp3`,
-          cover_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover&image_size=square_hd',
-          genre: formData.get('genre') as string
-        }
+        success: false,
+        message: '上传失败'
       };
     }
   },
@@ -136,12 +150,22 @@ export const musicApi = {
     
     try {
       const response = await api.delete(`/music/tracks/${trackId}`);
-      return response.data;
+      // 后端返回的结构是 { code, message, data }
+      if (response.data && response.data.code === 200) {
+        return {
+          success: true,
+          message: response.data.message || '音乐删除成功'
+        };
+      }
+      return {
+        success: false,
+        message: response.data?.message || '删除失败'
+      };
     } catch (error) {
       console.error('删除音乐失败:', error);
       return {
-        success: true,
-        message: '音乐删除成功'
+        success: false,
+        message: '删除失败'
       };
     }
   }
