@@ -204,12 +204,26 @@ public class PlanController {
         // 创建训练日程（根据计划的周数，每周重复模板的训练日）
         Integer durationWeeks = (Integer) request.get("durationWeeks");
         
+        // 获取开始日期是星期几（1-7，周一到周日）
+        int startDayOfWeek = startDate.getDayOfWeek().getValue();
+        
         for (int weekNum = 1; weekNum <= durationWeeks; weekNum++) {
             for (TemplateDay templateDay : createdTemplateDays) {
+                int trainDayOfWeek = templateDay.getDayOfWeek();
+                
+                // 计算训练日相对于开始日期的偏移天数
+                int offset;
+                if (trainDayOfWeek >= startDayOfWeek) {
+                    offset = trainDayOfWeek - startDayOfWeek;
+                } else {
+                    offset = trainDayOfWeek - startDayOfWeek + 7;
+                }
+                
                 // 计算当前训练日程的日期
-                // 第1周的训练日 = 开始日期 + (dayOfWeek - 1)天
-                // 第n周的训练日 = 开始日期 + (n-1)*7天 + (dayOfWeek - 1)天
-                LocalDate scheduleDate = startDate.plusWeeks(weekNum - 1).plusDays(templateDay.getDayOfWeek() - 1);
+                // 第1周的训练日 = 开始日期 + offset天
+                // 第2周的训练日 = 开始日期 + offset天 + 7天
+                // 第n周的训练日 = 开始日期 + offset天 + (n-1)*7天
+                LocalDate scheduleDate = startDate.plusDays(offset).plusWeeks(weekNum - 1);
                 
                 // 创建训练日程
                 WorkoutSchedule workoutSchedule = new WorkoutSchedule();
