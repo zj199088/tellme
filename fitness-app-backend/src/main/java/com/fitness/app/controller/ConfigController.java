@@ -29,13 +29,13 @@ public class ConfigController {
         configMap.put("app_name", appConfigService.getConfigValue("app_name"));
         configMap.put("version", appConfigService.getConfigValue("version"));
         configMap.put("maintenance_mode", appConfigService.getBooleanConfig("maintenance_mode"));
-        configMap.put("max_workout_records_p", appConfigService.getNumberConfig("max_workout_records_p"));
+        configMap.put("max_workout_records_per_user", appConfigService.getNumberConfig("max_workout_records_per_user"));
         configMap.put("default_plan_duration", appConfigService.getNumberConfig("default_plan_duration"));
         configMap.put("ai_enabled", appConfigService.getBooleanConfig("ai_enabled"));
         configMap.put("music_enabled", appConfigService.getBooleanConfig("music_enabled"));
         configMap.put("social_share_enabled", appConfigService.getBooleanConfig("social_share_enabled"));
         configMap.put("max_file_size_mb", appConfigService.getNumberConfig("max_file_size_mb"));
-        configMap.put("workout_reminder_enable", appConfigService.getBooleanConfig("workout_reminder_enable"));
+        configMap.put("workout_reminder_enabled", appConfigService.getBooleanConfig("workout_reminder_enabled"));
         
         return Result.success(configMap);
     }

@@ -76,7 +76,7 @@ public class WorkoutRecordController {
         Integer userId = Integer.parseInt(authentication.getName());
         
         // 检查用户记录数是否超过限制
-        int maxRecords = appConfigService.getNumberConfig("max_workout_records_p");
+        int maxRecords = appConfigService.getNumberConfig("max_workout_records_per_user");
         int currentCount = workoutRecordService.countAllRecords(userId);
         if (currentCount >= maxRecords) {
             return Result.error("锻炼记录数已达上限，最大允许" + maxRecords + "条记录");
@@ -121,7 +121,7 @@ public class WorkoutRecordController {
         Integer userId = Integer.parseInt(authentication.getName());
         
         // 检查用户记录数是否超过限制
-        int maxRecords = appConfigService.getNumberConfig("max_workout_records_p");
+        int maxRecords = appConfigService.getNumberConfig("max_workout_records_per_user");
         int currentCount = workoutRecordService.countAllRecords(userId);
         if (currentCount + records.size() > maxRecords) {
             return Result.error("锻炼记录数将超过上限，最大允许" + maxRecords + "条记录");

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { isTestEnvironment, mockData } from './env';
+import toast from './toast';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
@@ -17,7 +18,14 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // 检查响应是否包含错误code
+    if (response.data && response.data.code !== undefined && response.data.code !== 200) {
+      // 显示错误消息
+      toast.error(response.data.message || '请求失败');
+    }
+    return response;
+  },
   (error) => {
     // 只在需要认证的接口返回401时重定向到登录页面
     // 对于公共接口，允许继续执行
@@ -29,6 +37,9 @@ apiClient.interceptors.response.use(
       if (!url.includes('/templates/list') && !url.includes('/movement/categories') && !url.includes('/movement/exercises')) {
         window.location.href = '/auth/login';
       }
+    } else {
+      // 显示其他错误消息
+      toast.error(error.response?.data?.message || error.message || '网络错误');
     }
     return Promise.reject(error);
   }
@@ -647,13 +658,13 @@ export const api = {
             app_name: '健身助手',
             version: '1.0.0',
             maintenance_mode: false,
-            max_workout_records_p: 1000,
+            max_workout_records_per_user: 1000,
             default_plan_duration: 8,
             ai_enabled: true,
             music_enabled: true,
             social_share_enabled: true,
             max_file_size_mb: 10,
-            workout_reminder_enable: true
+            workout_reminder_enabled: true
           }
         };
       }
