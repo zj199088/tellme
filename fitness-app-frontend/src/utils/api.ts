@@ -286,12 +286,8 @@ export const api = {
           data: mockData.categories
         };
       }
-      const response = await apiClient.get<any>('/movement/categories');
-      return {
-        code: response.success ? 200 : 500,
-        message: response.success ? 'success' : 'failed',
-        data: response.data
-      };
+      const response = await apiClient.get<ApiResponse<Category[]>>('/movement/categories');
+      return response.data;
     }
   },
   
@@ -309,12 +305,8 @@ export const api = {
         };
       }
       const params = categoryId ? { categoryId } : {};
-      const response = await apiClient.get<any>('/movement/exercises', { params });
-      return {
-        code: response.success ? 200 : 500,
-        message: response.success ? 'success' : 'failed',
-        data: response.data
-      };
+      const response = await apiClient.get<ApiResponse<ExerciseItem[]>>('/movement/exercises', { params });
+      return response.data;
     }
   },
   
