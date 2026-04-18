@@ -7,24 +7,6 @@
         </transition>
       </router-view>
     </view>
-    <nav class="bottom-nav">
-      <router-link to="/pages/custom/create" class="nav-item" active-class="active">
-        <div class="nav-icon">✨</div>
-        <div class="nav-text">定制计划</div>
-      </router-link>
-      <router-link to="/pages/home/index" class="nav-item" active-class="active">
-        <div class="nav-icon">📋</div>
-        <div class="nav-text">我的计划</div>
-      </router-link>
-      <router-link to="/pages/workout/track" class="nav-item" active-class="active">
-        <div class="nav-icon">🏃</div>
-        <div class="nav-text">跟随训练</div>
-      </router-link>
-      <router-link to="/pages/mine/index" class="nav-item" active-class="active">
-        <div class="nav-icon">👤</div>
-        <div class="nav-text">我的</div>
-      </router-link>
-    </nav>
   </div>
 </template>
 
