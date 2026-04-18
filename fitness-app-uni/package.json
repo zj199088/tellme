@@ -13,6 +13,7 @@
     "@dcloudio/uni-cli-shared": "^2.0.2-5000720260410001",
     "semver": "^7.7.4",
     "vue": "^3.5.32",
+    "vue-router": "^4.6.4",
     "webpack": "^5.106.2"
   },
   "devDependencies": {
