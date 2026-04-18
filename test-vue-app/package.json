@@ -1,0 +1,29 @@
+{
+  "name": "test-vue-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "build:mp-weixin": "uni build --platform mp-weixin"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "^2.0.2-5000720260410001",
+    "@dcloudio/uni-cli-i18n": "^2.0.2-5000720260410001",
+    "@dcloudio/uni-cli-shared": "^2.0.2-5000720260410001",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
+    "semver": "^7.7.4",
+    "vue": "^3.5.32",
+    "webpack": "^5.106.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vue/tsconfig": "^0.9.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.4",
+    "vue-tsc": "^3.2.6"
+  }
+}

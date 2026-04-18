@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <view class="app-container">
     <view class="content">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -7,15 +7,15 @@
         </transition>
       </router-view>
     </view>
-  </div>
+  </view>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
 
 onMounted(() => {
-  // 从localStorage加载主题
-  const savedTheme = localStorage.getItem('theme');
+  // 从本地存储加载主题
+  const savedTheme = uni.getStorageSync('theme');
   if (savedTheme) {
     document.body.classList.add(`theme-${savedTheme}`);
   } else {

@@ -110,16 +110,16 @@
     "borderStyle": "black",
     "list": [
       {
-        "pagePath": "pages/home/index",
-        "text": "首页"
+        "pagePath": "pages/custom/create",
+        "text": "定制计划"
       },
       {
         "pagePath": "pages/plans/index",
-        "text": "计划"
+        "text": "我的计划"
       },
       {
-        "pagePath": "pages/records/index",
-        "text": "记录"
+        "pagePath": "pages/workout/track",
+        "text": "跟随训练"
       },
       {
         "pagePath": "pages/mine/index",

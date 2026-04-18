@@ -1,0 +1,30 @@
+{
+  "name": "test-vue-app",
+  "appid": "__UNI__APPID__",
+  "description": "测试应用",
+  "versionName": "1.0.0",
+  "versionCode": 100,
+  "uni-app": {
+    "name": "test-vue-app",
+    "description": "测试应用",
+    "id": "__UNI__APPID__",
+    "icon": "/static/logo.png",
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "autoclose": true,
+      "waiting": true,
+      "backgroundColor": "#ffffff",
+      "image": "/static/splash.png"
+    }
+  },
+  "app-plus": {
+    "usingComponents": true
+  },
+  "mp-weixin": {
+    "appid": "",
+    "usingComponents": true
+  },
+  "h5": {
+    "usingComponents": true
+  }
+}

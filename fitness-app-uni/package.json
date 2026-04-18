@@ -10,6 +10,7 @@
     "build:mp-weixin": "uni build --platform mp-weixin"
   },
   "dependencies": {
+    "@dcloudio/uni-app": "^2.0.2-5000720260410001",
     "semver": "^7.7.4",
     "vue": "^3.5.32",
     "vue-router": "^4.6.4",
@@ -19,10 +20,11 @@
     "@dcloudio/types": "^3.4.30",
     "@dcloudio/uni-cli-i18n": "^2.0.2-5000720260410001",
     "@dcloudio/uni-cli-shared": "^3.0.0-alpha-4080720251125001",
-    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-4080720251125001",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
     "@types/node": "^24.12.2",
     "@vitejs/plugin-vue": "^5.0.4",
     "typescript": "~4.5.0",
+    "uniapp-cli": "^0.1.0-dev.2",
     "vite": "^5.2.8",
     "vue-tsc": "^0.30.0"
   }
