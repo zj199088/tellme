@@ -4,6 +4,7 @@ import com.fitness.app.common.Result;
 import com.fitness.app.entity.User;
 import com.fitness.app.service.UserService;
 import com.fitness.app.utils.JwtUtils;
+import com.fitness.app.utils.WechatApiUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
