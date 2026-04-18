@@ -52,7 +52,7 @@ public class AuthController {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "微信登录失败: " + e.getMessage());
-                return Result.error(400, "微信登录失败", errorResponse);
+                return Result.error(400, "微信登录失败");
             }
         }
         
@@ -61,7 +61,7 @@ public class AuthController {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", "openId不能为空");
-            return Result.error(400, "openId不能为空", errorResponse);
+            return Result.error(400, "openId不能为空");
         }
         
         String nickname = (String) request.get("nickname");
