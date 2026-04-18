@@ -80,9 +80,9 @@
    将 `dist` 目录中的文件部署到静态文件服务器（如 Nginx、Apache 等）
 
 ### 1.4 微信开发者工具打包
-1. **安装微信小程序转换工具**
+1. **安装微信小程序编译插件**
    ```bash
-   npm install -g @vitejs/plugin-wechat-miniprogram
+   npm install -D vite-plugin-wechat-mp
    ```
 
 2. **修改 Vite 配置**
@@ -90,16 +90,16 @@
    ```typescript
    import { defineConfig } from 'vite'
    import vue from '@vitejs/plugin-vue'
-   import wechat from '@vitejs/plugin-wechat-miniprogram'
+   import VitePluginWechatMp from 'vite-plugin-wechat-mp'
 
    export default defineConfig({
-     plugins: [vue(), wechat()]
+     plugins: [vue(), VitePluginWechatMp()]
    })
    ```
 
 3. **构建微信小程序版本**
    ```bash
-   npm run build -- --mode wechat
+   npm run build
    ```
 
 4. **在微信开发者工具中打开**
