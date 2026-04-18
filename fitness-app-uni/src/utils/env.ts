@@ -1,5 +1,5 @@
-// 环境配置 - 使用真实环境
-const isTestEnvironment = false;
+// 环境配置 - 使用测试环境
+const isTestEnvironment = true;
 
 // 生成过去30天的日期（包含时间）
 const generatePastDates = (days: number): string[] => {

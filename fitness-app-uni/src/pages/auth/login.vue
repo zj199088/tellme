@@ -237,21 +237,24 @@ const handleSubmit = async () => {
     }
     
     if (response.success) {
-      localStorage.setItem('token', response.token || '');
-      const userInfo = {
-        username: form.value.username,
-        role: response.role || 'user',
-        nickname: form.value.nickname || form.value.username
-      };
-      localStorage.setItem('userInfo', JSON.stringify(userInfo));
-      
-      if (!isRegisterMode.value && form.value.remember) {
-        localStorage.setItem('rememberedUser', form.value.username || '');
-      } else {
-        localStorage.removeItem('rememberedUser');
-      }
+        localStorage.setItem('token', response.token || '');
+        const userInfo = {
+          username: form.value.username,
+          role: response.role || 'user',
+          nickname: form.value.nickname || form.value.username
+        };
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        
+        if (!isRegisterMode.value && form.value.remember) {
+          localStorage.setItem('rememberedUser', form.value.username || '');
+        } else {
+          localStorage.removeItem('rememberedUser');
+        }
 
-    } else {
+        // 登录成功后跳转到主页
+        window.location.href = '/';
+
+      } else {
       error.value = response.message || (isRegisterMode.value ? '注册失败' : '登录失败，请检查用户名和密码');
     }
   } catch (err) {
@@ -310,6 +313,9 @@ const handleWechatLogin = async () => {
         nickname: response.nickname
       };
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
+      // 登录成功后跳转到主页
+      window.location.href = '/';
 
     } else {
       error.value = response.message || '微信登录失败，请稍后重试';

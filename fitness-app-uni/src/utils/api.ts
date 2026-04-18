@@ -3,10 +3,38 @@ import toast from './toast';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-// 封装 uni.request
+// 环境检测
+const isUniApp = typeof uni !== 'undefined';
+
+// 存储操作封装
+const storage = {
+  get: (key: string) => {
+    if (isUniApp) {
+      return uni.getStorageSync(key);
+    } else {
+      return localStorage.getItem(key);
+    }
+  },
+  set: (key: string, value: any) => {
+    if (isUniApp) {
+      uni.setStorageSync(key, value);
+    } else {
+      localStorage.setItem(key, value);
+    }
+  },
+  remove: (key: string) => {
+    if (isUniApp) {
+      uni.removeStorageSync(key);
+    } else {
+      localStorage.removeItem(key);
+    }
+  }
+};
+
+// 网络请求封装
 const request = (options: any) => {
   return new Promise((resolve, reject) => {
-    const token = uni.getStorageSync('token');
+    const token = storage.get('token');
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers
@@ -16,29 +44,62 @@ const request = (options: any) => {
       headers.Authorization = `Bearer ${token}`;
     }
     
-    uni.request({
-      url: BASE_URL + options.url,
-      method: options.method || 'GET',
-      data: options.data,
-      headers,
-      success: (response) => {
-        const res = response.data as any;
-        // 检查响应是否包含错误code
-        if (res && res.code !== undefined && res.code !== 200) {
+    if (isUniApp) {
+      // uni-app 环境
+      uni.request({
+        url: BASE_URL + options.url,
+        method: options.method || 'GET',
+        data: options.data,
+        headers,
+        success: (response) => {
+          const res = response.data as any;
+          // 检查响应是否包含错误code
+          if (res && res.code !== undefined && res.code !== 200) {
+            // 显示错误消息
+            toast.error(res.message || '请求失败');
+            // 拒绝Promise，让调用方进入catch块
+            reject(new Error(res.message || '请求失败'));
+          } else {
+            resolve(response);
+          }
+        },
+        fail: (error) => {
           // 显示错误消息
-          toast.error(res.message || '请求失败');
-          // 拒绝Promise，让调用方进入catch块
-          reject(new Error(res.message || '请求失败'));
-        } else {
-          resolve(response);
+          toast.error('网络错误');
+          reject(error);
         }
-      },
-      fail: (error) => {
-        // 显示错误消息
-        toast.error('网络错误');
-        reject(error);
+      });
+    } else {
+      // Web 环境
+      const fetchOptions: RequestInit = {
+        method: options.method || 'GET',
+        headers,
+        credentials: 'include'
+      };
+      
+      if (options.method !== 'GET' && options.data) {
+        fetchOptions.body = JSON.stringify(options.data);
       }
-    });
+      
+      fetch(BASE_URL + options.url, fetchOptions)
+        .then(response => response.json())
+        .then(data => {
+          // 检查响应是否包含错误code
+          if (data && data.code !== undefined && data.code !== 200) {
+            // 显示错误消息
+            toast.error(data.message || '请求失败');
+            // 拒绝Promise，让调用方进入catch块
+            reject(new Error(data.message || '请求失败'));
+          } else {
+            resolve({ data });
+          }
+        })
+        .catch(error => {
+          // 显示错误消息
+          toast.error('网络错误');
+          reject(error);
+        });
+    }
   });
 };
 
@@ -765,19 +826,40 @@ export const api = {
         };
       }
       return new Promise((resolve, reject) => {
-        uni.uploadFile({
-          url: BASE_URL + '/file/upload',
-          filePath: file.tempFilePaths[0],
-          name: 'file',
-          success: (uploadFileRes) => {
-            const data = JSON.parse(uploadFileRes.data);
-            resolve(data);
-          },
-          fail: (error) => {
-            toast.error('文件上传失败');
-            reject(error);
-          }
-        });
+        if (isUniApp) {
+          // uni-app 环境
+          uni.uploadFile({
+            url: BASE_URL + '/file/upload',
+            filePath: file.tempFilePaths[0],
+            name: 'file',
+            success: (uploadFileRes) => {
+              const data = JSON.parse(uploadFileRes.data);
+              resolve(data);
+            },
+            fail: (error) => {
+              toast.error('文件上传失败');
+              reject(error);
+            }
+          });
+        } else {
+          // Web 环境
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          fetch(BASE_URL + '/file/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+          })
+            .then(response => response.json())
+            .then(data => {
+              resolve(data);
+            })
+            .catch(error => {
+              toast.error('文件上传失败');
+              reject(error);
+            });
+        }
       });
     }
   },
