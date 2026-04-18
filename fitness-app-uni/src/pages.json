@@ -1,0 +1,138 @@
+{
+  "pages": [
+    {
+      "path": "pages/custom/create",
+      "style": {
+        "navigationBarTitleText": "创建计划"
+      }
+    },
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "首页"
+      }
+    },
+    {
+      "path": "pages/template/list",
+      "style": {
+        "navigationBarTitleText": "模板列表"
+      }
+    },
+    {
+      "path": "pages/template/detail",
+      "style": {
+        "navigationBarTitleText": "模板详情"
+      }
+    },
+    {
+      "path": "pages/ai/index",
+      "style": {
+        "navigationBarTitleText": "AI定制"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/mine/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/music/player",
+      "style": {
+        "navigationBarTitleText": "音乐播放器"
+      }
+    },
+    {
+      "path": "pages/workout/track",
+      "style": {
+        "navigationBarTitleText": "训练跟踪"
+      }
+    },
+    {
+      "path": "pages/records/index",
+      "style": {
+        "navigationBarTitleText": "训练记录"
+      }
+    },
+    {
+      "path": "pages/plans/index",
+      "style": {
+        "navigationBarTitleText": "我的计划"
+      }
+    },
+    {
+      "path": "pages/auth/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/admin/auth",
+      "style": {
+        "navigationBarTitleText": "管理员登录"
+      }
+    },
+    {
+      "path": "pages/admin/categories",
+      "style": {
+        "navigationBarTitleText": "分类管理"
+      }
+    },
+    {
+      "path": "pages/admin/exercises",
+      "style": {
+        "navigationBarTitleText": "动作管理"
+      }
+    },
+    {
+      "path": "pages/admin/users",
+      "style": {
+        "navigationBarTitleText": "用户管理"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "健身应用",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "static/icon/home.png",
+        "selectedIconPath": "static/icon/home-active.png"
+      },
+      {
+        "pagePath": "pages/plans/index",
+        "text": "计划",
+        "iconPath": "static/icon/plans.png",
+        "selectedIconPath": "static/icon/plans-active.png"
+      },
+      {
+        "pagePath": "pages/records/index",
+        "text": "记录",
+        "iconPath": "static/icon/records.png",
+        "selectedIconPath": "static/icon/records-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/icon/mine.png",
+        "selectedIconPath": "static/icon/mine-active.png"
+      }
+    ]
+  }
+}
