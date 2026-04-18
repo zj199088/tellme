@@ -80,23 +80,38 @@
    将 `dist` 目录中的文件部署到静态文件服务器（如 Nginx、Apache 等）
 
 ### 1.4 微信开发者工具打包
-1. **直接构建并导入**
-   由于当前项目使用的是 Vite 5，而微信小程序专用的 Vite 插件需要 Vite 6+，我们采用直接构建的方式：
+1. **安装微信小程序编译插件**
+   由于项目已更新到 Vite 6+，现在可以使用专门的微信小程序编译插件：
+   ```bash
+   npm install -D vite-plugin-wechat-mp
+   ```
 
-   **构建项目**
+2. **修改 Vite 配置**
+   创建或修改 `vite.config.ts` 文件：
+   ```typescript
+   import { defineConfig } from 'vite'
+   import vue from '@vitejs/plugin-vue'
+   import VitePluginWechatMp from 'vite-plugin-wechat-mp'
+
+   export default defineConfig({
+     plugins: [vue(), VitePluginWechatMp()]
+   })
+   ```
+
+3. **构建微信小程序版本**
    ```bash
    npm run build
    ```
 
-   **在微信开发者工具中打开**
+4. **在微信开发者工具中打开**
    - 打开微信开发者工具
    - 选择「小程序」→「导入项目」
    - 选择 `dist` 目录
    - 填写 AppID（如果没有可以使用测试号）
    - 点击「导入」
 
-2. **（可选）安装微信开发者工具自动打开插件**
-   如果你希望构建后自动打开微信开发者工具，可以安装这个兼容 Vite 5 的插件：
+5. **（可选）使用微信开发者工具自动打开插件**
+   如果你希望构建后自动打开微信开发者工具：
    ```bash
    npm install -D vite-plugin-open-wechat-devtools
    ```
@@ -105,41 +120,15 @@
    ```typescript
    import { defineConfig } from 'vite'
    import vue from '@vitejs/plugin-vue'
+   import VitePluginWechatMp from 'vite-plugin-wechat-mp'
    import openWechatDevtools from 'vite-plugin-open-wechat-devtools'
 
    export default defineConfig({
      plugins: [
        vue(),
+       VitePluginWechatMp(),
        openWechatDevtools({
          projectPath: './dist'
-       })
-     ]
-   })
-   ```
-
-3. **（可选）使用微信小程序 CI 插件**
-   如果你需要自动上传小程序，可以安装：
-   ```bash
-   npm install -D vite-miniprogram-ci miniprogram-ci
-   ```
-
-   **修改 Vite 配置**
-   ```typescript
-   import { defineConfig } from 'vite'
-   import vue from '@vitejs/plugin-vue'
-   import miniCI from 'vite-miniprogram-ci'
-
-   export default defineConfig({
-     plugins: [
-       vue(),
-       miniCI({
-         type: 'weapp',
-         action: 'preview',
-         weapp: {
-           appid: 'your-appid',
-           projectPath: './dist',
-           privateKeyPath: './private.key'
-         }
        })
      ]
    })
