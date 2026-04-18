@@ -1,5 +1,13 @@
 # 健身应用部署文档
 
+## 项目说明
+
+本项目包含两个前端版本：
+1. **Web 前端**：`/workspace/fitness-app-frontend` - 标准的 Vue 3 + Vite 项目，适用于 Web 浏览器
+2. **uni-app 前端**：`/workspace/fitness-app-uni` - 从 Web 前端迁移而来的 uni-app 项目，支持多端构建（Web、微信小程序、支付宝小程序、App 等）
+
+两个项目共用同一个后端服务，API 接口保持一致。
+
 ## 1. 前端部署
 
 ### 1.1 环境要求
@@ -79,7 +87,7 @@
 2. **部署静态文件**
    将 `dist` 目录中的文件部署到静态文件服务器（如 Nginx、Apache 等）
 
-### 1.4 微信开发者工具打包
+### 1.4 微信开发者工具打包（Web 版本）
 1. **安装微信小程序编译插件**
    由于项目已更新到 Vite 6+，现在可以使用专门的微信小程序编译插件：
    ```bash
@@ -94,7 +102,12 @@
    import VitePluginWechatMp from 'vite-plugin-wechat-mp'
 
    export default defineConfig({
-     plugins: [vue(), VitePluginWechatMp()]
+     plugins: [vue(), VitePluginWechatMp()],
+     build: {
+       outDir: 'dist',
+       emptyOutDir: true,
+       minify: true
+     }
    })
    ```
 
@@ -110,29 +123,16 @@
    - 填写 AppID（如果没有可以使用测试号）
    - 点击「导入」
 
-5. **（可选）使用微信开发者工具自动打开插件**
-   如果你希望构建后自动打开微信开发者工具：
-   ```bash
-   npm install -D vite-plugin-open-wechat-devtools
-   ```
+### 1.5 uni-app 微信小程序打包（推荐）
+使用 `/workspace/fitness-app-uni` 项目进行小程序打包，详细步骤请参考 **8.4 微信小程序打包** 章节。
 
-   **修改 Vite 配置**
-   ```typescript
-   import { defineConfig } from 'vite'
-   import vue from '@vitejs/plugin-vue'
-   import VitePluginWechatMp from 'vite-plugin-wechat-mp'
-   import openWechatDevtools from 'vite-plugin-open-wechat-devtools'
-
-   export default defineConfig({
-     plugins: [
-       vue(),
-       VitePluginWechatMp(),
-       openWechatDevtools({
-         projectPath: './dist'
-       })
-     ]
-   })
-   ```
+**快速参考**：
+```bash
+cd fitness-app-uni
+npm install
+npx uni build --platform mp-weixin -c vite.config.ts
+```
+构建产物将生成在 `dist/build/mp-weixin` 目录
 
 ## 2. 后端部署
 
@@ -379,16 +379,26 @@ wechat:
 
 ### 7.1 技术栈
 - **前端**：Vue 3, Vite, Vue Router, Axios
+- **uni-app 前端**：Vue 3, Vite, uni-app, Vue Router
 - **后端**：Spring Boot, MyBatis-Plus, MySQL, Redis
 - **构建工具**：Maven, npm
 
 ### 7.2 项目结构
-- **前端**：`/workspace/fitness-app-frontend`
+- **Web 前端**：`/workspace/fitness-app-frontend`
+- **uni-app 前端**：`/workspace/fitness-app-uni`
 - **后端**：`/workspace/fitness-app-backend`
 
 ### 7.3 关键文件
-- **前端**：
+- **Web 前端**：
   - `src/utils/api.ts`：API 配置
+  - `vite.config.ts`：构建配置
+  - `package.json`：依赖配置
+
+- **uni-app 前端**：
+  - `src/pages.json`：uni-app 页面路由配置
+  - `src/manifest.json`：uni-app 应用配置
+  - `src/utils/api.ts`：API 配置（已适配 uni.request）
+  - `src/router/index.ts`：路由配置
   - `vite.config.ts`：构建配置
   - `package.json`：依赖配置
 
@@ -396,3 +406,105 @@ wechat:
   - `src/main/resources/application.yml`：应用配置
   - `src/main/resources/init.sql`：数据库初始化脚本
   - `pom.xml`：Maven 配置
+
+---
+
+## 8. uni-app 项目部署
+
+### 8.1 uni-app 项目说明
+`/workspace/fitness-app-uni` 是从 `/workspace/fitness-app-frontend` 迁移而来的 uni-app 项目，支持多端构建。
+
+### 8.2 开发环境配置
+1. **安装依赖**
+   ```bash
+   cd fitness-app-uni
+   npm install
+   ```
+
+2. **启动开发服务器**
+   ```bash
+   npm run dev
+   ```
+   开发服务器默认运行在 `http://localhost:5173`
+
+### 8.3 uni-app 项目配置说明
+uni-app 项目使用以下关键配置文件：
+- `pages.json`：页面路由配置，类似于 uni-app 的路由配置
+- `manifest.json`：应用配置，包含应用名称、版本等信息
+- `api.ts`：已适配 uni.request 而不是 axios
+
+### 8.4 微信小程序打包
+1. **确保依赖已安装**
+   ```bash
+   cd fitness-app-uni
+   npm install
+   ```
+
+2. **构建微信小程序版本**
+   ```bash
+   npx uni build --platform mp-weixin -c vite.config.ts
+   ```
+   构建产物将生成在 `dist/build/mp-weixin` 目录
+
+3. **在微信开发者工具中导入**
+   - 打开微信开发者工具
+   - 选择「小程序」→「导入项目」
+   - 选择 `dist/build/mp-weixin` 目录
+   - 填写 AppID（如果没有可以使用测试号）
+   - 点击「导入」
+
+4. **上传和发布**
+   - 在微信开发者工具中点击「上传」
+   - 在微信公众平台中审核和发布
+
+### 8.5 其他平台构建
+uni-app 支持多种平台构建，使用以下命令：
+
+**H5 平台**：
+```bash
+npx uni build --platform h5 -c vite.config.ts
+```
+
+**支付宝小程序**：
+```bash
+npx uni build --platform mp-alipay -c vite.config.ts
+```
+
+**百度小程序**：
+```bash
+npx uni build --platform mp-baidu -c vite.config.ts
+```
+
+**QQ 小程序**：
+```bash
+npx uni build --platform mp-qq -c vite.config.ts
+```
+
+**字节跳动小程序**：
+```bash
+npx uni build --platform mp-toutiao -c vite.config.ts
+```
+
+**App 平台**：
+```bash
+npx uni build --platform app -c vite.config.ts
+```
+
+### 8.6 uni-app 项目验证
+1. **开发环境**：访问 `http://localhost:5173`，检查页面是否正常加载
+2. **生产环境**：构建后访问部署的静态文件服务器
+3. **微信小程序**：在微信开发者工具中预览，检查功能是否正常
+4. **其他平台**：根据需要在对应平台进行测试验证
+
+### 8.7 uni-app 常见问题
+- **问题**：API 调用失败
+  **解决方案**：检查 `api.ts` 中的 uni.request 配置，确保 API 地址正确
+
+- **问题**：页面路由不工作
+  **解决方案**：检查 `pages.json` 和 `router/index.ts` 中的路由配置是否一致
+
+- **问题**：样式显示异常
+  **解决方案**：uni-app 支持大部分 CSS 特性，但部分平台特定的样式需要调整
+
+- **问题**：小程序构建失败
+  **解决方案**：检查 vite 版本和 @dcloudio/vite-plugin-uni 版本是否兼容
