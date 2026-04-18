@@ -49,18 +49,12 @@ public class AuthController {
                 log.info("通过code获取openId成功: openId={}", openId);
             } catch (Exception e) {
                 log.error("通过code获取openId失败: {}", e.getMessage());
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "微信登录失败: " + e.getMessage());
-                return Result.error(400, "微信登录失败");
+                return Result.error(400, "微信登录失败: " + e.getMessage());
             }
         }
         
         if (openId == null || openId.isEmpty()) {
             log.error("openId不能为空");
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "openId不能为空");
             return Result.error(400, "openId不能为空");
         }
         
