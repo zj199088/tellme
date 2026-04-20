@@ -342,6 +342,21 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 定义登录页面所需的CSS变量 */
+:root {
+  --bg-primary: #0a0a0f;
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(0, 245, 255, 0.2);
+  --gradient-primary: linear-gradient(90deg, #00f5ff, #8b5cf6);
+  --neon-red: #ff4d4f;
+  --neon-green: #4caf50;
+  --neon-cyan: #00f5ff;
+  --neon-purple: #8b5cf6;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -496,6 +511,8 @@ onMounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5), 0 0 20px rgba(0, 245, 255, 0.3);
 }
 
 .neon-glow {
@@ -578,6 +595,7 @@ onMounted(() => {
   letter-spacing: 1px;
   font-size: 14px;
   transition: color 0.3s ease;
+  text-shadow: 0 0 5px rgba(0, 245, 255, 0.3);
 }
 
 .form-group.has-error .form-label {
@@ -614,6 +632,7 @@ onMounted(() => {
   color: var(--text-primary);
   transition: all 0.3s ease;
   box-sizing: border-box;
+  outline: none;
 }
 
 .form-input::placeholder {
@@ -657,17 +676,20 @@ onMounted(() => {
   font-size: 18px;
   cursor: pointer;
   z-index: 2;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease;
   padding: 4px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
+  text-shadow: 0 0 5px rgba(0, 245, 255, 0.3);
 }
 
 .password-toggle:hover {
   transform: scale(1.1);
   background: rgba(0, 245, 255, 0.1);
+  color: var(--neon-cyan);
 }
 
 .field-error {
@@ -684,6 +706,8 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 24px;
   font-size: 14px;
+  color: var(--text-secondary);
+  text-shadow: 0 0 5px rgba(0, 245, 255, 0.3);
 }
 
 .remember-me {
@@ -766,6 +790,10 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  background: var(--glass-bg);
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
 }
 
 .login-btn:disabled {
@@ -819,6 +847,7 @@ onMounted(() => {
   border-radius: 20px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 32px 0 rgba(0, 245, 255, 0.1);
 }
 
 .glass-card::before {
