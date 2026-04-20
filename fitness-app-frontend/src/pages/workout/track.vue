@@ -24,6 +24,16 @@
         </button>
       </div>
       
+      <div v-else-if="noPlan" class="no-plan animate-in">
+        <div class="no-plan-icon">📋</div>
+        <h3 class="no-plan-title">还没有创建健身计划</h3>
+        <p class="no-plan-description">创建一个健身计划开始您的训练之旅吧！</p>
+        <button class="create-plan-button glow-button" @click="router.push('/pages/custom/create')">
+          <span>创建计划</span>
+          <span class="btn-glow"></span>
+        </button>
+      </div>
+      
       <div v-else>
         <div class="workout-info" :class="['workout-info', 'animate-in', 'glow-card']">
           <h2 class="section-title">
@@ -145,58 +155,74 @@ const formatDate = (date: Date): string => {
   return `${year}年${month}月${day}日`;
 };
 
+const noPlan = ref(false);
+
 const loadWorkoutData = async () => {
   try {
     loading.value = true;
     error.value = '';
+    noPlan.value = false;
     
-    const id = route.query.planId ? parseInt(route.query.planId as string) : 1;
-    planId.value = id;
-    
-    const todayResponse = await api.workout.getToday(undefined, id);
-    if (todayResponse.code === 200 && todayResponse.data) {
-      schedule.value = todayResponse.data.schedule;
-      const records = todayResponse.data.records || [];
-      const record = todayResponse.data.record;
+    // 首先获取用户的所有计划
+    const plansResponse = await api.plans.getList();
+    if (plansResponse.code === 200 && plansResponse.data) {
+      const userPlans = plansResponse.data;
       
-      if (todayResponse.data.exercises) {
-        exercises.value = todayResponse.data.exercises.map(ex => {
-          let completedSets = new Array(ex.sets).fill(false);
-          
-          // 优先查找当前动作对应的训练记录
-          let exerciseRecord = records.find((r: any) => r.scheduleExerciseId === ex.id);
-          
-          // 如果没有找到对应的训练记录，使用单个 record（保持向后兼容）
-          if (!exerciseRecord && record && record.scheduleExerciseId === ex.id) {
-            exerciseRecord = record;
-          }
-          
-          // 如果有训练记录，根据 setsCompleted 字段设置勾选状态
-          if (exerciseRecord && exerciseRecord.setsCompleted) {
-            try {
-              const setsCompletedArray = JSON.parse(exerciseRecord.setsCompleted);
-              if (Array.isArray(setsCompletedArray)) {
-                completedSets = setsCompletedArray.map((completed: number) => completed === 1);
-              }
-            } catch (e) {
-              console.error('解析 setsCompleted 失败:', e);
+      // 检查用户是否有计划
+      if (userPlans.length === 0) {
+        noPlan.value = true;
+        loading.value = false;
+        return;
+      }
+      
+      // 获取 planId 参数或使用第一个计划
+      const id = route.query.planId ? parseInt(route.query.planId as string) : userPlans[0].id;
+      planId.value = id;
+      
+      const todayResponse = await api.workout.getToday(undefined, id);
+      if (todayResponse.code === 200 && todayResponse.data) {
+        schedule.value = todayResponse.data.schedule;
+        const records = todayResponse.data.records || [];
+        const record = todayResponse.data.record;
+        
+        if (todayResponse.data.exercises) {
+          exercises.value = todayResponse.data.exercises.map(ex => {
+            let completedSets = new Array(ex.sets).fill(false);
+            
+            // 优先查找当前动作对应的训练记录
+            let exerciseRecord = records.find((r: any) => r.scheduleExerciseId === ex.id);
+            
+            // 如果没有找到对应的训练记录，使用单个 record（保持向后兼容）
+            if (!exerciseRecord && record && record.scheduleExerciseId === ex.id) {
+              exerciseRecord = record;
             }
-          }
-          
-          return {
-            ...ex,
-            completedSets
-          };
-        });
-      }
-      
-      const plansResponse = await api.plans.getList();
-      if (plansResponse.code === 200 && plansResponse.data) {
-        const plan = plansResponse.data.find(p => p.id === id);
+            
+            // 如果有训练记录，根据 setsCompleted 字段设置勾选状态
+            if (exerciseRecord && exerciseRecord.setsCompleted) {
+              try {
+                const setsCompletedArray = JSON.parse(exerciseRecord.setsCompleted);
+                if (Array.isArray(setsCompletedArray)) {
+                  completedSets = setsCompletedArray.map((completed: number) => completed === 1);
+                }
+              } catch (e) {
+                console.error('解析 setsCompleted 失败:', e);
+              }
+            }
+            
+            return {
+              ...ex,
+              completedSets
+            };
+          });
+        }
+        
+        const plan = userPlans.find(p => p.id === id);
         planName.value = plan?.name || '我的训练计划';
+        
+        dayNumber.value = schedule.value?.dayOfWeek || 1;
       }
-      
-      dayNumber.value = schedule.value?.dayOfWeek || 1;
+    } else {
+      noPlan.value = true;
     }
   } catch (err) {
     console.error('加载训练数据失败:', err);
@@ -352,6 +378,65 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.no-plan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 20px;
+  text-align: center;
+  background: var(--bg-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 20px;
+  margin: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 245, 255, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.no-plan-icon {
+  font-size: 80px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.no-plan-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin: 0;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+}
+
+.no-plan-description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 300px;
+}
+
+.create-plan-button {
+  padding: 16px 40px;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-cyan);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.8);
+}
+
+.create-plan-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.8), 0 0 60px rgba(0, 245, 255, 0.5);
 }
 
 .duration-info {
