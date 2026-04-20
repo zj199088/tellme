@@ -103,8 +103,9 @@ mysql -u root -p"$MYSQL_ROOT_PASSWORD" fitness_app < /workspace/fitness-app-back
 # 6. 配置后端服务
 echo "\n6. 配置后端服务..."
 
-# 创建后端服务目录
+# 创建后端服务目录和日志目录
 mkdir -p /opt/fitness-app/backend
+mkdir -p /opt/fitness-app/logs
 
 # 复制jar文件到服务目录
 cp /workspace/fitness-app-backend/target/fitness-app-backend-*.jar /opt/fitness-app/backend/fitness-app-backend.jar
