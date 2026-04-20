@@ -344,17 +344,17 @@ onMounted(() => {
 <style scoped>
 /* 定义登录页面所需的CSS变量 */
 :root {
-  --bg-primary: #0a0a0f;
-  --glass-bg: rgba(15, 23, 42, 0.8);
-  --glass-border: rgba(0, 245, 255, 0.2);
+  --bg-primary: #12121e;
+  --glass-bg: rgba(20, 30, 50, 0.9);
+  --glass-border: rgba(0, 245, 255, 0.4);
   --gradient-primary: linear-gradient(90deg, #00f5ff, #8b5cf6);
   --neon-red: #ff4d4f;
   --neon-green: #4caf50;
   --neon-cyan: #00f5ff;
   --neon-purple: #8b5cf6;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-muted: #cbd5e1;
 }
 
 @keyframes fadeInUp {
@@ -507,12 +507,10 @@ onMounted(() => {
   margin-bottom: 8px;
   position: relative;
   z-index: 5;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   color: #ffffff;
-  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5), 0 0 20px rgba(0, 245, 255, 0.3);
+  text-shadow: 0 0 15px rgba(0, 245, 255, 0.8), 0 0 30px rgba(0, 245, 255, 0.5);
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 2px;
 }
 
 .neon-glow {
@@ -588,14 +586,14 @@ onMounted(() => {
 
 .form-label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 14px;
   transition: color 0.3s ease;
-  text-shadow: 0 0 5px rgba(0, 245, 255, 0.3);
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
 }
 
 .form-group.has-error .form-label {
@@ -624,15 +622,16 @@ onMounted(() => {
 
 .form-input {
   width: 100%;
-  padding: 14px 18px 14px 48px;
-  border: 1px solid var(--glass-border);
+  padding: 16px 20px 16px 50px;
+  border: 2px solid var(--glass-border);
   border-radius: 12px;
   font-size: 16px;
-  background: var(--glass-bg);
+  background: rgba(20, 30, 50, 0.8);
   color: var(--text-primary);
   transition: all 0.3s ease;
   box-sizing: border-box;
   outline: none;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);
 }
 
 .form-input::placeholder {
@@ -706,8 +705,8 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 24px;
   font-size: 14px;
-  color: var(--text-secondary);
-  text-shadow: 0 0 5px rgba(0, 245, 255, 0.3);
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
 }
 
 .remember-me {
@@ -778,10 +777,10 @@ onMounted(() => {
 
 .login-btn {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: bold;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -790,10 +789,11 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--glass-bg);
-  color: var(--neon-cyan);
-  border: 1px solid var(--neon-cyan);
-  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+  background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(139, 92, 246, 0.2));
+  color: #ffffff;
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(0, 245, 255, 0.3);
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.8);
 }
 
 .login-btn:disabled {
@@ -840,14 +840,14 @@ onMounted(() => {
 }
 
 .glass-card {
-  background: var(--glass-bg);
+  background: rgba(25, 35, 60, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  border: 2px solid rgba(0, 245, 255, 0.5);
   border-radius: 20px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px 0 rgba(0, 245, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 245, 255, 0.2), 0 0 50px rgba(0, 245, 255, 0.1);
 }
 
 .glass-card::before {
