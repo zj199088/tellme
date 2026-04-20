@@ -726,37 +726,40 @@ onMounted(() => {
 }
 
 .checkmark {
-  height: 16px;
-  width: 16px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  height: 20px;
+  width: 20px;
+  background: rgba(20, 30, 50, 0.8);
+  border: 2px solid var(--neon-cyan);
   border-radius: 4px;
   position: relative;
   transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
 }
 
 .remember-me:hover input ~ .checkmark {
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.5);
+  transform: scale(1.1);
 }
 
 .remember-me input:checked ~ .checkmark {
   background: var(--neon-cyan);
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.6);
 }
 
 .checkmark:after {
   content: "";
   position: absolute;
   display: none;
-  left: 5px;
-  top: 2px;
-  width: 4px;
-  height: 8px;
-  border: solid var(--bg-primary);
-  border-width: 0 2px 2px 0;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid #12121e;
+  border-width: 0 3px 3px 0;
   transform: rotate(45deg);
+  font-weight: bold;
 }
 
 .remember-me input:checked ~ .checkmark:after {
